@@ -25,7 +25,7 @@ scripts:
   - /js/smooth-scroll.min.js
 
 hljs:
-  enable: true # true to enable the plugin
+  enable: false # true to enable the plugin
   line_number: false # add line_number in frontend or backend (not recommend, have bugs in special hexo version)
   trim_indent: backend # trim the indent of code block to prettify output. backend or front-end (recommend)
   copy_code: true # show copy code in caption.
