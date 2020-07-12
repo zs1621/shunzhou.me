@@ -1,5 +1,5 @@
 ---
-title: 2020-02-03-hexo+aliyunOss搭建静态博客(MigrateFromOctopress)
+title: hexo+aliyunOss搭建静态博客(MigrateFromOctopress)
 date: 2020-02-03 07:09:10
 tags: [hexo,aliyun,oss,静态博客]
 ---

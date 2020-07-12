@@ -35,3 +35,13 @@ hljs:
     copy: Copy Code
 
 # atom: atom.xml # website feed.
+
+# Gitment
+# Introduction: https://imsun.net/posts/gitment-introduction/
+gitment:
+  enable: true
+  githubID: zs1621
+  repo: dadoudou.me
+  ClientID: 01408711d79d72f03315
+  ClientSecret: 238abe81d923c8392d36e3cdb14d29961f1870b2
+  lazy: true

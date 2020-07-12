@@ -12,9 +12,9 @@
     "version": "4.2.0"
   },
   "dependencies": {
-    "ali-oss": "^6.5.1",
+    "ali-oss": "^6.7.0",
     "hexo": "^4.0.0",
-    "hexo-deployer-aliyun": "zs1621/hexo-deployer-aliyun",
+    "hexo-deployer-aliyun": "github:zs1621/hexo-deployer-aliyun",
     "hexo-deployer-git": "^2.1.0",
     "hexo-generator-archive": "^1.0.0",
     "hexo-generator-category": "^1.0.0",
