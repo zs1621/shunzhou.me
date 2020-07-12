@@ -8,21 +8,10 @@
     </div>
 </article>
 
-<div id="gitment_container"></div>
-<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
-<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
-<script>
-var gitment = new Gitment({
-    id: '<%= page.date %>',
-    owner: '<%= theme.gitment.githubID %>',
-    repo: '<%= theme.gitment.repo %>',
-    oauth: {
-        client_id: '<%= theme.gitment.ClientID %>',
-        client_secret: '<%= theme.gitment.ClientSecret %>',
-    },
-})
-gitment.render('gitment_container')
-</script>
+<div>
+    <%-partial('partials/content-view', { post: page, isPage: false}) %>
+    <%-partial('partials/comment')%>
+</div>
 
 <div id="paginator">
     <%- paginator() %>

@@ -38,10 +38,15 @@ hljs:
 
 # Gitment
 # Introduction: https://imsun.net/posts/gitment-introduction/
-gitment:
-  enable: true
-  githubID: zs1621
+
+
+gitalk:
+  enable: post
+  on: true
+  owner: zs1621
   repo: dadoudou.me
-  ClientID: 01408711d79d72f03315
-  ClientSecret: 238abe81d923c8392d36e3cdb14d29961f1870b2
-  lazy: true
+  admin: ['zs1621']
+  accessToken: 997eb7f03bafcfef0d6b3030543c5a6e903fb771
+  clientID: 01408711d79d72f03315
+  clientSecret: 238abe81d923c8392d36e3cdb14d29961f1870b2
+  labels: ['Gitalk']
