@@ -5,11 +5,12 @@ language: zh-CN
 menu:
   Home: /index.html
   Archives: /archives/index.html
+  Reading: /reading/index.html
   About: /about/index.html
 
 site:
   # banner: /img/banner.jpg # banner map of website. (please annotation this line if you don't need it)
-  avatar: https://www.gravatar.com/avatar/7a585313ed855e8d652cbb3154a6056e?s=300&d=mm&r=g # head portrait.
+  avatar: /images/head_pic.jpg # head portrait.
   #icp: xxxxxx # E-ICP prepared No.
 
 # stylesheets loaded in the <head>
