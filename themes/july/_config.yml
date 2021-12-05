@@ -45,7 +45,7 @@ gitalk:
   enable: post
   on: true
   owner: zs1621
-  repo: dadoudou.me
+  repo: shunzhou.me
   admin: ['zs1621']
   accessToken: 997eb7f03bafcfef0d6b3030543c5a6e903fb771
   clientID: 01408711d79d72f03315
