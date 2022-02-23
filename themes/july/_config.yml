@@ -49,5 +49,5 @@ gitalk:
   admin: ['zs1621']
   accessToken: 997eb7f03bafcfef0d6b3030543c5a6e903fb771
   clientID: 01408711d79d72f03315
-  clientSecret: 238abe81d923c8392d36e3cdb14d29961f1870b2
+  clientSecret: 0b1e26de8a8688910ce255ee16fae48fed927aa4
   labels: ['Gitalk']
