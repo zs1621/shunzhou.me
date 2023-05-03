@@ -5,7 +5,7 @@ language: zh-CN
 menu:
   Home: /index.html
   Archives: /archives/index.html
-  Reading: /reading/index.html
+  Weekly: /weekly/index.html
   About: /about/index.html
 
 site:
