@@ -11,13 +11,13 @@
     <meta name="description" content="目录如下  一些基本概念 知识库为什么需要大模型 使用Llamaindex连接大模型和本地知识库 需要处理的问题  一些基本概念 embedding:   嵌入是一种向量表示，用于保留数据（例如一些文本）的内容和&#x2F;或意义的维度。在某种程度上相似的数据块往往具有更接近的嵌入向量，而不相关的数据则相距较远。  tokens: 大模型处理数据的最小单位，一般中文1个字代表一个token, 英文的话一般一">
 <meta property="og:type" content="article">
 <meta property="og:title" content="LLM与本地知识库">
-<meta property="og:url" content="https://shunzhou.me/2023/07/10/2023-07-10-LLM%E4%B8%8E%E6%9C%AC%E5%9C%B0%E7%9F%A5%E8%AF%86%E5%BA%93/">
+<meta property="og:url" content="https://shunzhou.me/2023/07/10/LLM%E4%B8%8E%E6%9C%AC%E5%9C%B0%E7%9F%A5%E8%AF%86%E5%BA%93/">
 <meta property="og:site_name" content="舜子">
 <meta property="og:description" content="目录如下  一些基本概念 知识库为什么需要大模型 使用Llamaindex连接大模型和本地知识库 需要处理的问题  一些基本概念 embedding:   嵌入是一种向量表示，用于保留数据（例如一些文本）的内容和&#x2F;或意义的维度。在某种程度上相似的数据块往往具有更接近的嵌入向量，而不相关的数据则相距较远。  tokens: 大模型处理数据的最小单位，一般中文1个字代表一个token, 英文的话一般一">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shunzhou.me/img/typro/image-20230625110946455.png">
 <meta property="article:published_time" content="2023-07-09T22:01:11.000Z">
-<meta property="article:modified_time" content="2024-02-20T00:49:26.689Z">
+<meta property="article:modified_time" content="2024-03-10T21:12:38.443Z">
 <meta property="article:author" content="zs1621">
 <meta property="article:tag" content="知识">
 <meta property="article:tag" content="LLM">
@@ -131,13 +131,54 @@
 </ul>
 <h4 id="showcode"><a href="#showcode" class="headerlink" title="showcode"></a>showcode</h4><ul>
 <li><p>本地文档如下-markdown文件</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">### 运维常用联系人</span><br><span class="line">svn负责人:   xxx1</span><br><span class="line">gitlab负责人:  xxx2</span><br><span class="line">sonarqube负责人: xxx3</span><br></pre></td></tr></table></figure>
-</li>
+<pre><code>### 运维常用联系人
+svn负责人:   xxx1
+gitlab负责人:  xxx2
+sonarqube负责人: xxx3</code></pre></li>
 <li><p>代码如下</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">import os</span><br><span class="line"></span><br><span class="line">from langchain.llms import OpenAIChat</span><br><span class="line"></span><br><span class="line"># 这一步可以不需要，可以把OPENAI_API_KEY 放在环境变量里</span><br><span class="line"># os.environ[&quot;OPENAI_API_KEY&quot;] = &#x27;&#x27;</span><br><span class="line"></span><br><span class="line">from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, StorageContext, load_index_from_storage, \</span><br><span class="line">    LLMPredictor, ServiceContext</span><br><span class="line"></span><br><span class="line">if __name__ == &quot;__main__&quot;:</span><br><span class="line">    llm_predictor = LLMPredictor(llm=OpenAIChat(model_name=&quot;gpt-3.5-turbo-16k-0613&quot;, temperature=0.6, verbose=True))</span><br><span class="line">    service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)</span><br><span class="line">    if os.path.exists(&quot;./storage&quot;):</span><br><span class="line">        # rebuild storage context</span><br><span class="line">        storage_context = StorageContext.from_defaults(persist_dir=&#x27;./storage&#x27;)</span><br><span class="line">        # load index</span><br><span class="line">        index = load_index_from_storage(storage_context, service_context=service_context)</span><br><span class="line">    else:</span><br><span class="line">        # 这步会解析documents目录下的文件。 把文件放在documents目录下(支持txt,md,docx,pdf..)</span><br><span class="line">        documents = SimpleDirectoryReader(&#x27;documents&#x27;).load_data()</span><br><span class="line">        # 这里会把解析后的文本内容，到openai获取embeddings数据(需要访问openai)</span><br><span class="line">        index = GPTVectorStoreIndex.from_documents(documents, service_context=service_context)</span><br><span class="line">        # 解析文件后的数据存储到 storage目录下, 下次就不要再去解析</span><br><span class="line">        index.storage_context.persist()</span><br><span class="line"></span><br><span class="line">    # 开始查询</span><br><span class="line">    query_engine = index.as_query_engine()</span><br><span class="line">    # (需要访问openai)</span><br><span class="line">    res = query_engine.query(&quot;&lt;svn有问题需要找谁?&gt;&quot;)</span><br><span class="line">    print(res)</span><br><span class="line">    #回复是:  </span><br><span class="line">    # svn有问题需要找artifactory/svn运维人员xxx2</span><br></pre></td></tr></table></figure>
-</li>
+<pre><code>import os
+
+from langchain.llms import OpenAIChat
+
+# 这一步可以不需要，可以把OPENAI_API_KEY 放在环境变量里
+# os.environ[&quot;OPENAI_API_KEY&quot;] = &#39;&#39;
+
+from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, StorageContext, load_index_from_storage, \
+    LLMPredictor, ServiceContext
+
+if __name__ == &quot;__main__&quot;:
+    llm_predictor = LLMPredictor(llm=OpenAIChat(model_name=&quot;gpt-3.5-turbo-16k-0613&quot;, temperature=0.6, verbose=True))
+    service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
+    if os.path.exists(&quot;./storage&quot;):
+        # rebuild storage context
+        storage_context = StorageContext.from_defaults(persist_dir=&#39;./storage&#39;)
+        # load index
+        index = load_index_from_storage(storage_context, service_context=service_context)
+    else:
+        # 这步会解析documents目录下的文件。 把文件放在documents目录下(支持txt,md,docx,pdf..)
+        documents = SimpleDirectoryReader(&#39;documents&#39;).load_data()
+        # 这里会把解析后的文本内容，到openai获取embeddings数据(需要访问openai)
+        index = GPTVectorStoreIndex.from_documents(documents, service_context=service_context)
+        # 解析文件后的数据存储到 storage目录下, 下次就不要再去解析
+        index.storage_context.persist()
+
+    # 开始查询
+    query_engine = index.as_query_engine()
+    # (需要访问openai)
+    res = query_engine.query(&quot;&lt;svn有问题需要找谁?&gt;&quot;)
+    print(res)
+    #回复是:  
+    # svn有问题需要找artifactory/svn运维人员xxx2</code></pre></li>
 <li><p>整个代码最终目标是产生prompt</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Context information is below.</span><br><span class="line">---------------------</span><br><span class="line">运维过程常用联系人</span><br><span class="line"></span><br><span class="line">gitee/gitlab运维:  xxx1</span><br><span class="line"></span><br><span class="line">artifactory/svn运维:  xxx2</span><br><span class="line">---------------------</span><br><span class="line">Given the context information and not prior knowledge, answer the question: &lt;svn有问题需要找谁?&gt;</span><br></pre></td></tr></table></figure>
+<pre><code class="Bash">Context information is below.
+---------------------
+运维过程常用联系人
+
+gitee/gitlab运维:  xxx1
+
+artifactory/svn运维:  xxx2
+---------------------
+Given the context information and not prior knowledge, answer the question: &lt;svn有问题需要找谁?&gt;</code></pre>
 </li>
 <li><p>答复</p>
 <blockquote>
