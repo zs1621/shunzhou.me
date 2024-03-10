@@ -1,1029 +1,177 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  
-
-  
-  <title>Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://example.com/page/4/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:locale" content="en_US">
-<meta property="article:author" content="John Doe">
+    <meta charset="UTF-8">
+    
+    <title>
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+<meta property="og:title" content="舜子">
+<meta property="og:url" content="https://shunzhou.me/page/4/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="zs1621">
 <meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
 <meta name="generator" content="Hexo 6.3.0"></head>
-
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
         
-          <a class="main-nav-link" href="/">Home</a>
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
         
-          <a class="main-nav-link" href="/archives">Archives</a>
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
         
-      </nav>
-      <nav id="sub-nav">
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
     </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main">
-  
-    <article id="post-2014-05-21-node-thunkify-code-reading" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/05/21/2014-05-21-node-thunkify-code-reading/" class="article-date">
-  <time datetime="2014-05-21T04:02:00.000Z" itemprop="datePublished">2014-05-21</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
-  </div>
+</div>
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+<div id="content-outer" class="container">
+    <div id="content-inner">
         
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/05/21/2014-05-21-node-thunkify-code-reading/">node-thunkify Code Reading</a>
-    </h1>
-  
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##<a target="_blank" rel="noopener" href="https://github.com/visionmedia/node-thunkify">thunkify</a></p>
-<p>##code</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">function thunkify(fn) &#123;</span><br><span class="line">    assert(&#x27;function&#x27; == typeof fn, &#x27;function required&#x27;);    </span><br><span class="line"></span><br><span class="line">    return function () &#123;</span><br><span class="line">        var args = slice.call(arguments);    </span><br><span class="line">        var ctx = this;</span><br><span class="line">        return function (done) &#123;   // done 是回调函数</span><br><span class="line">            var called;</span><br><span class="line">            args.push(function() &#123;</span><br><span class="line">                if (called) return;</span><br><span class="line">                called = true;    </span><br><span class="line">                done.apply(null, arguments); </span><br><span class="line">            &#125;); // 将回调处理加入参数列表</span><br><span class="line"></span><br><span class="line">            try &#123;</span><br><span class="line">                fn.apply(ctx, args);   // 函数处理 </span><br><span class="line">            &#125; catch (err) &#123;</span><br><span class="line">                done(err);   // 异常获取并用回调处理 </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
-
-<p>##例子</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">var thunkify = require(&#x27;thunkify&#x27;);</span><br><span class="line">var fs = require(&#x27;fs&#x27;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">var read = thunkify(fs.readFile);</span><br><span class="line"></span><br><span class="line">read(&#x27;package.json&#x27;, &#x27;utf8&#x27;)(function(err, str)&#123;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2014/05/21/2014-05-21-node-thunkify-code-reading/" data-id="clsukmp3x000lek206m891z7w" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2014-01-17-koa-dot-js-code-reading" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/01/17/2014-01-17-koa-dot-js-code-reading/" class="article-date">
-  <time datetime="2014-01-17T07:23:00.000Z" itemprop="datePublished">2014-01-17</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/01/17/2014-01-17-koa-dot-js-code-reading/">Koa.js Code Reading</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>TBC 继续挖坑待填…</p>
-<p>##<a target="_blank" rel="noopener" href="https://github.com/koajs/koa">Koa</a></p>
-<p>源码简况</p>
-<ul>
-<li>version： 0.8.2</li>
-<li>用到的库<ul>
-<li>escape-html: =1.0.1</li>
-<li>statuses: =1.0.1</li>
-<li>accepts: 1.0.0</li>
-<li>type-is: 1.1.0</li>
-<li>set-type: 1.0.0</li>
-<li>mime-types: 1.0.0</li>
-<li><a target="_blank" rel="noopener" href="https://zs1621.github.io/blog/2014/07/14/expressjs-slash-finished-code-reading/">finished: 1.2.0</a></li>
-<li><a target="_blank" rel="noopener" href="https://zs1621.github.io/blog/2014/11/27/co-coding-reading/">co: 3.0.2</a></li>
-<li>debug</li>
-<li>fresh: 0.2.1</li>
-<li><a target="_blank" rel="noopener" href="https://zs1621.github.io/blog/2014/05/28/koa-compose-code-reading/">koa-compose: 2.2.0</a></li>
-<li>koa-is-json: 1.0.0</li>
-<li>cookies: 0.4.0</li>
-<li>delegates: 0.0.3</li>
-<li><a target="_blank" rel="noopener" href="https://github.com/visionmedia/node-delegates/blob/master/index.js">delegates</a>: 0.0.3 -已读 -13/5</li>
-<li>dethroy: 1.0.0</li>
-<li>vary: 0.1.0</li>
-<li>error-inject: 1.0.0</li>
-<li>parseurl: 1.2.0</li>
-<li><a target="_blank" rel="noopener" href="https://github.com/visionmedia/node-only">only</a>: 0.0.2  -已读 -9/5</li>
-</ul>
-</li>
-<li>运行条件: node 版本大于0.11.9</li>
-</ul>
-<p>##<strong>从入口说起</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">var koa = require(&#x27;koa&#x27;);</span><br><span class="line">var app = koa();</span><br><span class="line"></span><br><span class="line">app.use(function *()&#123;</span><br><span class="line">    this.body = &#x27;Hello World&#x27;;    </span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.listen(3000);</span><br></pre></td></tr></table></figure>
-
-
-<p>上面是一个最简单的服务,输出<code>Hello World</code>; 我们用到两个koa的api</p>
-<ul>
-<li>app.use()</li>
-<li>app.listen();</li>
-</ul>
-<p>下面就先从app.listen() 开始</p>
-<p>看 <a target="_blank" rel="noopener" href="https://github.com/koajs/koa/blob/master/lib/application.js">application.js</a> </p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">app.listen = function () &#123;</span><br><span class="line">    var server = http.createServer(this.callback()) ;  </span><br><span class="line">    return server.listen.apply(server, arguments);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>http.createServer([requestListener])<br> returns a new web server object</p>
-</blockquote>
-<blockquote>
-<p><code>requestListener</code> is a function which is automatically added to the <code>&#39;request&#39;</code> 事件</p>
-</blockquote>
-<p>由代码可以知道 this.callback() 就是一个 <code>requestListener</code>;</p>
-<p>来到<code>app.callback</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">app.callback = function () &#123;</span><br><span class="line">    var mw = [respond].concat(this.middleware);   // 实际上 respond 就是最后一个需要执行的中间件， 负责返回数据的 </span><br><span class="line">    var gen = compose(mw); </span><br><span class="line">    var fn = co(gen);  // co 和 compose 就是将一个个middle，按序执行的操作, 此时middle还没有运行</span><br><span class="line">    var self = this;</span><br><span class="line">    </span><br><span class="line">    if (!this.listeners(&#x27;error&#x27;).length) this.on(&#x27;error&#x27;, this.onerror);</span><br><span class="line">    </span><br><span class="line">    return function (req, res) &#123;</span><br><span class="line">        res.statusCode = 404;    </span><br><span class="line">        var ctx = self.createContext(req, res);</span><br><span class="line">        finished(ctx, ctx.onerror);</span><br><span class="line">        fn.call(ctx, ctx.onerror); // 这步运行了说明服务器接收到了请求， 然后一步步的运行middle 和 请求业务处理</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>上面的代码基本上就解释了整个请求到回复的流程</p>
-<p>附张图, 一图胜千言</p>
-<p><img src="https://raw.githubusercontent.com/koajs/koa/master/docs/middleware.gif" alt="gif"></p>
-<p>下面分解开来</p>
-<ul>
-<li><code>createContext(req, res)</code></li>
-<li><code>finished(ctx, ctx.onerror)</code></li>
-<li><code>fn.call(ctx, ctx.onerror)</code></li>
-</ul>
-<p>###app.createContext(req, res)</p>
-<ul>
-<li>参数 req,res</li>
-<li>返回内容:context, context具体内容如下<ul>
-<li>context: <code>Object.create(this.context)</code></li>
-<li>context.app: <code>request.app=response.app=</code></li>
-<li>context.req: <code>request.req = response.app = req</code></li>
-<li>context.res: <code>request.res = response.res = res</code></li>
-<li>context.ctx: <code>response.ctx = context</code></li>
-<li>context.onerror: <code>context.onerror.bind(context)</code> <a target="_blank" rel="noopener" href="https://github.com/koajs/koa/blob/master/lib/context.js#l98">this.context</a></li>
-<li>context.originalUrl: <code>request.originalUrl = req.url</code></li>
-<li>context.cookie: <code>new Cookies(req, res, this.keys)</code> -&gt; <a target="_blank" rel="noopener" href="https://github.com/expressjs/cookies">cookie</a> TODO</li>
-<li>context.accept: <code>request.accept = accepts(app)</code> -&gt; <a target="_blank" rel="noopener" href="https://github.com/jshttp/accepts">accepts</a></li>
-</ul>
-</li>
-</ul>
-<p>###finished(ctx, ctx.onerror)</p>
-<p>TBC</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2014/01/17/2014-01-17-koa-dot-js-code-reading/" data-id="clsukmp3t000jek201yl9cwtr" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2013-12-27-underscore-dot-js-code-reading" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/12/27/2013-12-27-underscore-dot-js-code-reading/" class="article-date">
-  <time datetime="2013-12-27T13:14:00.000Z" itemprop="datePublished">2013-12-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/27/2013-12-27-underscore-dot-js-code-reading/">underscore.js Code Reading</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>###<a target="_blank" rel="noopener" href="https://github.com/jashkenas/underscore/blob/master/underscore.js">underscore</a></p>
-<p>挖坑待续</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2013/12/27/2013-12-27-underscore-dot-js-code-reading/" data-id="clsukmp3z000sek206z93abvt" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2013-12-18-lazy-dot-js-code-reading" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/12/18/2013-12-18-lazy-dot-js-code-reading/" class="article-date">
-  <time datetime="2013-12-18T00:58:00.000Z" itemprop="datePublished">2013-12-18</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/18/2013-12-18-lazy-dot-js-code-reading/">Lazy.js code Reading</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>###<a target="_blank" rel="noopener" href="https://github.com/dtao/lazy.js">Lazy.js</a></p>
-<p>在看源码前， 可以先看下Lazy.js的基本思想 <a target="_blank" rel="noopener" href="https://github.com/zs1621/lazy.js/wiki/%E4%BB%8B%E7%BB%8D-LAZYJS(%E7%BF%BB%E8%AF%91)">Lazy.js 的设计模式</a></p>
-<p>###Lazy </p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Lazy</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>]) <span class="comment">// in [1, 2, 4] -&gt; out instanceof Lazy.ArrayLikeSequence </span></span><br><span class="line"><span class="title class_">Lazy</span>(&#123; <span class="attr">a</span>: <span class="string">&#x27;b&#x27;</span>&#125;)</span><br><span class="line"><span class="title class_">Lazy</span>(<span class="string">&quot;hello world&quot;</span>)</span><br><span class="line"><span class="title class_">Lazy</span>()</span><br><span class="line"><span class="title class_">Lazy</span>(<span class="literal">null</span>)</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>输入参数 Array | object | string |  | null</li>
-<li>输出 { source: [1, 2, 4] } | { source: {‘a’: b} } | { source: “hello world”} | { source: undefined }  | { source: null } </li>
-<li>可以看到输入的参数被打包成相应的对象, 而这些对象都继承自 <code>sequence</code></li>
-</ul>
-<p>###Sequence</p>
-<p><code>sequence</code> 对象提供对 0或者更多连续元素的集合 的统一的 API 封装.为什么所有的操作需要一个 sequence. 看下面的例子</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> seq = <span class="title class_">Lazy</span>(source) <span class="comment">// 1st sequence</span></span><br><span class="line">        .<span class="title function_">map</span>(func) <span class="comment">// 2nd MappedSequence</span></span><br><span class="line">       .<span class="title function_">filter</span>(pred) <span class="comment">// 3rd FilteredSequence</span></span><br><span class="line">        .<span class="title function_">reverse</span>() <span class="comment">// 4th ReversedSequence</span></span><br><span class="line">seq.<span class="title function_">each</span>(<span class="keyword">function</span>(<span class="params">x</span>) &#123; <span class="variable language_">console</span>.<span class="title function_">log</span>(x); &#125;)</span><br></pre></td></tr></table></figure>
-
-<p>上面这个例子中 前四步除了创建对应的sequece没有做任何的遍历source或者别的操作。 只有在第5步调用 each 时，将一次性按照鍊條(chain)的順序处理source 得到最后的结果。所以lazy做的就是延迟遍历处理数据.</p>
-<blockquote>
-<p>in fact, when i think about  the performance of <code>underscore</code> and <code>lazy.js</code>; i cann’t understand why lazy is faster.  lazy.js: 1 2s 3 underscore: 1 2 3 1 2 3 1 2 3 . so what’s the difference. lazy.js just hold off some process; i cann’t get it…. so continue to read code. &gt;_&lt; </p>
-</blockquote>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Sequence</span>(<span class="params"></span>) &#123;&#125; # 创建<span class="title class_">Sequence</span>构造函数</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-<p>TBC</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2013/12/18/2013-12-18-lazy-dot-js-code-reading/" data-id="clsukmp3u000kek202fpyctio" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2013-12-07-generic-pool-reading" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/12/07/2013-12-07-generic-pool-reading/" class="article-date">
-  <time datetime="2013-12-06T18:00:00.000Z" itemprop="datePublished">2013-12-07</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/07/2013-12-07-generic-pool-reading/">generic-pool Reading</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##<a target="_blank" rel="noopener" href="https://github.com/coopernurse/node-pool">node-pool</a></p>
-<p>###why pool</p>
-<ul>
-<li>与数据建立连接关闭连接， 每次建立一个连接对象会有消耗!(在并发很高的情况消耗会更明显)</li>
-</ul>
-<p>###what node-pool can do ?</p>
-<ul>
-<li>动态调整连接数的连接池, 数据库频繁读写时, 就建多个连接, 当然连接数有最大值Max, 如果读写实际需要的连接数 &gt; Max 那么加入队列里;如果数据库读写空闲，就释放多余的连接;</li>
-</ul>
-<p>###how node-pool do that ? -&gt; Code Reading</p>
-<ul>
-<li>栗子<script src="https://gist.github.com/zs1621/7836578.js"></script>
-
-
-</li>
-</ul>
-<p>运行上面的例子</p>
-<ol>
-<li><p>新建一个pool对象, 初始化一些变量</p>
-<ul>
-<li>idleTimeoutMillis: 一个连接空闲时间最大值, 如果设置为30000, 那么一个连接空闲30000ms 后会自动关闭, 默认 30000ms</li>
-<li>reapIntervalMillis:  每<code>reapIntervalMillis</code>检查空闲并移除, 默认1000ms</li>
-<li>max: 连接池存在的最大连接数, 例子里设置为10</li>
-<li>min: 连接池存在的最小连接数, 例子里默认为0(备注: 这里有个疑问，当我将min设为1, 从mongodb log 中可以看到 在空闲时间 连接是每隔<code>idleTimeoutMillis</code>关闭并新建连接, 问题是为什么不保持一个连接而要不停的关闭新建, 如果这样不如)</li>
-<li>log: 可以自定义node-pool, 例子直接设为true 默认用node-pool提供的log </li>
-<li>create: 应该创建一个item(db) 被 <code>acquired</code>, 然后调用其创建的 item 作为参数</li>
-<li>destory: 在items毁之前,关闭所有资源使用的item(db) </li>
-</ul>
-</li>
-<li><p>ensureMinimum, 确保有最小连接数</p>
-<ul>
-<li>例子中如果给min赋一个大于0的值, 2, 那么就 createResource()两次 </li>
-<li>因为例子默认为0 跳过</li>
-</ul>
-</li>
-<li><p>至此已经建立pool, 下一步等待<code>acquired</code>, 资源准备就续, 就等消费了 </p>
-</li>
-<li><p><code>curl http://127.0.0.1:8080</code></p>
-</li>
-<li><p><code>acquire(callback, priority)</code>  </p>
-<ul>
-<li>waitingClients.enqueue(callback, priority): 将回调根据priority推入队列</li>
-<li>dispense(): 由单词意思可知分配资源， 施行; 试着拿一个客户端工作， 清除空闲的item. 如果有等待的client, shift(), call its callback. 如果没有等待的client, 创建一个; 如果创建一个client将超过max, 把客户端加入等待list!代码见 <a href="#dispense">dispense</a></li>
-<li>dispense() 结束,此时 waitingClients.size() = 0, availableObjects.length = 0</li>
-</ul>
-</li>
-<li><p>release(): 如果client不再需要，将之返回pool, 代码见<a href="#release">release</a>  </p>
-</li>
-<li><p>removeIdle(): check and removes the available clients that have timed out. 见<a href="#removeIdle">removeIdle</a></p>
-</li>
-<li><p>me.destroy(): client to be destroyed.见<a href="#destroy">destroy</a></p>
-</li>
-</ol>
-<p><a name="dispense" id="despense"><strong>dispense</strong></a></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">dispense</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> obj = <span class="literal">null</span>, </span><br><span class="line">    objWithTimeout = <span class="literal">null</span>,</span><br><span class="line">    err = <span class="literal">null</span>,</span><br><span class="line">    clientCb = <span class="literal">null</span>,</span><br><span class="line">    waitingCount = waitingClients.<span class="title function_">size</span>();</span><br><span class="line">    <span class="title function_">log</span>(<span class="string">&quot;...&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (waitingCount &gt; <span class="number">0</span>) &#123; <span class="comment">//此时waitingCount = 1</span></span><br><span class="line">        <span class="keyword">while</span>(availableObjects.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="title function_">log</span>(<span class="string">&quot;...&quot;</span>);    </span><br><span class="line">            objWithTimeout = avaiableObjects[<span class="number">0</span>];</span><br><span class="line">            <span class="keyword">if</span> (!factory.<span class="title function_">validate</span>(objWithTimeout.<span class="property">obj</span>)) &#123;</span><br><span class="line">                me.<span class="title function_">destroy</span>(objWithTimeout.<span class="property">obj</span>);     </span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125; <span class="comment">// 这一步验证对象</span></span><br><span class="line">            avaiableObjects.<span class="title function_">shift</span>(); <span class="comment">// LIFO</span></span><br><span class="line">            clientCb = waitingClients.<span class="title function_">dequeue</span>(); <span class="comment">// dequeue</span></span><br><span class="line">            <span class="keyword">return</span> <span class="title function_">clientCb</span>(err, objWithTimeout.<span class="property">obj</span>); <span class="comment">// callback</span></span><br><span class="line">        &#125;     </span><br><span class="line">        <span class="keyword">if</span> (count &lt; factory.<span class="property">max</span>) &#123;</span><br><span class="line">                <span class="title function_">createResource</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><a name="release" id="release"><strong>release</strong></a></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">me.<span class="property">release</span> = <span class="keyword">function</span>(<span class="params">obj</span>) &#123;</span><br><span class="line">    <span class="comment">// 确保对象已经被释放</span></span><br><span class="line">    <span class="keyword">if</span> (availableObjects.<span class="title function_">some</span>(<span class="keyword">function</span>(<span class="params">objWithTimeout</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> (objWithTimeout.<span class="property">obj</span> === obj); </span><br><span class="line">        &#125;)) &#123;</span><br><span class="line">        <span class="title function_">log</span>(<span class="string">&quot;release called twice for the same resource&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;     </span><br><span class="line">    <span class="keyword">var</span> objWithTimeout = &#123; <span class="attr">obj</span>: obj, <span class="attr">timeout</span>: (<span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getTime</span>() + idleTimeoutMillis) &#125;;</span><br><span class="line">    availableObjects.<span class="title function_">push</span>(objWithTimeout); <span class="comment">// 此时 availableObjects.size()=1</span></span><br><span class="line">    <span class="title function_">log</span>(<span class="string">&quot;timeout:..&quot;</span>);</span><br><span class="line">    <span class="title function_">dispense</span>();  </span><br><span class="line">    <span class="title function_">scheduleRemoveIdle</span>(); <span class="comment">// 计划移走idle items(空闲项目) 延迟1000ms 执行 removeIdle</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p><a name="removeIdle" id="removeIdle"><strong>removeIdle</strong></a></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">removeIdle</span>(<span class="params"></span>)&#123;</span><br><span class="line">   <span class="keyword">var</span> toRemove = [],</span><br><span class="line">       now = <span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getTime</span>(),</span><br><span class="line">       i,</span><br><span class="line">       al, tr,</span><br><span class="line">       timeout;</span><br><span class="line">   removeIdleScheduled = <span class="literal">false</span>;</span><br><span class="line">   <span class="comment">// go through the available(idle) items, check if they have timed out;</span></span><br><span class="line">   <span class="keyword">for</span> (i=<span class="number">0</span>, al=availableObjects.<span class="property">length</span>; i&lt; al &amp;&amp;</span><br><span class="line">       (refreshIdle) || (count - factory.<span class="property">min</span> &gt; toRemove.<span class="property">length</span>));i+=<span class="number">1</span></span><br><span class="line">       )&#123;</span><br><span class="line">       timeout = availableObjects[i].<span class="property">timeout</span>; </span><br><span class="line">       <span class="keyword">if</span> (now &gt;= timeout) &#123;</span><br><span class="line">          <span class="comment">//client timed out, so destroy it </span></span><br><span class="line">          toRemove.<span class="title function_">push</span>(availableObjects[i].<span class="property">obj</span>);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">for</span> (i=<span class="number">0</span>, tr=toRemove.<span class="property">length</span>; i&lt;tr; i+=<span class="number">1</span>) &#123;</span><br><span class="line">           me.<span class="title function_">destroy</span>(toRemove[i]);     </span><br><span class="line">       &#125;</span><br><span class="line">       al = availableObjects.<span class="property">length</span>;</span><br><span class="line">       <span class="keyword">if</span> (al &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          <span class="title function_">log</span>(<span class="string">&quot;..&quot;</span>); </span><br><span class="line">          <span class="title function_">scheduleRemoveIdle</span>();</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           <span class="title function_">log</span>(<span class="string">&quot;removeIdle() all objects removed&quot;</span>, <span class="string">&#x27;verbose&#x27;</span>);     </span><br><span class="line">       &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p><a name="destroy" id="destroy"><strong>destroy</strong></a></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">me.<span class="property">destroy</span> = <span class="keyword">function</span>(<span class="params">obj</span>) &#123;</span><br><span class="line">   count -= <span class="number">1</span>; </span><br><span class="line">   availableOjbects = availableObjects.<span class="title function_">filter</span>(<span class="keyword">function</span>(<span class="params">objWithTimeout</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> (objWithTimeout.<span class="property">obj</span> != obj) </span><br><span class="line">       &#125;);<span class="comment">//过滤掉return true 的对象</span></span><br><span class="line">   factory.<span class="title function_">destroy</span>(obj);</span><br><span class="line">   <span class="title function_">ensureMinimum</span>();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2013/12/07/2013-12-07-generic-pool-reading/" data-id="clsukmp3s000iek20bd60899m" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2013-11-08-tornado-code-reading-tornado-dot-concurrent" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/11/08/2013-11-08-tornado-code-reading-tornado-dot-concurrent/" class="article-date">
-  <time datetime="2013-11-08T05:38:00.000Z" itemprop="datePublished">2013-11-08</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2013/11/08/2013-11-08-tornado-code-reading-tornado-dot-concurrent/">Tornado Code Reading - tornado.concurrent</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##Future背景<br>Future 代表一个函数的调用结果. 函数返回一个值或者抛出一个异常， 所以future 包含一个值或者一个异常(可以通过future.result()获得这个结果，异常和返回值). Fuures存在与对应的函数结束前. 在 一个  多线程场景下,简单的调用 future.result()等待另外一个线程或者进程完成。在 异步场景下，你可以附带一个callback给future为了当调用结束可以得到通知。（with future.add_done_callback or io_loop.add_future） </p>
-<p>##了解 Future<br><code>Futures</code> 已经在Python3.2应用了 <a target="_blank" rel="noopener" href="http://python.readthedocs.org/en/latest/library/concurrent.futures.html#concurrent.futures">concurrent.futures</a> , 如果在python3.2之前版本用 可以 (pip install futures). 那在 tornado 中如果可以将用就用python包，否则将会使用一个兼容的类 <code>tornado.concurrent.Future</code> </p>
-<h2 id="class-tornado-concurrent-Future"><a href="#class-tornado-concurrent-Future" class="headerlink" title="class tornado.concurrent.Future"></a>class tornado.concurrent.Future</h2><p><strong>这个类封装了异步操作的结果</strong>。在同步程序中， Futures被用来等待一个线程或者进程池的结果。在Tornado一般用在 IOLoop.add_future 或者 在一个 gen.coroutine </p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&quot;&quot;&quot;</span><br><span class="line">如果有 concurrent.futures 可用，那就用它; 否则用 _DummyFuture </span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line">if futures is None:</span><br><span class="line">    Future = _DummyFuture</span><br><span class="line">else:</span><br><span class="line">    Future = futures.Future</span><br></pre></td></tr></table></figure>
-
-
-<h2 id="DummyFuture"><a href="#DummyFuture" class="headerlink" title="_DummyFuture"></a>_DummyFuture</h2><ul>
-<li>result</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&quot;&quot;&quot;</span><br><span class="line">先检查有没有完成 ，没有完成 ,直接抛出异常!如果有异常就raise 异常，否则返回 result</span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line">def result(self, timeout=None):</span><br><span class="line">	self._check_done()</span><br><span class="line">	if self._exception:</span><br><span class="line">		raise self._exception</span><br><span class="line">	return self._result</span><br></pre></td></tr></table></figure>
-<ul>
-<li>exception</li>
-</ul>
-<p>这个函数先与result唯一的不同是 无异常的时候 return None ;</p>
-<ul>
-<li>add_done_callback(fn)</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">给Future加入一个回调。当它完成将会 以Future为参数调用回调函数. </span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add_done_callback</span>(<span class="params">self, fn</span>):</span><br><span class="line">	<span class="keyword">if</span> self.done:</span><br><span class="line">		fn(self)</span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		self._callbacks.append(fn)</span><br></pre></td></tr></table></figure>
-
-<h2 id="TracebackFuture"><a href="#TracebackFuture" class="headerlink" title="TracebackFuture"></a>TracebackFuture</h2><p>存储 异常的追踪</p>
-<h2 id="DummyExecutor"><a href="#DummyExecutor" class="headerlink" title="DummyExecutor"></a>DummyExecutor</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">class DummyExecutor(object):</span><br><span class="line">	def submit(self, fn, *args, **kwargs):</span><br><span class="line">		future = TracebackFuture()</span><br><span class="line">		try:</span><br><span class="line">			future.set_result(fn(*args, **kwargs))</span><br><span class="line">		except Exception:</span><br><span class="line">			future.set_exc_info(sys.exc_info())</span><br><span class="line">		return future</span><br><span class="line">	def shutdown(self, wait=True):</span><br><span class="line">		pass</span><br></pre></td></tr></table></figure>
-
-<h2 id="run-on-executor"><a href="#run-on-executor" class="headerlink" title="run_on_executor"></a>run_on_executor</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">run_on_executor</span>(<span class="params">fn</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    异步的跑同步方法</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">    @functools.wraps(<span class="params">fn</span>):</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">self, *args, **kwargs</span>):</span><br><span class="line">        callback = kwargs.pop(<span class="string">&quot;callback&quot;</span>, <span class="literal">None</span>)</span><br><span class="line">        future = self.executor.submit(fn, self, *args, **kwargs) <span class="comment">#self.executor  理解为线程池</span></span><br><span class="line">        <span class="keyword">if</span> callback:</span><br><span class="line">            self.io_loop.add_future(future, \</span><br><span class="line">                <span class="keyword">lambda</span> future: callback(future.result()))</span><br><span class="line">        <span class="keyword">return</span> future</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br></pre></td></tr></table></figure>
-
-<p>这里有关于<code>run_on_executor</code>的应用例子 <a target="_blank" rel="noopener" href="https://gist.github.com/zs1621/7921770">https://gist.github.com/zs1621/7921770</a></p>
-<h2 id="return-future"><a href="#return-future" class="headerlink" title="return_future"></a>return_future</h2><ul>
-<li>what use: 让函数通过回调返回一个<code>Future</code></li>
-<li>how use: @return_future</li>
-</ul>
-<blockquote>
-<p>看 tornado 源码的 test文件 concurrent_test.py; </p>
-</blockquote>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ReturnFutureTest</span>(<span class="title class_ inherited__">AsyncTestCase</span>):</span><br><span class="line"><span class="meta">    @return_future</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">sync_future</span>(<span class="params">self, callback</span>): <span class="comment"># 同步future</span></span><br><span class="line">        <span class="built_in">print</span> (callback, <span class="string">&#x27;+++++++++++++++&#x27;</span>) <span class="comment"># d -&gt; 对应log 的d</span></span><br><span class="line">        callback(<span class="number">42</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">    @return_future</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">async_future</span>(<span class="params">self, callback</span>): <span class="comment">#异步future</span></span><br><span class="line">        <span class="built_in">print</span> (callback, <span class="string">&#x27;+++++++++++++++&#x27;</span>) <span class="comment"># d -&gt; 对应 log 的 d</span></span><br><span class="line">        self.io_loop.add_callback(callback, <span class="number">42</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">test_sync_future</span>(<span class="params">self</span>): <span class="comment">#测试同步 </span></span><br><span class="line">        future = self.sync_future()</span><br><span class="line">        self.assertEqual(future.result(), <span class="number">42</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">test_async_future</span>(<span class="params">self</span>): <span class="comment">#测试异步</span></span><br><span class="line">        future = self.async_future()</span><br><span class="line">        self.assertFalse(future.done())</span><br><span class="line">        self.io_loop.add_future(future, self.stop) <span class="comment">#add_future</span></span><br><span class="line">        future2 = self.wait()</span><br><span class="line">        self.assertIs(future, future2)</span><br><span class="line">        self.assertEqual(future.result(), <span class="number">42</span>)</span><br></pre></td></tr></table></figure>
-
-<p>联合 concurrent.py -&gt; return_future</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">return_future</span>(<span class="params">f</span>):</span><br><span class="line">    replacer = ArgReplacer(f, <span class="string">&#x27;callback&#x27;</span>) <span class="comment"># 1 </span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @fuctools.wraps(<span class="params">f</span>)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwrags</span>):</span><br><span class="line">        <span class="built_in">print</span> (args, kwrags, <span class="string">&quot;argsssssssss&quot;</span>) <span class="comment">#a 对应下面的 log -&gt; a</span></span><br><span class="line">        future = TracebackFuture() <span class="comment"># 2</span></span><br><span class="line">        callback, args, kwargs = replacer.replace(</span><br><span class="line">            <span class="keyword">lambda</span> value=_NO_RESULT: future.set_result(value),</span><br><span class="line">            args, kwargs) <span class="comment"># 1  替代 f 函数的 `callback`,  </span></span><br><span class="line">        <span class="built_in">print</span> (callback, args, kwargs, <span class="string">&#x27;callback&#x27;</span>) <span class="comment">#b 对应下面的 log -&gt; b</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">handle_error</span>(<span class="params">typ, value, tb</span>):</span><br><span class="line">            future.set_exc_info((typ, value, tb))</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">        exc_info = <span class="literal">None</span></span><br><span class="line">        <span class="keyword">with</span> ExceptionStackContext(handle_error): <span class="comment"># 4</span></span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                result = f(*args, **kwargs) </span><br><span class="line">                <span class="built_in">print</span> (result, <span class="string">&#x27;result-------------------&#x27;</span>) <span class="comment">#c 对应下面的 log -&gt; c</span></span><br><span class="line">                <span class="keyword">if</span> result <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                        <span class="keyword">raise</span> ReturnValueIgoredError(</span><br><span class="line">                            <span class="string">&quot;@return_future should not be used with functions&quot;</span></span><br><span class="line">                            <span class="string">&quot;that return values&quot;</span>)</span><br><span class="line">            <span class="keyword">except</span>:</span><br><span class="line">                exc_info = sys.exc_info()</span><br><span class="line">                <span class="keyword">raise</span></span><br><span class="line">        <span class="keyword">if</span> exc_info <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            raise_exc_info(exc_info)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> callback <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">def</span> <span class="title function_">run_callback</span>(<span class="params">future</span>):</span><br><span class="line">                result = future.result()</span><br><span class="line">                <span class="built_in">print</span> (future, <span class="string">&quot;+__+_+_+_+_&quot;</span>) <span class="comment">#e -&gt; 对应下面 ＬＯＧ -&gt; e</span></span><br><span class="line">                <span class="keyword">if</span> result <span class="keyword">is</span> _NO_RESULT:</span><br><span class="line">                    callback()</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    callback(future.result())</span><br><span class="line">            future.add_done_callback(wrap(run_callback)) <span class="comment"># 6</span></span><br><span class="line">        <span class="keyword">return</span> future</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br></pre></td></tr></table></figure>
-
-<p>###分几种情况 1. 同步无回调 2.同步有回调 3.异步无回调 4.异步有回调</p>
-<ul>
-<li><strong>同步无回调LOG</strong>  <code>f(args, kwargs): future = sync_process()</code><ul>
-<li><em>a</em> –  (&lt;test_return_future.ReturnFutureTest testMethod=test_no_callback&gt;,) {} argsssssssss</li>
-<li><em>b</em> – None (&lt;test_return_future.ReturnFutureTest testMethod=test_no_callback&gt;,) {‘callback’: &lt;function <lambda> at 0xb6ba8f0c&gt;} callback</li>
-<li><em>c</em> – None result—————— </li>
-<li><em>d</em> – (function <lambda> at 0xb6ba8f0c&gt;) +++++++++++++</li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p>从 a-b 可以理解 replacer.replace 的作用: 提取callback 的值， 并将callback 放入kwargs; 由c 可以知道 f() 函数是不会return 的; f()的结果只能由 future.result() 得到, 只要知道reuturn_future 是返回Future 本身是不会return 的， 如果return 就会报错; 由d 可知匿名函数<code>fuction &lt;lambda&gt; at 0xb6ba8f0c</code>赋值给了callback,而这个匿名函数的作用就是<code>set_result</code>。</p>
-</blockquote>
-<ul>
-<li><strong>同步有回调LOG</strong> <code>f(args, kwargs, callback): future = sync_process() callback(future)</code><ul>
-<li><em>a</em> – (&lt;test_return_future.ReturnFutureTest testMethod=test_callback_kw&gt;,) {‘callback’:&lt;bound method ReturnFutureTest.stop of &lt;test_return_future.ReturnFutureTest testMethod=test_callback_kw&gt;&gt;} argsssssssss</li>
-<li><em>b</em> – &lt;bound method ReturnFutureTest.stop of &lt;test_return_future.ReturnFutureTest testMethod=test_callback_kw&gt;&gt; (&lt;test_return_future.ReturnFutureTest testMethod=test_callback_kw&gt;,) {‘callback’: &lt;function <lambda> at 0xb6bd8f44&gt;} callback  </li>
-<li><em>c</em> –  None result——————</li>
-<li><em>d</em> – 额额 function <lambda> at 0xb6bd8f44 +++++++++++++ </li>
-<li><em>e</em> – 额额 Future at 0xb6b9cc8cL state=finished returned int +<em>_+</em>+<em>+</em>+_ </li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p>与无回调相比; 明显多出 e log; run_callback 就是将 future.result()作为callback的参数运行; </p>
-</blockquote>
-<ul>
-<li><strong>异步无回调LOG</strong> <code>f(args, kwargs): future = async_process()</code><ul>
-<li><em>a</em> – (&lt;test_return_future.ReturnFutureTest testMethod=test_async_future&gt;,) {} argsssssssss </li>
-<li><em>b</em> – None (&lt;test_return_future.ReturnFutureTest testMethod=test_async_future&gt;,) {‘callback’: &lt;function <lambda> at 0x8518f44&gt;} callback </li>
-<li><em>c</em> – None result—————— </li>
-<li><em>d</em> – (function <lambda> at 0x8518f44) ++++++++++++++ </li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p>与同步无回调相比; 看<code>test_async_future(self)</code>, 将 f() 获得的 future -&gt; self.io_loop.add_future(future, self.stop) -&gt; self.stop(future) -&gt; 最后通过 self.wait()获得的结果 就是 例子中42 . 现实中一般将 return_future 与 gen.engine 联合使用  , 通过在 gen.engine -&gt; yield f() 获得结果</p>
-</blockquote>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2013/11/08/2013-11-08-tornado-code-reading-tornado-dot-concurrent/" data-id="clsukmp3j000aek20ci4q60j2" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2013-09-19-tornado-code-reading-ioloop" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/09/19/2013-09-19-tornado-code-reading-ioloop/" class="article-date">
-  <time datetime="2013-09-19T04:36:00.000Z" itemprop="datePublished">2013-09-19</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2013/09/19/2013-09-19-tornado-code-reading-ioloop/">Tornado Code Reading - IOLoop</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##<a target="_blank" rel="noopener" href="https://github.com/facebook/tornado/blob/master/tornado/ioloop.py">IOLoop</a></p>
-<p>对着IOLoop 的源码瞅了一天，楞是没有明白， 为什么 父类实例可以调用子类方法?</p>
-<p>最后看到<a target="_blank" rel="noopener" href="http://hswg.info/blog/2013/03/24/configurable-of-tornado-note/">configurable</a><br><a target="_blank" rel="noopener" href="http://ispe54.blogspot.com/2013/04/tornado-7.html">tornado 解读</a></p>
-<p>看一下可配置接口的实现</p>
-<p><a name='IOLoop' id='IOLoop'>configurable两函数</a></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@classmethod</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">configurable_base</span>(<span class="params">cls</span>):</span><br><span class="line">	<span class="keyword">return</span> IOLoop</span><br><span class="line"></span><br><span class="line"><span class="meta">@classmethod</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">configurable_default</span>(<span class="params">cls</span>):</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">hasattr</span>(select, <span class="string">&quot;epoll&quot;</span>):</span><br><span class="line">		<span class="keyword">from</span> tornado.platform.epoll <span class="keyword">import</span> EPollIOLoop</span><br><span class="line">		<span class="keyword">return</span> EPollIOLoop</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">hasattr</span>(select, <span class="string">&quot;kqueue&quot;</span>):</span><br><span class="line">		<span class="comment">#python 2.6+ on BSD or Mac</span></span><br><span class="line">		<span class="keyword">from</span> tornado.platform.kqueue <span class="keyword">import</span> KQueueIOLoop</span><br><span class="line">		<span class="keyword">return</span> KQueueIOLoop</span><br><span class="line">	<span class="keyword">from</span> tornado.platform.select <span class="keyword">import</span> SelectIOLoop</span><br><span class="line">	<span class="keyword">return</span> SelectIOLoop</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>Configurable类是可配置接口的父类， 可配置接口对外提供一致的接口标志， 但它的子类实现可以在运行时进行configure。一般跨平台时由于子类实现有多种选择， 这时候就可以使用配置接口， 例如 select 和 epoll。首先注意 Configurable 的两个函数: configurable_base 和 configurable_default, 两函数都需要被子类(即可配置接口类)覆盖重写。其中， base函数一般返回接口类自身， default 返回接口的默认子类实现， 除非接口指定了 __impl_class。IOLoop及其子类实现都没有实现初始化函数也没有构造函数， 七构造函数继承于 Configurable, 如下::</p>
-</blockquote>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">def __new__(cls, **kwargs):</span><br><span class="line">	base = cls.configurable_base()</span><br><span class="line">	args = &#123;&#125;</span><br><span class="line">	if cls is base:</span><br><span class="line">		impl = cls.configured_class()</span><br><span class="line">		if base.__impl_kwargs:</span><br><span class="line">			args.update(base.__impl_kwargs)</span><br><span class="line">	else:</span><br><span class="line">		impl = cls</span><br><span class="line">	args.update(kwargs)</span><br><span class="line">	instance = super(Configurable, cls).__new__(impl)</span><br><span class="line">	instance.initialize(**args)</span><br><span class="line">	return instance</span><br></pre></td></tr></table></figure>
-<p>当子类对象被构造时， 子类<strong>new</strong>被调用， 因此参数里的cls 指的是Configurable的子类(可配置接口类， 如IOLoop)。先得到base,  <a href="#IOLoop">IOLoop代码</a> 可知, configurable_base返回的是自身类。由于 base 和 cls 是一样的， 所以调用 configured_class() 得到接口的子类实现(见<a href="#configured_class">configured_class</a>) 其实就是调用 base的 configurable_default(?????TBD), 就是返回一个子类实现(epoll/kqueue/select之一),顺便把<strong>impl_kwargs合并到args 里 。然后调用Configurable类的父类(Object)的 __new</strong>方法， 生成一个impl的对象， 紧接着把args当参数调用该队想的initialize(继承PollIOLoop) , 返回该对象。 所以， 当构造IOLoop对象时， 实际得到的是EPollIOLoop或其它相关子类。可以看出， Configurable 类主要提供构造方法， 相当于对象工厂根据配置来生产对象， 同时开放configure接口以供配置。而子类按照约定调整配置即可得到不同对象， 代码得到了复用 或其它相关子类。可以看出， Configurable 类主要提供构造方法， 相当于对象工厂根据配置来生产对象， 同时开放configure接口以供配置。而子类按照约定调整配置即可得到不同对象， 代码得到了复用   </p>
-<p>上面的过程如果不好太理解  可以去看  <a target="_blank" rel="noopener" href="https://github.com/zs1621/pythostudy/blob/master/tcp/tcp_loop_server.py">example</a> 这样大致能理解 ioloop 实例的初始化过程</p>
-<p><a name="configured_class" id="configured_class">configured_class</a></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">base = cls.configurable_base()</span><br><span class="line">if cls.__impl_class is None:</span><br><span class="line">	base._impl_class = cls.configurable_default()</span><br><span class="line">return base.__impl_class</span><br></pre></td></tr></table></figure>
-
-<p>===</p>
-<p>上面主要解释了 IOLoop 为什么能调用子类方法  以及  可配置接口的实现<br>下面来看 IOLoop 的对象 instance</p>
-<p>IOLoop 实现了单例的概念, 具体见 <a target="_blank" rel="noopener" href="https://github.com/zs1621/pythostudy/blob/master/class/singleton.py">IOLoop单例</a></p>
-<p>理解了上面的概念 接着 <a target="_blank" rel="noopener" href="http://zs1621.github.io/blog/2013/09/16/tornado-code-reading-tcpserver/">TCPServer</a> 最后的 add_handle !其实 此时的 object 已经是确定的 <code>EOLoop</code> 或者 <code>Kqueue</code> 的对象！ 这里的 add_handle 是 它们的父类 <code>POLoop</code> 的 方法， 这明显就是继承了! </p>
-<p>add_handler 代码如下， 首先把 处理方法的上下文 存入 <em>handlers ，等调用时再恢复， 这个机制是 statck_context 见 <a href="">statck_content</a> 做到的。 第二步 先来看下  self.<em>impl 从哪里来  -&gt; self._impl = impl 此时需要知道是谁调用 initialize  -&gt; 这里初始化是在构造函数 __new</em></em> 里调用的, <code>instance.initialize(**args)</code>此时的instance 为 <code>EPollIOLoop</code> 实例 -&gt;  <code>super(EPollIOLoop, self).initialize(impl=select.epoll, **kwargs)</code> -&gt; EPollIOLoop 的父类的 initialize() 很明显 impl 为 select.epoll<a target="_blank" rel="noopener" href="http://docs.python.org/2/library/select.html">epoll</a></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">def add_handler(self, fd, handler, events):</span><br><span class="line">	self._handlers[fd] = statck_context.wrap(handler)</span><br><span class="line">self._impl.register(fd, events | self.ERROR)</span><br></pre></td></tr></table></figure>
-
-<p>这步呢 就是把 监听 fd 和 accept_handler方法进行关联, 至此事件分发到此就结束了</p>
-<p>======</p>
-<p>下面来看下 IOLoop 的主循环 <code>start()</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">def start(self):</span><br><span class="line">	if not logging.getLogger().handlers:</span><br><span class="line">		logging.basicConfig</span><br><span class="line">	if self._stopped:</span><br><span class="line">		self._stopped = False</span><br><span class="line">		return</span><br><span class="line">	old_current = getattr(IOLoop._current, &quot;instance&quot;, None)</span><br><span class="line">	IOLoop._current.instance = self</span><br><span class="line">	self._thread_ident = thread.get_ident() #Return the ‘thread identifier’ of the current thread. This is a nonzero integer</span><br><span class="line">	self._running = True</span><br><span class="line"></span><br><span class="line">	old_wakeup_fd = None</span><br><span class="line">	if hasattr(singal, &#x27;set_wakeup_fd&#x27;) and os.name == &#x27;posix&#x27;:</span><br><span class="line">		try:</span><br><span class="line">			old_wakeup_fd = signal.set_wakeup_fd(self._waker.write_fileno())</span><br><span class="line">			if old_wakeup_fd != -1:</span><br><span class="line">				signal.set_walkeup_fd(old_wakeup_fd)</span><br><span class="line">				old_walkup_fd = None</span><br><span class="line">		except ValueError:</span><br><span class="line">			pass</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>上面这段代码 TBD</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">while True:</span><br><span class="line">	poll_timeout = _POLL_TIMEOUT</span><br><span class="line">	#Prevent IO event starvation by delaying new callbacks </span><br><span class="line">	# to the next iteration of the event loop.</span><br><span class="line">	with self._callback_lock:</span><br><span class="line">		callbacks = self._callbacks</span><br><span class="line">		self._callbacks = []</span><br><span class="line">	for callback in callbacks:</span><br><span class="line">		self._run_callback(callback)</span><br><span class="line">	# Closures may be holding on to a lot of memory, so allow</span><br><span class="line">	# them to be freed before we go into our poll wait.</span><br><span class="line">	callbacks = callback = None</span><br><span class="line"></span><br><span class="line">	if self._timeouts:</span><br><span class="line">		now = self.time()</span><br><span class="line">		while self_timeouts:</span><br><span class="line">			if self._timesouts[0].callback is None:</span><br><span class="line">				# the timeout was cancelled</span><br><span class="line">				heapq.heappop(self._timeouts)</span><br><span class="line">				self._cancellations -= 1</span><br><span class="line">			elif self._timeouts[0].deadline &lt;= now:</span><br><span class="line">				timeout = heapq.heappop(self._timeouts)</span><br><span class="line">				self._run_callback(timeout.callback)</span><br><span class="line">				del timeout</span><br><span class="line">			else:</span><br><span class="line">				seconds = self._timeouts[0].deadline - now</span><br><span class="line">				poll_timeout = min(seconds, poll_timeout)</span><br><span class="line">				break</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2013/09/19/2013-09-19-tornado-code-reading-ioloop/" data-id="clsukmp3g0008ek20fllnbagp" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2013-09-16-tornado-code-reading-tcpserver" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/09/16/2013-09-16-tornado-code-reading-tcpserver/" class="article-date">
-  <time datetime="2013-09-16T08:31:00.000Z" itemprop="datePublished">2013-09-16</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2013/09/16/2013-09-16-tornado-code-reading-tcpserver/">Tornado Code Reading-TCPServer</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##<a target="_blank" rel="noopener" href="https://github.com/facebook/tornado/blob/master/tornado/tcpserver.py">TCPserver</a></p>
-<p>一个非阻塞， 单进程的 <code>TCP</code> 服务器</p>
-<p>为了使用 <code>TCPServer</code>, 定义一个子类改写其中的 <code>handle_stream</code> 方法</p>
-<p>如果让服务器通过 <code>SSL</code> 传输， 如下例</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TCPServer(ssl_options=&#123;</span><br><span class="line">	&quot;certfile&quot;: os.path.join(data_dir, &quot;mydomain.crt&quot;),</span><br><span class="line">	&quot;keyfile&quot;: os.path.join(data_dir, &quot;mydomain.key&quot;),</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
-<p><code>TCPServer</code> simple single-process::</p>
-<ul>
-<li><code>listen</code>: 监听单个进程</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">server = TCPServer()</span><br><span class="line">server.listen(8888)</span><br><span class="line">IOLoop.instance().start()</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><code>bind</code> / <code>start</code>: simple multi-process::</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">server = TCPServer()</span><br><span class="line">server.bind(8888)</span><br><span class="line">server.start(0) #Forks multiple sub-process</span><br><span class="line">IOLoop.instance().start()</span><br></pre></td></tr></table></figure>
-
-<p>如果使用<code>start</code>接口， 一个 <code>.IOLoop</code> 不可以传入 <code>TCPServer</code> 结构里。 <code>start</code>将总是开始服务在默认的单例 <code>.IOLoop</code></p>
-<ul>
-<li><code>add_sockets</code>: 高级多进程::</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sockets = bind_sockets(8888)</span><br><span class="line">tornaado.process.fork_processes(0)</span><br><span class="line">server = TCPServer()</span><br><span class="line">server.add_sockets(sockets)</span><br><span class="line">IOLoop.instance().start()</span><br></pre></td></tr></table></figure>
-
-<p><code>add_sockets</code> 接口更为复杂， 但是和<code>tornado.process.fork_processes</code>使用将会更明了， <code>add_sockets</code>也可以用在单进程服务中 ， 如果你想要创建你的监听套节字而不是<code>~tornado.netutil.bind_sockets</code></p>
-<hr>
-<p>以上是怎么应用<br>下面看源码</p>
-<p><strong>初始化</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">def __init__(self, io_loop=None, ssl_options=None, max_buffer_size=None):</span><br><span class="line">	self.io_loop = io_loop</span><br><span class="line">	self.ssl_options = ssl_options</span><br><span class="line">	self.sockets = &#123;&#125;</span><br><span class="line">	self._pending_sockets = []</span><br><span class="line">	self._started = False</span><br><span class="line">	self.max_buffer_size = max_buffer_size</span><br><span class="line">	#下面是检验 SSL 文件，此处略</span><br></pre></td></tr></table></figure>
-
-
-<p><strong>listen</strong></p>
-<p>在给定的端口接受连接<br>这个方法可能被调用多次为了监听多个端口。<code>listen</code> 立即生效; 之后不必调用<code>TCPServer.start</code> , 但是， <code>,IOLoop</code> 是必要的</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sockets = bind_sockets(port, address=address)</span><br><span class="line">self.add_sockets(sockets)</span><br></pre></td></tr></table></figure>
-
-<p>源码里的 <code>bind_sockets</code> 见 <a href="#bind_sockets">bind_sockets</a>, <code>add_sockets</code> 见下</p>
-<p><strong>add_sockets</strong></p>
-<p>让服务接受多个连接</p>
-<p><code>sockets</code> 参数是一个socket数组, <code>add_sockets</code>一般和 <code>tornado.process.fork_processes</code>联合使用 为了控制 多进程服务的启动</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if self.io_loop is None:</span><br><span class="line">	self.io_loop = IOLoop.current()</span><br><span class="line"></span><br><span class="line">for sock in sockets:</span><br><span class="line">	self._sockets[sock.fileno()] = sock</span><br><span class="line">	add_accept_handler(sock, self._handle_connection, io_loop=self.io.loop) </span><br></pre></td></tr></table></figure>
-
-<p>上面的 add_accept_handler 见 <a href="#add_accept_handler">add_accept_handler</a><br>add_accept_handler 第二个参数 self._handle_connection是个回调函数, 分析如下</p>
-<blockquote>
-<p>_handle_connection在接受客户端的连接处理结束后会被调用，调用时传入连接和ioloop对象初始化 IOStream,用于对客户端的异步读写;然后调用 <code>handle_stream</code>(注意这里的handle_stream 文档说了如果你只是用<code>tcpserver</code>那么，handle_stream得自己重写, 如果用tornado的httpserver 那handle_stream 在 <a target="_blank" rel="noopener" href="https://github.com/facebook/tornado/blob/master/tornado/httpserver.py">httpserver</a>), 传入创建的<code>IOStream</code>对象初始化一个<code>HTTPConnection</code>, <code>HTTPConnection</code>  封装了<code>IOStream</code> 的一些操作， 用于处俩 <code>HTTPRequest</code> 并返回。 至此 <code>HTTPServer</code>的创建、启动、注册回调函数过程结束</p>
-</blockquote>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#如果self.ssl_options不为空，处理ssl代码略</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">	<span class="keyword">if</span> self.ssl_options <span class="keyword">in</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">		stream = SSLTOSTREAM(connection, io_loop=self.io_loop, max_buffer_size=self.max_buffer_size)</span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		stream = IOSTream(connection, io_loop=self.io_loop, max_buffer_size=self.max_buffer_size)</span><br><span class="line">	self.handle_stream(stream, address)</span><br><span class="line"><span class="keyword">except</span> Excetpion:</span><br><span class="line">	app_log.error(<span class="string">&#x27;Error in connection callback&#x27;</span>, exc_info=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
-
-<p>从上面的分析和源码 可知 服务器的工作流程 socket-&gt;bind-&gt;listen创建 listen socket 监听客户端， 并将每个listen socket 的 fd 注册到IOLoop的单例实例中; 当 listen socket 可读时回调 _handle_events 处理客户端请求；在与客户端通信的过程中使用 IOStream 封装读写缓冲区， 实现与客户端的异步读写。 下面我们将具体了解listen socket 的 fd 被注册到IOLoop的单例实例中  见 <a target="_blank" rel="noopener" href="http://zs1621.github.io/blog/2013/09/19/tornado-code-reading-ioloop/">IOLoop</a></p>
-<hr>
-<p>##<a target="_blank" rel="noopener" href="https://github.com/facebook/tornado/blob/master/tornado/netutil.py">netutil</a></p>
-<p><a name="bind_sockets" id="bind_sockets"><strong>bind_sockets</strong></a></p>
-<ul>
-<li><p>解释:创建监听套节字绑定到给定的端口和地址</p>
-</li>
-<li><p>参数</p>
-<ul>
-<li>address: IP地址或主机名。如果是主机名，服务将会监听所有跟此域名有关的<code>IP</code></li>
-<li>Family: <code>socket.AF_INET</code> 或 <code>socket.AF_INET6</code></li>
-<li>backlog: 这个参数跟<code>socket.listen()&lt;socket.socket.listen&gt;</code>一样</li>
-<li>flags: </li>
-</ul>
-</li>
-<li><p>代码</p>
-</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">sockets = []</span><br><span class="line"><span class="keyword">if</span> address == <span class="string">&quot;&quot;</span>:</span><br><span class="line">	address = <span class="literal">None</span></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> socket.has_ipv6 <span class="keyword">and</span> family == socket.AF_UNSPEC:</span><br><span class="line">	family = socket.AF_INET</span><br><span class="line"><span class="keyword">if</span> flags <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">	flags = socket.AI_PASSIVE</span><br><span class="line">	<span class="comment">#见 [getaddrinfo](https://github.com/zs1621/pythostudy/wiki/socket)</span></span><br><span class="line">	<span class="comment">#`getaddrinfo`会返回服务器的所有网卡信息， 每个网卡都要监听客户端的请求并返回创建的sockets</span></span><br><span class="line"><span class="keyword">for</span> res <span class="keyword">in</span> <span class="built_in">set</span>(socket.getaddrinfo(address, port, family, socket.SOCK.STREAM, <span class="number">0</span>, flags)):</span><br><span class="line">	af, socktype, proto, canoname, sockaddr = res</span><br><span class="line">	<span class="keyword">try</span>:</span><br><span class="line">		<span class="comment">#创建套节字</span></span><br><span class="line">		sock = socket.socket(af, socktype, proto)</span><br><span class="line">	<span class="keyword">except</span> socket.error <span class="keyword">as</span> e:</span><br><span class="line">		<span class="keyword">if</span> e.args[<span class="number">0</span>] == errno.EAFNOSUPPORT:</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		<span class="keyword">raise</span></span><br><span class="line">	set_close_exec(sock.fileno())</span><br><span class="line">	<span class="keyword">if</span> os.name != <span class="string">&#x27;nt&#x27;</span>:</span><br><span class="line">		<span class="comment">#TCP连接中，recv等函数默认为阻塞模式(block)，</span></span><br><span class="line">		<span class="comment">#即直到有数据到来之前函数不会返回，</span></span><br><span class="line">		<span class="comment">#而我们有时则需要一种超时机制使其在一定时间后返回而不管是否有数据到来，</span></span><br><span class="line">		<span class="comment">#这里我们就会用到setsockopt()函数 见 [setsockopt](http://blog.chinaunix.net/uid-25749806-id-348637.html)</span></span><br><span class="line">		sock.setsockopt(socket.SOL_SOCKET, socket.SOREUSERADDR, <span class="number">1</span>)</span><br><span class="line">	<span class="comment">#在linux ipv6 sockets 也接受 ipv4，这样的话不能同时绑定 ipv4 和 ipv6.为了方便，在ipv6 sockets中总是禁用ipv4 </span></span><br><span class="line">	<span class="keyword">if</span> af == socket.AF_INET6:</span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">hasattr</span>(socket, <span class="string">&quot;IPPROTO_IPV6&quot;</span>):</span><br><span class="line">			sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY)</span><br><span class="line">	sock.setblocking(<span class="number">0</span>)</span><br><span class="line">	sock.bind(sockaddr)</span><br><span class="line">	<span class="comment">#默认设定等待被处理的连接最大个数</span></span><br><span class="line">	sock.listen(backlog)</span><br><span class="line">	sockets.append(sock)</span><br><span class="line"><span class="keyword">return</span> sockets</span><br></pre></td></tr></table></figure>
-
-<p><a name="add_accept_handler" id="add_accept_handler"><strong>add_accept_handler</strong></a>: 添加一个<code>IOLoop</code>事件去接受新的连接在 <code>sock</code></p>
-<blockquote>
-<p>当一个连接被接受了， <code>callback(connection, address)</code>(<code>connection</code>是socket对象， <code>address</code>是连接的另外结尾处的地址)将会运行</p>
-</blockquote>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> io_loop <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line"> 	io_loop = IOLoop.current()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">accept_handler</span>(<span class="params">fd, events</span>):</span><br><span class="line">	<span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">		<span class="keyword">try</span>:</span><br><span class="line">			connection, address = sock.accept()</span><br><span class="line">		<span class="keyword">except</span> socket.error <span class="keyword">as</span> e:</span><br><span class="line">			<span class="comment">#EWOULDBLOCK 和 EAGAIN 表明我们</span></span><br><span class="line">			<span class="comment">#已经接受了每个可以接受的连接</span></span><br><span class="line">			<span class="comment">#具体见[EWOULDBLOCK](http://stackoverflow.com/questions/3647539/socket-error-errno-ewouldblock)</span></span><br><span class="line">			<span class="keyword">if</span> e.args[<span class="number">0</span>] <span class="keyword">in</span> (errno.EWOULDBLOCK, errno.EAGAIN):</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			<span class="comment">#ECONNABORTED 表明有个连接还在接受队列时被关闭了</span></span><br><span class="line">			<span class="keyword">if</span> e.args[<span class="number">0</span>] == errno.ECONNABORTED:</span><br><span class="line">				<span class="keyword">continue</span></span><br><span class="line">			<span class="keyword">raise</span></span><br><span class="line">		callback(connection, address)</span><br><span class="line">io_loop.add_handler(sock.fileno(), accept_handler, IOLoop.READ)</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2013/09/16/2013-09-16-tornado-code-reading-tcpserver/" data-id="clsukmp3e0007ek2047cf8y64" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2013-09-10-visionmedia-slash-send-reading" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/09/10/2013-09-10-visionmedia-slash-send-reading/" class="article-date">
-  <time datetime="2013-09-09T16:41:00.000Z" itemprop="datePublished">2013-09-10</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2013/09/10/2013-09-10-visionmedia-slash-send-reading/">visionmedia/send Reading</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><strong><code>send</code>入口</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exports = module.exports = send;</span><br></pre></td></tr></table></figure>
-
-<p><strong><code>send</code> 函数返回 <code>SendStream</code> 构造函数</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function send(req, path, options) &#123;</span><br><span class="line">	return new SendStream(req, path, options);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>来看<code>SendStream</code></strong></p>
-<ul>
-<li>参数 <ul>
-<li>req 即 <code>request</code></li>
-<li>path : <code>string</code> 路径</li>
-<li>options: </li>
-</ul>
-</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function SendStream(req, path, options) &#123;</span><br><span class="line">	....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>继承 <code>Stream.prototype</code></li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SendStream.prototype.__proto__ = Stream.prototype;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>下面都是 <code>SendStream</code> 原型链的方法</p>
-<ul>
-<li>hidden: 赋值 this._hidden, return this</li>
-<li>index: 赋值默认的 index <code>path</code>, this._index, return this</li>
-<li>root: 赋值根路径,  this._root </li>
-<li>maxage: 赋值最大缓存时间 , this._maxage</li>
-<li>error: 根据<code>status</code>-&gt;触发<code>error</code></li>
-<li>redirect: 如果有监听事件<code>directory</code>的监听者 那么触发<code>directory</code></li>
-<li>isMalicious: 检测<code>pathname</code>是否有潜在的问题,判断方法如果 没有<code>_root</code>且 <code>path</code>包含<code>..</code> 那么 就是有异常的路径;</li>
-<li>hasTrailingSlash: 判断路径最后一位是不是<code>/</code></li>
-<li>hasLeadingDot: 就是文件是否有后缀 形如<code>aa.html</code></li>
-<li>isCachable: 是否缓存， 判断方法 <code>(res.statusCode &gt;= 200 &amp;&amp; res.statusCode &lt; 300) || 304 == res.statusCode</code></li>
-<li>isFresh: 判断缓存是否是新的 判断方法 引用模块 <code>fresh</code></li>
-<li>removeContentHeaderFields 去除包含 <code>content</code>的头 <code>key</code></li>
-<li>onStatError: </li>
-</ul>
-</li>
-<li><p>主体方法 <code>pipe</code> , 参数 <code>res</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">var self = this</span><br><span class="line">, args = arguments</span><br><span class="line">, path = this.path</span><br><span class="line">, root = this._root</span><br><span class="line"></span><br><span class="line">this.res = res;</span><br><span class="line">//判断uri的有效性</span><br><span class="line">path = utils.decode(path);</span><br><span class="line">if (-1 == path) return this.error(400);</span><br><span class="line"></span><br><span class="line">//如果`path`里包含`\0` ，表明`path`为空</span><br><span class="line">if (~path.indexOf(&#x27;\0&#x27;)) return this.error(400);</span><br><span class="line"></span><br><span class="line">//连接 this._root 和 path</span><br><span class="line">if (root) path = normalize(join(this._root, path));</span><br><span class="line"></span><br><span class="line">//如果异常路径禁止访问</span><br><span class="line">if (this.isMalicious()) return this.error(403);</span><br><span class="line"></span><br><span class="line">//此时`path`已经是 `this._root`和 `path`的结合, 所以此种情况不会出现,如果有root</span><br><span class="line">if (root &amp;&amp; 0 != path.indexOf(root)) return this.error(403)</span><br><span class="line"></span><br><span class="line">//如果_hidden为`false`,那么不支持隐藏文件，此时文件如果以`.`开头那么就不支持 </span><br><span class="line">if (!this._hidden &amp;&amp; this.hasLeadingDot()) return this.error(404);</span><br><span class="line"></span><br><span class="line">//index 文件支持</span><br><span class="line">if (this._index &amp;&amp; this.hasTrailingSlash()) path += this._index</span><br><span class="line"></span><br><span class="line">//最后看path 的信息</span><br><span class="line">fs.stat(path, function(err, stat)&#123;</span><br><span class="line">	if (err) return self.onStatError(err); //上面已介绍</span><br><span class="line">	if (stat.isDirectory) return self.redirect(self.path); //见上</span><br><span class="line">	self.emit(&#x27;file&#x27;, path, stat); //见下</span><br><span class="line">	self.send(path, stat);//见下</span><br><span class="line">&#125;);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<ul>
-<li>方法 <strong><code>send</code></strong><ul>
-<li>path: 路径</li>
-<li>stat: 文件状态</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">var options = this.options;</span><br><span class="line">var len = stat.size;</span><br><span class="line">var res = this.res;</span><br><span class="line">var req = this.req;</span><br><span class="line">var ranges = req.headers.range; //截取部分文件之用</span><br><span class="line">var offset = options.start || 0;</span><br><span class="line"></span><br><span class="line">//赋值header</span><br><span class="line">this.setHeader(stat);</span><br><span class="line"></span><br><span class="line">//赋值 content-type</span><br><span class="line">this.type(path);</span><br><span class="line"></span><br><span class="line">//条件 GET 支持, isFresh() 见 [fresh](https://github.com/visionmedia/node-fresh/blob/master/index.js)</span><br><span class="line">if (this.isConditionGET()</span><br><span class="line">&amp;&amp; this.isCachable()</span><br><span class="line">&amp;&amp; this.isFresh()) &#123;</span><br><span class="line">	return this.notModified();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//</span><br><span class="line">len = Math.max(0, len - offset);</span><br><span class="line">if (options.end != undefined) &#123;</span><br><span class="line">	var bytes = options.end - offset + 1;</span><br><span class="line">	if (len &gt; bytes) len = bytes;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// Range 支持</span><br><span class="line">if (ranges) &#123;</span><br><span class="line">	...	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// content-length</span><br><span class="line">res.setHeader(&#x27;Content-Length&#x27;, len);</span><br><span class="line"></span><br><span class="line">// HEAD support</span><br><span class="line">if (&#x27;HEAD&#x27; == req.method) return res.end();</span><br><span class="line"></span><br><span class="line">this.stream(path, options); //见下</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>方法 <code>stream</code><ul>
-<li>参数<ul>
-<li>path : 路径</li>
-<li>options</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">var self = this;</span><br><span class="line">var res = this.res;</span><br><span class="line">var req = this.req;</span><br><span class="line"></span><br><span class="line">//pipe 把流数据加入 `res`管道</span><br><span class="line">var stream = fs.createReadStream(path, options);</span><br><span class="line">this.emit(&#x27;stream&#x27;, stream);</span><br><span class="line">stream.pipe(res);</span><br><span class="line"></span><br><span class="line">//socket 关闭， </span><br><span class="line"></span><br><span class="line">req.on(&#x27;close&#x27;, stream.destroy.bind(stream));</span><br><span class="line"></span><br><span class="line">//error处理</span><br><span class="line">steam.on(&#x27;error&#x27;, function(err)&#123;</span><br><span class="line">	//不回复</span><br><span class="line">	if (res._header) &#123;</span><br><span class="line">		console.error(err.stack);</span><br><span class="line">		req.destroy();</span><br><span class="line">		return;</span><br><span class="line">	&#125;</span><br><span class="line">	erro.status = 500;</span><br><span class="line">	self.emit(&#x27;error&#x27;, err);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">//end</span><br><span class="line">stream.on(&#x27;end&#x27;, function()&#123;</span><br><span class="line">	self.emit(&#x27;end&#x27;);	</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2013/09/10/2013-09-10-visionmedia-slash-send-reading/" data-id="clsukmp3d0006ek20ht40d32m" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2013-09-04-tornado-code-reading" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/09/04/2013-09-04-tornado-code-reading/" class="article-date">
-  <time datetime="2013-09-04T05:26:00.000Z" itemprop="datePublished">2013-09-04</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2013/09/04/2013-09-04-tornado-code-reading/">Tornado code Reading</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##服务器建立</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/facebook/tornado/blob/master/tornado/httpserver.py">HTTPServer</a></p>
-<p><strong>应用</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">application = web.Application([</span><br><span class="line">(r&quot;/&quot;, MainPageHandler),	</span><br><span class="line">])</span><br><span class="line">http_server = httpserver.HTTPServer(application)</span><br><span class="line">http_server.listen(8080)</span><br><span class="line">ioloop.IOLoop.instance().start()</span><br></pre></td></tr></table></figure>
-
-<p>对照应用例子理解源码</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">def __init__(self, request_callback, no_keep_alive=False, io_loop=None,</span><br><span class="line">                 xheaders=False, ssl_options=None, protocol=None, **kwargs):</span><br><span class="line">        self.request_callback = request_callback</span><br><span class="line">        self.no_keep_alive = no_keep_alive</span><br><span class="line">        self.xheaders = xheaders</span><br><span class="line">        self.protocol = protocol</span><br><span class="line">        TCPServer.__init__(self, io_loop=io_loop, ssl_options=ssl_options,</span><br><span class="line">                           **kwargs) #HTTPServer 继承自 TCPServer, 初始化TCPServer</span><br></pre></td></tr></table></figure>
-
-<p><strong>参数</strong></p>
-<ul>
-<li>request_callback: 必须产生一个http回复, 例子中 application 即是回复</li>
-<li>xheaders: True(支持通过<code>x-real-ip</code>或<code>x-forwarded-for</code>获取ip) False(当torando之前有反向代理或者负载均衡self.request.remote_ip只能获得127.0.0.1)</li>
-<li>ssl_options: ssl传输数据</li>
-</ul>
-<p>ssl_options 使用例子 </p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HTTPServer(applicaton, ssl_options=&#123;</span><br><span class="line">   &quot;certfile&quot;: os.path.join(data_dir, &quot;mydomain.crt&quot;),</span><br><span class="line">   &quot;keyfile&quot;: os.path.join(data_dir, &quot;mydomain.key&quot;),</span><br><span class="line">	&#125;) </span><br></pre></td></tr></table></figure>
-<p>下面应该说下 <code>TCPServer</code> 主体内容在 <code>TCPServer</code>, </p>
-<p><a target="_blank" rel="noopener" href="https://github.com/facebook/tornado/blob/master/tornado/tcpserver.py">TCPServer</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2013/09/04/2013-09-04-tornado-code-reading/" data-id="clsukmp3a0003ek208ueb1ms2" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
-
-  <nav id="page-nav">
-    
-    <a class="extend prev" rel="prev" href="/page/3/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/">Next &amp;raquo;</a>
-  </nav>
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/NoSQL/">NoSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/codeReading/">codeReading</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/dev-life/">dev-life</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/translation/">translation</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/web/">web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/web-basic/">web basic</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/2021/" rel="tag">2021</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Applepay/" rel="tag">Applepay</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChatGPT/" rel="tag">ChatGPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GOPS/" rel="tag">GOPS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LLM/" rel="tag">LLM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LangChain/" rel="tag">LangChain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NLP/" rel="tag">NLP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SRE/" rel="tag">SRE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aliyun/" rel="tag">aliyun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iap/" rel="tag">iap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oss/" rel="tag">oss</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weekreport/" rel="tag">weekreport</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%9A%E5%8A%A1%E5%8A%9F%E8%83%BD/" rel="tag">业务功能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%A4%E6%98%93%E7%B3%BB%E7%BB%9F/" rel="tag">交易系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BF%A1%E6%81%AF/" rel="tag">信息</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%91%A8%E6%8A%A5/" rel="tag">周报</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E4%BD%9C/" rel="tag">工作</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E7%A8%8B%E5%B8%88/" rel="tag">工程师</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" rel="tag">年终总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E5%A4%A7%E4%BC%9A/" rel="tag">技术大会</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%BF%90%E8%90%A5/" rel="tag">技术运营</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E5%AD%A6/" rel="tag">文学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E6%A1%A3/" rel="tag">文档</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%B9%E6%B3%95%E8%AE%BA/" rel="tag">方法论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%9F%E6%B4%BB/" rel="tag">生活</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86/" rel="tag">知识</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A1%AE%E5%AE%9A%E6%80%A7/" rel="tag">确定性</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A4%BE%E4%BC%9A%E5%AD%A6/" rel="tag">社会学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/" rel="tag">静态博客</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/2021/" style="font-size: 10px;">2021</a> <a href="/tags/Applepay/" style="font-size: 10px;">Applepay</a> <a href="/tags/ChatGPT/" style="font-size: 10px;">ChatGPT</a> <a href="/tags/GOPS/" style="font-size: 10px;">GOPS</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/NLP/" style="font-size: 10px;">NLP</a> <a href="/tags/SRE/" style="font-size: 15px;">SRE</a> <a href="/tags/aliyun/" style="font-size: 10px;">aliyun</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/iap/" style="font-size: 10px;">iap</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/oss/" style="font-size: 10px;">oss</a> <a href="/tags/weekreport/" style="font-size: 15px;">weekreport</a> <a href="/tags/%E4%B8%9A%E5%8A%A1%E5%8A%9F%E8%83%BD/" style="font-size: 10px;">业务功能</a> <a href="/tags/%E4%BA%A4%E6%98%93%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">交易系统</a> <a href="/tags/%E4%BF%A1%E6%81%AF/" style="font-size: 15px;">信息</a> <a href="/tags/%E5%91%A8%E6%8A%A5/" style="font-size: 20px;">周报</a> <a href="/tags/%E5%B7%A5%E4%BD%9C/" style="font-size: 10px;">工作</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%B8%88/" style="font-size: 10px;">工程师</a> <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" style="font-size: 10px;">年终总结</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 10px;">总结</a> <a href="/tags/%E6%8A%80%E6%9C%AF%E5%A4%A7%E4%BC%9A/" style="font-size: 10px;">技术大会</a> <a href="/tags/%E6%8A%80%E6%9C%AF%E8%BF%90%E8%90%A5/" style="font-size: 10px;">技术运营</a> <a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 10px;">文学</a> <a href="/tags/%E6%96%87%E6%A1%A3/" style="font-size: 10px;">文档</a> <a href="/tags/%E6%96%B9%E6%B3%95%E8%AE%BA/" style="font-size: 10px;">方法论</a> <a href="/tags/%E7%94%9F%E6%B4%BB/" style="font-size: 15px;">生活</a> <a href="/tags/%E7%9F%A5%E8%AF%86/" style="font-size: 15px;">知识</a> <a href="/tags/%E7%A1%AE%E5%AE%9A%E6%80%A7/" style="font-size: 10px;">确定性</a> <a href="/tags/%E7%A4%BE%E4%BC%9A%E5%AD%A6/" style="font-size: 10px;">社会学</a> <a href="/tags/%E8%BF%90%E7%BB%B4/" style="font-size: 20px;">运维</a> <a href="/tags/%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/" style="font-size: 10px;">静态博客</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">May 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/11/">November 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
+  <div id="recent-posts">
     <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2024/02/29/k8s%E7%BB%99%E8%BF%90%E7%BB%B4%E5%B8%A6%E6%9D%A5%E4%BB%80%E4%B9%88/">k8s给运维带来什么</a>
-          </li>
-        
-          <li>
-            <a href="/2024/02/19/2024-02-19-%E8%BF%90%E7%BB%B4%E4%B8%AD%E9%87%8D%E8%A6%81%E7%9A%84%E4%BA%8B/">运维中重要的事</a>
-          </li>
-        
-          <li>
-            <a href="/2023/07/10/2023-07-10-LLM%E4%B8%8E%E6%9C%AC%E5%9C%B0%E7%9F%A5%E8%AF%86%E5%BA%93/">LLM与本地知识库</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/11/2023-06-11-%E8%B0%88%E8%B0%88%20devops%E4%B8%8E%E6%95%B0%E5%AD%97%E5%8C%96/">谈谈devops与数字化</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/19/2023-05-19-WeekReport/">WeekReport</a>
-          </li>
-        
-      </ul>
-    </div>
+    
+      <div class="recent-post-item">
+        <a href="../../2014/05/21/2014-05-21-node-thunkify-code-reading/">node-thunkify Code Reading</a>
+        <time datetime="2014-05-21T04:02:00.000Z">
+          5月 21, 2014
+        </time>
+      </div>
+    
+      <div class="recent-post-item">
+        <a href="../../2014/01/17/2014-01-17-koa-dot-js-code-reading/">Koa.js Code Reading</a>
+        <time datetime="2014-01-17T07:23:00.000Z">
+          1月 17, 2014
+        </time>
+      </div>
+    
+      <div class="recent-post-item">
+        <a href="../../2013/12/27/2013-12-27-underscore-dot-js-code-reading/">underscore.js Code Reading</a>
+        <time datetime="2013-12-27T13:14:00.000Z">
+          12月 27, 2013
+        </time>
+      </div>
+    
+      <div class="recent-post-item">
+        <a href="../../2013/12/18/2013-12-18-lazy-dot-js-code-reading/">Lazy.js code Reading</a>
+        <time datetime="2013-12-18T00:58:00.000Z">
+          12月 18, 2013
+        </time>
+      </div>
+    
+      <div class="recent-post-item">
+        <a href="../../2013/12/07/2013-12-07-generic-pool-reading/">generic-pool Reading</a>
+        <time datetime="2013-12-06T18:00:00.000Z">
+          12月 07, 2013
+        </time>
+      </div>
+    
+      <div class="recent-post-item">
+        <a href="../../2013/11/08/2013-11-08-tornado-code-reading-tornado-dot-concurrent/">Tornado Code Reading - tornado.concurrent</a>
+        <time datetime="2013-11-08T05:38:00.000Z">
+          11月 08, 2013
+        </time>
+      </div>
+    
+      <div class="recent-post-item">
+        <a href="../../2013/09/19/2013-09-19-tornado-code-reading-ioloop/">Tornado Code Reading - IOLoop</a>
+        <time datetime="2013-09-19T04:36:00.000Z">
+          9月 19, 2013
+        </time>
+      </div>
+    
+      <div class="recent-post-item">
+        <a href="../../2013/09/16/2013-09-16-tornado-code-reading-tcpserver/">Tornado Code Reading-TCPServer</a>
+        <time datetime="2013-09-16T08:31:00.000Z">
+          9月 16, 2013
+        </time>
+      </div>
+    
+      <div class="recent-post-item">
+        <a href="../../2013/09/10/2013-09-10-visionmedia-slash-send-reading/">visionmedia/send Reading</a>
+        <time datetime="2013-09-09T16:41:00.000Z">
+          9月 10, 2013
+        </time>
+      </div>
+    
+      <div class="recent-post-item">
+        <a href="../../2013/09/04/2013-09-04-tornado-code-reading/">Tornado code Reading</a>
+        <time datetime="2013-09-04T05:26:00.000Z">
+          9月 04, 2013
+        </time>
+      </div>
+    
   </div>
 
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2024 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+
+<div id="paginator">
+  <a class="extend prev" rel="prev" href="../3/">Prev</a><a class="page-number" href="../../">1</a><a class="page-number" href="../2/">2</a><a class="page-number" href="../3/">3</a><span class="page-number current">4</span><a class="page-number" href="../5/">5</a><a class="extend next" rel="next" href="../5/">Next</a>
+</div>
+
     </div>
-  </div>
-</footer>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2024 zs1621 
     </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-9.13.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
     
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
 
 
 
-
-<script src="/js/script.js"></script>
-
-
-
-
-  </div>
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
 </body>
 </html>
