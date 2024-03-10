@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Tornado Code Reading - tornado.concurrent | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="##Future背景Future 代表一个函数的调用结果. 函数返回一个值或者抛出一个异常， 所以future 包含一个值或者一个异常(可以通过future.result()获得这个结果，异常和返回值). Fuures存在与对应的函数结束前. 在 一个  多线程场景下,简单的调用 future.result()等待另外一个线程或者进程完成。在 异步场景下，你可以附带一个callback给futur">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tornado Code Reading - tornado.concurrent">
+<meta property="og:url" content="http://example.com/2013/11/08/2013-11-08-tornado-code-reading-tornado-dot-concurrent/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="##Future背景Future 代表一个函数的调用结果. 函数返回一个值或者抛出一个异常， 所以future 包含一个值或者一个异常(可以通过future.result()获得这个结果，异常和返回值). Fuures存在与对应的函数结束前. 在 一个  多线程场景下,简单的调用 future.result()等待另外一个线程或者进程完成。在 异步场景下，你可以附带一个callback给futur">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2013-11-08T05:38:00.000Z">
+<meta property="article:modified_time" content="2024-02-07T02:14:07.864Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-2013-11-08-tornado-code-reading-tornado-dot-concurrent" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2013/11/08/2013-11-08-tornado-code-reading-tornado-dot-concurrent/" class="article-date">
+  <time datetime="2013-11-08T05:38:00.000Z" itemprop="datePublished">2013-11-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Tornado Code Reading - tornado.concurrent
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>##Future背景<br>Future 代表一个函数的调用结果. 函数返回一个值或者抛出一个异常， 所以future 包含一个值或者一个异常(可以通过future.result()获得这个结果，异常和返回值). Fuures存在与对应的函数结束前. 在 一个  多线程场景下,简单的调用 future.result()等待另外一个线程或者进程完成。在 异步场景下，你可以附带一个callback给future为了当调用结束可以得到通知。（with future.add_done_callback or io_loop.add_future） </p>
+<p>##了解 Future<br><code>Futures</code> 已经在Python3.2应用了 <a target="_blank" rel="noopener" href="http://python.readthedocs.org/en/latest/library/concurrent.futures.html#concurrent.futures">concurrent.futures</a> , 如果在python3.2之前版本用 可以 (pip install futures). 那在 tornado 中如果可以将用就用python包，否则将会使用一个兼容的类 <code>tornado.concurrent.Future</code> </p>
+<h2 id="class-tornado-concurrent-Future"><a href="#class-tornado-concurrent-Future" class="headerlink" title="class tornado.concurrent.Future"></a>class tornado.concurrent.Future</h2><p><strong>这个类封装了异步操作的结果</strong>。在同步程序中， Futures被用来等待一个线程或者进程池的结果。在Tornado一般用在 IOLoop.add_future 或者 在一个 gen.coroutine </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&quot;&quot;&quot;</span><br><span class="line">如果有 concurrent.futures 可用，那就用它; 否则用 _DummyFuture </span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line">if futures is None:</span><br><span class="line">    Future = _DummyFuture</span><br><span class="line">else:</span><br><span class="line">    Future = futures.Future</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="DummyFuture"><a href="#DummyFuture" class="headerlink" title="_DummyFuture"></a>_DummyFuture</h2><ul>
+<li>result</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&quot;&quot;&quot;</span><br><span class="line">先检查有没有完成 ，没有完成 ,直接抛出异常!如果有异常就raise 异常，否则返回 result</span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line">def result(self, timeout=None):</span><br><span class="line">	self._check_done()</span><br><span class="line">	if self._exception:</span><br><span class="line">		raise self._exception</span><br><span class="line">	return self._result</span><br></pre></td></tr></table></figure>
+<ul>
+<li>exception</li>
+</ul>
+<p>这个函数先与result唯一的不同是 无异常的时候 return None ;</p>
+<ul>
+<li>add_done_callback(fn)</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">给Future加入一个回调。当它完成将会 以Future为参数调用回调函数. </span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add_done_callback</span>(<span class="params">self, fn</span>):</span><br><span class="line">	<span class="keyword">if</span> self.done:</span><br><span class="line">		fn(self)</span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		self._callbacks.append(fn)</span><br></pre></td></tr></table></figure>
+
+<h2 id="TracebackFuture"><a href="#TracebackFuture" class="headerlink" title="TracebackFuture"></a>TracebackFuture</h2><p>存储 异常的追踪</p>
+<h2 id="DummyExecutor"><a href="#DummyExecutor" class="headerlink" title="DummyExecutor"></a>DummyExecutor</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">class DummyExecutor(object):</span><br><span class="line">	def submit(self, fn, *args, **kwargs):</span><br><span class="line">		future = TracebackFuture()</span><br><span class="line">		try:</span><br><span class="line">			future.set_result(fn(*args, **kwargs))</span><br><span class="line">		except Exception:</span><br><span class="line">			future.set_exc_info(sys.exc_info())</span><br><span class="line">		return future</span><br><span class="line">	def shutdown(self, wait=True):</span><br><span class="line">		pass</span><br></pre></td></tr></table></figure>
+
+<h2 id="run-on-executor"><a href="#run-on-executor" class="headerlink" title="run_on_executor"></a>run_on_executor</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">run_on_executor</span>(<span class="params">fn</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    异步的跑同步方法</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">    @functools.wraps(<span class="params">fn</span>):</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">self, *args, **kwargs</span>):</span><br><span class="line">        callback = kwargs.pop(<span class="string">&quot;callback&quot;</span>, <span class="literal">None</span>)</span><br><span class="line">        future = self.executor.submit(fn, self, *args, **kwargs) <span class="comment">#self.executor  理解为线程池</span></span><br><span class="line">        <span class="keyword">if</span> callback:</span><br><span class="line">            self.io_loop.add_future(future, \</span><br><span class="line">                <span class="keyword">lambda</span> future: callback(future.result()))</span><br><span class="line">        <span class="keyword">return</span> future</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br></pre></td></tr></table></figure>
+
+<p>这里有关于<code>run_on_executor</code>的应用例子 <a target="_blank" rel="noopener" href="https://gist.github.com/zs1621/7921770">https://gist.github.com/zs1621/7921770</a></p>
+<h2 id="return-future"><a href="#return-future" class="headerlink" title="return_future"></a>return_future</h2><ul>
+<li>what use: 让函数通过回调返回一个<code>Future</code></li>
+<li>how use: @return_future</li>
+</ul>
+<blockquote>
+<p>看 tornado 源码的 test文件 concurrent_test.py; </p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ReturnFutureTest</span>(<span class="title class_ inherited__">AsyncTestCase</span>):</span><br><span class="line"><span class="meta">    @return_future</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">sync_future</span>(<span class="params">self, callback</span>): <span class="comment"># 同步future</span></span><br><span class="line">        <span class="built_in">print</span> (callback, <span class="string">&#x27;+++++++++++++++&#x27;</span>) <span class="comment"># d -&gt; 对应log 的d</span></span><br><span class="line">        callback(<span class="number">42</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">    @return_future</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">async_future</span>(<span class="params">self, callback</span>): <span class="comment">#异步future</span></span><br><span class="line">        <span class="built_in">print</span> (callback, <span class="string">&#x27;+++++++++++++++&#x27;</span>) <span class="comment"># d -&gt; 对应 log 的 d</span></span><br><span class="line">        self.io_loop.add_callback(callback, <span class="number">42</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">test_sync_future</span>(<span class="params">self</span>): <span class="comment">#测试同步 </span></span><br><span class="line">        future = self.sync_future()</span><br><span class="line">        self.assertEqual(future.result(), <span class="number">42</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">test_async_future</span>(<span class="params">self</span>): <span class="comment">#测试异步</span></span><br><span class="line">        future = self.async_future()</span><br><span class="line">        self.assertFalse(future.done())</span><br><span class="line">        self.io_loop.add_future(future, self.stop) <span class="comment">#add_future</span></span><br><span class="line">        future2 = self.wait()</span><br><span class="line">        self.assertIs(future, future2)</span><br><span class="line">        self.assertEqual(future.result(), <span class="number">42</span>)</span><br></pre></td></tr></table></figure>
+
+<p>联合 concurrent.py -&gt; return_future</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">return_future</span>(<span class="params">f</span>):</span><br><span class="line">    replacer = ArgReplacer(f, <span class="string">&#x27;callback&#x27;</span>) <span class="comment"># 1 </span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @fuctools.wraps(<span class="params">f</span>)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwrags</span>):</span><br><span class="line">        <span class="built_in">print</span> (args, kwrags, <span class="string">&quot;argsssssssss&quot;</span>) <span class="comment">#a 对应下面的 log -&gt; a</span></span><br><span class="line">        future = TracebackFuture() <span class="comment"># 2</span></span><br><span class="line">        callback, args, kwargs = replacer.replace(</span><br><span class="line">            <span class="keyword">lambda</span> value=_NO_RESULT: future.set_result(value),</span><br><span class="line">            args, kwargs) <span class="comment"># 1  替代 f 函数的 `callback`,  </span></span><br><span class="line">        <span class="built_in">print</span> (callback, args, kwargs, <span class="string">&#x27;callback&#x27;</span>) <span class="comment">#b 对应下面的 log -&gt; b</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">handle_error</span>(<span class="params">typ, value, tb</span>):</span><br><span class="line">            future.set_exc_info((typ, value, tb))</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">        exc_info = <span class="literal">None</span></span><br><span class="line">        <span class="keyword">with</span> ExceptionStackContext(handle_error): <span class="comment"># 4</span></span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                result = f(*args, **kwargs) </span><br><span class="line">                <span class="built_in">print</span> (result, <span class="string">&#x27;result-------------------&#x27;</span>) <span class="comment">#c 对应下面的 log -&gt; c</span></span><br><span class="line">                <span class="keyword">if</span> result <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                        <span class="keyword">raise</span> ReturnValueIgoredError(</span><br><span class="line">                            <span class="string">&quot;@return_future should not be used with functions&quot;</span></span><br><span class="line">                            <span class="string">&quot;that return values&quot;</span>)</span><br><span class="line">            <span class="keyword">except</span>:</span><br><span class="line">                exc_info = sys.exc_info()</span><br><span class="line">                <span class="keyword">raise</span></span><br><span class="line">        <span class="keyword">if</span> exc_info <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            raise_exc_info(exc_info)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> callback <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">def</span> <span class="title function_">run_callback</span>(<span class="params">future</span>):</span><br><span class="line">                result = future.result()</span><br><span class="line">                <span class="built_in">print</span> (future, <span class="string">&quot;+__+_+_+_+_&quot;</span>) <span class="comment">#e -&gt; 对应下面 ＬＯＧ -&gt; e</span></span><br><span class="line">                <span class="keyword">if</span> result <span class="keyword">is</span> _NO_RESULT:</span><br><span class="line">                    callback()</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    callback(future.result())</span><br><span class="line">            future.add_done_callback(wrap(run_callback)) <span class="comment"># 6</span></span><br><span class="line">        <span class="keyword">return</span> future</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br></pre></td></tr></table></figure>
+
+<p>###分几种情况 1. 同步无回调 2.同步有回调 3.异步无回调 4.异步有回调</p>
+<ul>
+<li><strong>同步无回调LOG</strong>  <code>f(args, kwargs): future = sync_process()</code><ul>
+<li><em>a</em> –  (&lt;test_return_future.ReturnFutureTest testMethod=test_no_callback&gt;,) {} argsssssssss</li>
+<li><em>b</em> – None (&lt;test_return_future.ReturnFutureTest testMethod=test_no_callback&gt;,) {‘callback’: &lt;function <lambda> at 0xb6ba8f0c&gt;} callback</li>
+<li><em>c</em> – None result—————— </li>
+<li><em>d</em> – (function <lambda> at 0xb6ba8f0c&gt;) +++++++++++++</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>从 a-b 可以理解 replacer.replace 的作用: 提取callback 的值， 并将callback 放入kwargs; 由c 可以知道 f() 函数是不会return 的; f()的结果只能由 future.result() 得到, 只要知道reuturn_future 是返回Future 本身是不会return 的， 如果return 就会报错; 由d 可知匿名函数<code>fuction &lt;lambda&gt; at 0xb6ba8f0c</code>赋值给了callback,而这个匿名函数的作用就是<code>set_result</code>。</p>
+</blockquote>
+<ul>
+<li><strong>同步有回调LOG</strong> <code>f(args, kwargs, callback): future = sync_process() callback(future)</code><ul>
+<li><em>a</em> – (&lt;test_return_future.ReturnFutureTest testMethod=test_callback_kw&gt;,) {‘callback’:&lt;bound method ReturnFutureTest.stop of &lt;test_return_future.ReturnFutureTest testMethod=test_callback_kw&gt;&gt;} argsssssssss</li>
+<li><em>b</em> – &lt;bound method ReturnFutureTest.stop of &lt;test_return_future.ReturnFutureTest testMethod=test_callback_kw&gt;&gt; (&lt;test_return_future.ReturnFutureTest testMethod=test_callback_kw&gt;,) {‘callback’: &lt;function <lambda> at 0xb6bd8f44&gt;} callback  </li>
+<li><em>c</em> –  None result——————</li>
+<li><em>d</em> – 额额 function <lambda> at 0xb6bd8f44 +++++++++++++ </li>
+<li><em>e</em> – 额额 Future at 0xb6b9cc8cL state=finished returned int +<em>_+</em>+<em>+</em>+_ </li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>与无回调相比; 明显多出 e log; run_callback 就是将 future.result()作为callback的参数运行; </p>
+</blockquote>
+<ul>
+<li><strong>异步无回调LOG</strong> <code>f(args, kwargs): future = async_process()</code><ul>
+<li><em>a</em> – (&lt;test_return_future.ReturnFutureTest testMethod=test_async_future&gt;,) {} argsssssssss </li>
+<li><em>b</em> – None (&lt;test_return_future.ReturnFutureTest testMethod=test_async_future&gt;,) {‘callback’: &lt;function <lambda> at 0x8518f44&gt;} callback </li>
+<li><em>c</em> – None result—————— </li>
+<li><em>d</em> – (function <lambda> at 0x8518f44) ++++++++++++++ </li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>与同步无回调相比; 看<code>test_async_future(self)</code>, 将 f() 获得的 future -&gt; self.io_loop.add_future(future, self.stop) -&gt; self.stop(future) -&gt; 最后通过 self.wait()获得的结果 就是 例子中42 . 现实中一般将 return_future 与 gen.engine 联合使用  , 通过在 gen.engine -&gt; yield f() 获得结果</p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2013/11/08/2013-11-08-tornado-code-reading-tornado-dot-concurrent/" data-id="clsukmp3j000aek20ci4q60j2" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2013/12/07/2013-12-07-generic-pool-reading/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          generic-pool Reading
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2013/09/19/2013-09-19-tornado-code-reading-ioloop/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Tornado Code Reading - IOLoop</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/NoSQL/">NoSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/codeReading/">codeReading</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/dev-life/">dev-life</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/translation/">translation</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/web/">web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/web-basic/">web basic</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/2021/" rel="tag">2021</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Applepay/" rel="tag">Applepay</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChatGPT/" rel="tag">ChatGPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GOPS/" rel="tag">GOPS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LLM/" rel="tag">LLM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LangChain/" rel="tag">LangChain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NLP/" rel="tag">NLP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SRE/" rel="tag">SRE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aliyun/" rel="tag">aliyun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iap/" rel="tag">iap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oss/" rel="tag">oss</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weekreport/" rel="tag">weekreport</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%9A%E5%8A%A1%E5%8A%9F%E8%83%BD/" rel="tag">业务功能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%A4%E6%98%93%E7%B3%BB%E7%BB%9F/" rel="tag">交易系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BF%A1%E6%81%AF/" rel="tag">信息</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%91%A8%E6%8A%A5/" rel="tag">周报</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E4%BD%9C/" rel="tag">工作</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E7%A8%8B%E5%B8%88/" rel="tag">工程师</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" rel="tag">年终总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E5%A4%A7%E4%BC%9A/" rel="tag">技术大会</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%BF%90%E8%90%A5/" rel="tag">技术运营</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E5%AD%A6/" rel="tag">文学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E6%A1%A3/" rel="tag">文档</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%B9%E6%B3%95%E8%AE%BA/" rel="tag">方法论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%9F%E6%B4%BB/" rel="tag">生活</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86/" rel="tag">知识</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A1%AE%E5%AE%9A%E6%80%A7/" rel="tag">确定性</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A4%BE%E4%BC%9A%E5%AD%A6/" rel="tag">社会学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/" rel="tag">静态博客</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/2021/" style="font-size: 10px;">2021</a> <a href="/tags/Applepay/" style="font-size: 10px;">Applepay</a> <a href="/tags/ChatGPT/" style="font-size: 10px;">ChatGPT</a> <a href="/tags/GOPS/" style="font-size: 10px;">GOPS</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/NLP/" style="font-size: 10px;">NLP</a> <a href="/tags/SRE/" style="font-size: 15px;">SRE</a> <a href="/tags/aliyun/" style="font-size: 10px;">aliyun</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/iap/" style="font-size: 10px;">iap</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/oss/" style="font-size: 10px;">oss</a> <a href="/tags/weekreport/" style="font-size: 15px;">weekreport</a> <a href="/tags/%E4%B8%9A%E5%8A%A1%E5%8A%9F%E8%83%BD/" style="font-size: 10px;">业务功能</a> <a href="/tags/%E4%BA%A4%E6%98%93%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">交易系统</a> <a href="/tags/%E4%BF%A1%E6%81%AF/" style="font-size: 15px;">信息</a> <a href="/tags/%E5%91%A8%E6%8A%A5/" style="font-size: 20px;">周报</a> <a href="/tags/%E5%B7%A5%E4%BD%9C/" style="font-size: 10px;">工作</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%B8%88/" style="font-size: 10px;">工程师</a> <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" style="font-size: 10px;">年终总结</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 10px;">总结</a> <a href="/tags/%E6%8A%80%E6%9C%AF%E5%A4%A7%E4%BC%9A/" style="font-size: 10px;">技术大会</a> <a href="/tags/%E6%8A%80%E6%9C%AF%E8%BF%90%E8%90%A5/" style="font-size: 10px;">技术运营</a> <a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 10px;">文学</a> <a href="/tags/%E6%96%87%E6%A1%A3/" style="font-size: 10px;">文档</a> <a href="/tags/%E6%96%B9%E6%B3%95%E8%AE%BA/" style="font-size: 10px;">方法论</a> <a href="/tags/%E7%94%9F%E6%B4%BB/" style="font-size: 15px;">生活</a> <a href="/tags/%E7%9F%A5%E8%AF%86/" style="font-size: 15px;">知识</a> <a href="/tags/%E7%A1%AE%E5%AE%9A%E6%80%A7/" style="font-size: 10px;">确定性</a> <a href="/tags/%E7%A4%BE%E4%BC%9A%E5%AD%A6/" style="font-size: 10px;">社会学</a> <a href="/tags/%E8%BF%90%E7%BB%B4/" style="font-size: 20px;">运维</a> <a href="/tags/%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/" style="font-size: 10px;">静态博客</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">May 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/11/">November 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/02/29/k8s%E7%BB%99%E8%BF%90%E7%BB%B4%E5%B8%A6%E6%9D%A5%E4%BB%80%E4%B9%88/">k8s给运维带来什么</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/19/2024-02-19-%E8%BF%90%E7%BB%B4%E4%B8%AD%E9%87%8D%E8%A6%81%E7%9A%84%E4%BA%8B/">运维中重要的事</a>
+          </li>
+        
+          <li>
+            <a href="/2023/07/10/2023-07-10-LLM%E4%B8%8E%E6%9C%AC%E5%9C%B0%E7%9F%A5%E8%AF%86%E5%BA%93/">LLM与本地知识库</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/11/2023-06-11-%E8%B0%88%E8%B0%88%20devops%E4%B8%8E%E6%95%B0%E5%AD%97%E5%8C%96/">谈谈devops与数字化</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/19/2023-05-19-WeekReport/">WeekReport</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2024 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

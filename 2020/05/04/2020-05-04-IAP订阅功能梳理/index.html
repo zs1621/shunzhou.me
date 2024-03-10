@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>IAP订阅功能梳理 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="会员功能需要接入 IAP 订阅功能,  SKU -&gt; 连续包年(首月免费);连续包月(前3天免费);连续包季(首周免费) 前提: 系统已经有交易系统, 下面的描述只针对 连续订阅产品    需求 用户订阅后，获得会员资格, 且每次扣费会有对应的订单(包含免费试用阶段的订单)  苹果支付背景 苹果支付的核心是  收据(receipt)  连续订阅产品的话: 第一次产生收据是一直可用的 (ca">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IAP订阅功能梳理">
+<meta property="og:url" content="http://example.com/2020/05/04/2020-05-04-IAP%E8%AE%A2%E9%98%85%E5%8A%9F%E8%83%BD%E6%A2%B3%E7%90%86/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="会员功能需要接入 IAP 订阅功能,  SKU -&gt; 连续包年(首月免费);连续包月(前3天免费);连续包季(首周免费) 前提: 系统已经有交易系统, 下面的描述只针对 连续订阅产品    需求 用户订阅后，获得会员资格, 且每次扣费会有对应的订单(包含免费试用阶段的订单)  苹果支付背景 苹果支付的核心是  收据(receipt)  连续订阅产品的话: 第一次产生收据是一直可用的 (ca">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2020/05/04/2020-05-04-IAP%E8%AE%A2%E9%98%85%E5%8A%9F%E8%83%BD%E6%A2%B3%E7%90%86/image-20200504170848061.png">
+<meta property="og:image" content="http://example.com/2020/05/04/2020-05-04-IAP%E8%AE%A2%E9%98%85%E5%8A%9F%E8%83%BD%E6%A2%B3%E7%90%86/image-20200504163524179.png">
+<meta property="article:published_time" content="2020-05-04T00:10:08.000Z">
+<meta property="article:modified_time" content="2024-02-07T02:14:08.093Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Applepay">
+<meta property="article:tag" content="iap">
+<meta property="article:tag" content="业务功能">
+<meta property="article:tag" content="交易系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2020/05/04/2020-05-04-IAP%E8%AE%A2%E9%98%85%E5%8A%9F%E8%83%BD%E6%A2%B3%E7%90%86/image-20200504170848061.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-2020-05-04-IAP订阅功能梳理" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/05/04/2020-05-04-IAP%E8%AE%A2%E9%98%85%E5%8A%9F%E8%83%BD%E6%A2%B3%E7%90%86/" class="article-date">
+  <time datetime="2020-05-04T00:10:08.000Z" itemprop="datePublished">2020-05-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      IAP订阅功能梳理
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>会员功能需要接入 IAP 订阅功能,  SKU -&gt; 连续包年(首月免费);连续包月(前3天免费);连续包季(首周免费)</p>
+<p>前提: 系统已经有交易系统, 下面的描述只针对 连续订阅产品  </p>
+</blockquote>
+<h3 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h3><ul>
+<li>用户订阅后，获得会员资格, 且每次扣费会有对应的订单(包含免费试用阶段的订单)</li>
+</ul>
+<h3 id="苹果支付背景"><a href="#苹果支付背景" class="headerlink" title="苹果支付背景"></a>苹果支付背景</h3><ul>
+<li><p>苹果支付的核心是  收据(receipt)</p>
+<ul>
+<li>连续订阅产品的话: 第一次产生收据是一直可用的 (can verify) 每次续订/恢复购买的记录都「保存」在收据里， 业务逻辑核心就是理解 receipt 里的字段 </li>
+</ul>
+</li>
+<li><p>涉及到的人员</p>
+<ul>
+<li>设计:  设计购买页面</li>
+<li>产品:   产品交互/辅助开发 在 app_store 创建产品 </li>
+<li>IOS 开发: 初始化购买</li>
+<li>服务器开发: 验证客户端上传收据，并管理用户续费订单</li>
+</ul>
+</li>
+</ul>
+<h3 id="开发流程简述"><a href="#开发流程简述" class="headerlink" title="开发流程简述"></a>开发流程简述</h3><ul>
+<li>产品将 产品列表创建好 </li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>App product_id</th>
+<th>服务器后台 sku</th>
+<th>价格</th>
+<th>优惠说明</th>
+<th>标题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>product_year_xxx</td>
+<td>xxxx</td>
+<td>100</td>
+<td>首月免费</td>
+<td>连续包年</td>
+</tr>
+<tr>
+<td>product_quarter_xxx</td>
+<td>xxx</td>
+<td>50</td>
+<td>首周免费</td>
+<td>连续包季</td>
+</tr>
+<tr>
+<td>product_month_xxx</td>
+<td>xxxx</td>
+<td>30</td>
+<td>3天免费</td>
+<td>连续包月</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>IOS 客户端 可以从苹果拿到 product_id 列表开始测试</p>
+<ul>
+<li>目的: 产生 receipt 交给服务器设计表结构</li>
+<li>走具体流程</li>
+</ul>
+<p><img src="./image-20200504170848061.png" alt="image-20200504170848061"></p>
+</li>
+<li><p>服务器具体要做的事</p>
+<ul>
+<li>产品列表接口: 提供可购买的 product_id, 以及当前用户的订阅状态; 如果已订阅那么禁止用户继续订阅</li>
+<li>验证收据接口: 服务器收到 receipt 先在本地通过单元测试解析并结合文档(<a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/appstorereceipts)梳理">https://developer.apple.com/documentation/appstorereceipts)梳理</a> </li>
+<li>定时任务:  检测 payment_applepay 数据 按过期了一个月/将要过期的 订单每隔6h 轮询一次 业务逻辑同 （验证收据接口）</li>
+</ul>
+</li>
+</ul>
+<h3 id="服务器表结构设计"><a href="#服务器表结构设计" class="headerlink" title="服务器表结构设计"></a>服务器表结构设计</h3><ul>
+<li>验证动作表<ul>
+<li>记录每次验证 receipt 的 request_data 以及 response_data 方便测试和复盘</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">/******************************************/</span><br><span class="line">/*   DatabaseName = trade   */</span><br><span class="line">/*   TableName = trade_payment_applepay_verify   */</span><br><span class="line">/******************************************/</span><br><span class="line">CREATE TABLE `trade_payment_applepay_verify` (</span><br><span class="line">  `id` int(11) NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `created` datetime(6) NOT NULL,</span><br><span class="line">  `modified` datetime(6) NOT NULL,</span><br><span class="line">  `is_removed` tinyint(1) NOT NULL,</span><br><span class="line">  `user_id` int(11) NOT NULL,</span><br><span class="line">  `action_type` varchar(32) NOT NULL DEFAULT &#x27;client&#x27; COMMENT &#x27;验证类型,客户端验证(client);服务器轮询验证(server_crontab)&#x27;,</span><br><span class="line">  `order_no` varchar(64) NOT NULL,</span><br><span class="line">  `receipt_data` longtext NOT NULL COMMENT &#x27;待验证的收据&#x27;,</span><br><span class="line">  `status` int(11) NOT NULL COMMENT &#x27;验证状态 成功/失败&#x27;,</span><br><span class="line">  `environment` varchar(16) NOT NULL COMMENT &#x27;sandbox/production&#x27;,</span><br><span class="line">  `is_retryable` tinyint(1) NOT NULL,</span><br><span class="line">  `latest_receipt` longtext NOT NULL COMMENT &#x27;response: latest_receipt&#x27;,</span><br><span class="line">  `latest_receipt_info` longtext NOT NULL COMMENT &#x27; response: latest_receiptjson对象&#x27;,</span><br><span class="line">  `pending_renewal_info` longtext NOT NULL COMMENT &#x27;response: pending_renewal_info&#x27;,</span><br><span class="line">  `receipt` longtext NOT NULL COMMENT &#x27;response: receipt&#x27;,</span><br><span class="line">  PRIMARY KEY (`id`),</span><br><span class="line">  KEY `trade_payment_applepay_verify_user_id_4c0bc485_idx` (`user_id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8</span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>对应 receipt 的 in-app 列表 就是对应的每个 transcation_id <ul>
+<li>记录每次购买 、 续费、恢复购买数据 </li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">/******************************************/</span><br><span class="line">/*   DatabaseName = trade   */</span><br><span class="line">/*   TableName = trade_payment_applepay   */</span><br><span class="line">/******************************************/</span><br><span class="line">CREATE TABLE `trade_payment_applepay` (</span><br><span class="line">  `id` int(11) NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `created` datetime(6) NOT NULL,</span><br><span class="line">  `modified` datetime(6) NOT NULL,</span><br><span class="line">  `is_removed` tinyint(1) NOT NULL,</span><br><span class="line">  `user_id` int(11) NOT NULL,</span><br><span class="line">  `action_type` varchar(32) NOT NULL DEFAULT &#x27;client&#x27;,</span><br><span class="line">  `order_no` varchar(64) NOT NULL  DEFAULT &#x27;&#x27; COMMENT &#x27;对应订单 订单创建成功后赋值&#x27;,</span><br><span class="line">  `paid_time` bigint(20) DEFAULT NULL,</span><br><span class="line">  `status` varchar(100) NOT NULL,</span><br><span class="line">  `status_changed` datetime(6) NOT NULL,</span><br><span class="line">  `bundle_id` varchar(32) NOT NULL,</span><br><span class="line">  `application_version` varchar(16) NOT NULL,</span><br><span class="line">  `original_application_version` varchar(16) NOT NULL,</span><br><span class="line">  `version_external_identifier` varchar(16) NOT NULL,</span><br><span class="line">  `app_item_id` varchar(16) NOT NULL,</span><br><span class="line">  `product_id` varchar(64) NOT NULL DEFAULT &#x27;&#x27;,</span><br><span class="line">  `quantity` int(10) unsigned NOT NULL,</span><br><span class="line">  `environment` varchar(16) NOT NULL,</span><br><span class="line">  `transaction_id` varchar(32) NOT NULL COMMENT &#x27;每次交易 id 注意恢复购买时不需要&#x27;,</span><br><span class="line">  `original_transaction_id` varchar(32) NOT NULL COMMENT &#x27;原交易 id&#x27;,</span><br><span class="line">  `expires_date` datetime(6) DEFAULT NULL COMMENT &#x27;过期时间&#x27;,</span><br><span class="line">  `expires_date_ms` bigint(20) NOT NULL COMMENT &#x27;过期时间 ms&#x27;,</span><br><span class="line">  `purchase_date_ms` bigint(20) NOT NULL COMMENT &#x27;购买时间 ms&#x27;, </span><br><span class="line">  `purchase_date` varchar(64) NOT NULL  COMMENT &#x27;购买时间&#x27;,</span><br><span class="line">  `auto_renew_status` tinyint(1) NOT NULL COMMENT &#x27;续费状态&#x27;, </span><br><span class="line">  `is_in_intro_offer_period` tinyint(1) NOT NULL COMMENT &#x27;An indicator of whether an auto-renewable subscription is in the introductory price period&#x27;,</span><br><span class="line">  `is_trial_period` tinyint(1) NOT NULL COMMENT &#x27;是否是使用期间&#x27;,</span><br><span class="line">  `latest_receipt` longtext NOT NULL COMMENT &#x27;最后一次的收据&#x27;,</span><br><span class="line">  `web_order_line_item_id` varchar(64) NOT NULL,</span><br><span class="line">  PRIMARY KEY (`id`),</span><br><span class="line">  UNIQUE KEY `trade_payment_applepay_transaction_id_product_i_7f940417_uniq` (`original_transaction_id`,`product_id`,`expires_date_ms`) USING BTREE,</span><br><span class="line">  KEY `trade_payment_applepay_user_id_9e9b627e_idx` (`user_id`),</span><br><span class="line">  KEY `trade_payment_applepay_transaction_id_f8abbb58_idx` (`transaction_id`),</span><br><span class="line">  KEY `trade_payment_applepay_order_no_0ad1fa70_idx` (`order_no`),</span><br><span class="line">  KEY `trade_payment_applepay_original_transaction_id_7746fd50_idx` (`original_transaction_id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=337 DEFAULT CHARSET=utf8</span><br><span class="line">;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="字段设计以及-Why"><a href="#字段设计以及-Why" class="headerlink" title="字段设计以及 Why"></a>字段设计以及 Why</h4><ul>
+<li><p><code>original_transaction_id</code>,<code>product_id</code>,<code>expires_date_ms</code> 组合 unique_key 唯一索引</p>
+<blockquote>
+<p>对于连续订阅产品 orginal_transaction_id 只有一个, 区分每次订阅/续期的就是  expires_date_ms(每次续费时间会不一样) 和 product_id(更换产品比如从  连续包年-&gt;连续包月 )</p>
+</blockquote>
+</li>
+<li><p>payment_applepay 为什么需要 order_no</p>
+<blockquote>
+<p>关联 order 才知道这单处理过 防止丢单</p>
+</blockquote>
+</li>
+<li><p>怎么判断需不需要创建订单? </p>
+<blockquote>
+<p>解析in-app里的数据,  </p>
+<ol>
+<li>如果此时是插入数据 且 expires_date_ms &gt; now  就表明用户续费了或者刚购买 需要创建订单</li>
+<li>如果此时payment 数据已存在, 且 expires_date_ms &gt; now  且 order_no 没赋值, 那么说明漏单了, 创建订单 </li>
+<li>如果 is_trial_period or is_in_intro_offer_period 就要注意创建试用订单 此时用户还没真正付钱所以权益之只分配是用权限 比如 首月免费 那就创建首月免费订单 , 等苹果扣费时,  验证苹果 receipt 时 会新增一个 transaction_id 表明付款了</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<h3 id="测试流程"><a href="#测试流程" class="headerlink" title="测试流程"></a>测试流程</h3><ul>
+<li>了解 in-app-purchase sandbox 背景  如下图</li>
+</ul>
+<p><img src="./image-20200504163524179.png" alt="image-20200504163524179.png"></p>
+<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><ul>
+<li>苹果还有订阅 subscribe 接口, <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/appstoreservernotifications/">订阅文档</a> 当订阅发生改动时会向你的服务器发送通知. 这个为了订阅时效性可以选择接入。 我们这边只是写了接口 把订阅的数据存到database 没有做具体逻辑; 数据结构如下 </li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">/******************************************/</span><br><span class="line">/*   DatabaseName = trade   */</span><br><span class="line">/*   TableName = trade_payment_applepay_subscribe   */</span><br><span class="line">/******************************************/</span><br><span class="line">CREATE TABLE `trade_payment_applepay_subscribe` (</span><br><span class="line">  `id` int(11) NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `created` datetime(6) NOT NULL,</span><br><span class="line">  `modified` datetime(6) NOT NULL,</span><br><span class="line">  `is_removed` tinyint(1) NOT NULL,</span><br><span class="line">  `user_id` int(11) NOT NULL DEFAULT 0,</span><br><span class="line">  `order_no` varchar(64) NOT NULL DEFAULT &#x27;&#x27;,</span><br><span class="line">  `auto_renew_adam_id` varchar(64) NOT NULL,</span><br><span class="line">  `auto_renew_product_id` varchar(64) NOT NULL,</span><br><span class="line">  `auto_renew_status` tinyint(1) NOT NULL,</span><br><span class="line">  `auto_renew_status_change_date` datetime(6) NOT NULL,</span><br><span class="line">  `auto_renew_status_change_date_ms` bigint(20) NOT NULL,</span><br><span class="line">  `environment` varchar(16) NOT NULL,</span><br><span class="line">  `expiration_intent` smallint(6) NOT NULL,</span><br><span class="line">  `latest_expired_receipt` longtext NOT NULL,</span><br><span class="line">  `latest_expired_receipt_info` longtext NOT NULL,</span><br><span class="line">  `latest_receipt` longtext NOT NULL,</span><br><span class="line">  `latest_receipt_info` longtext NOT NULL,</span><br><span class="line">  `notification_type` varchar(64) NOT NULL,</span><br><span class="line">  `unified_receipt` longtext NOT NULL,</span><br><span class="line">  `password` varchar(128) NOT NULL,</span><br><span class="line">  `transaction_id` varchar(32) NOT NULL,</span><br><span class="line">  `original_transaction_id` varchar(32) NOT NULL,</span><br><span class="line">  PRIMARY KEY (`id`),</span><br><span class="line">  KEY `trade_payment_applepay_subscribe_user_id_0a63f52c_idx` (`user_id`),</span><br><span class="line">  KEY `trade_payment_applepay_subscribe_OTI_0a63f52c_idx` (`original_transaction_id`) USING BTREE</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=190 DEFAULT CHARSET=utf8</span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/05/04/2020-05-04-IAP%E8%AE%A2%E9%98%85%E5%8A%9F%E8%83%BD%E6%A2%B3%E7%90%86/" data-id="clsukmp450017ek20b0wg1iha" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Applepay/" rel="tag">Applepay</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iap/" rel="tag">iap</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%9A%E5%8A%A1%E5%8A%9F%E8%83%BD/" rel="tag">业务功能</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%A4%E6%98%93%E7%B3%BB%E7%BB%9F/" rel="tag">交易系统</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/07/11/2020-07-11-%E6%97%81%E8%A7%82%E8%80%85/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          旁观者
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/02/03/2020-02-03-hexo-aliyun-oss-blog/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">hexo+aliyunOss搭建静态博客(MigrateFromOctopress)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/NoSQL/">NoSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/codeReading/">codeReading</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/dev-life/">dev-life</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/translation/">translation</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/web/">web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/web-basic/">web basic</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/2021/" rel="tag">2021</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Applepay/" rel="tag">Applepay</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChatGPT/" rel="tag">ChatGPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GOPS/" rel="tag">GOPS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LLM/" rel="tag">LLM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LangChain/" rel="tag">LangChain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NLP/" rel="tag">NLP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SRE/" rel="tag">SRE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aliyun/" rel="tag">aliyun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iap/" rel="tag">iap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oss/" rel="tag">oss</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weekreport/" rel="tag">weekreport</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%9A%E5%8A%A1%E5%8A%9F%E8%83%BD/" rel="tag">业务功能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%A4%E6%98%93%E7%B3%BB%E7%BB%9F/" rel="tag">交易系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BF%A1%E6%81%AF/" rel="tag">信息</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%91%A8%E6%8A%A5/" rel="tag">周报</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E4%BD%9C/" rel="tag">工作</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E7%A8%8B%E5%B8%88/" rel="tag">工程师</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" rel="tag">年终总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E5%A4%A7%E4%BC%9A/" rel="tag">技术大会</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%BF%90%E8%90%A5/" rel="tag">技术运营</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E5%AD%A6/" rel="tag">文学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E6%A1%A3/" rel="tag">文档</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%B9%E6%B3%95%E8%AE%BA/" rel="tag">方法论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%9F%E6%B4%BB/" rel="tag">生活</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86/" rel="tag">知识</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A1%AE%E5%AE%9A%E6%80%A7/" rel="tag">确定性</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A4%BE%E4%BC%9A%E5%AD%A6/" rel="tag">社会学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/" rel="tag">静态博客</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/2021/" style="font-size: 10px;">2021</a> <a href="/tags/Applepay/" style="font-size: 10px;">Applepay</a> <a href="/tags/ChatGPT/" style="font-size: 10px;">ChatGPT</a> <a href="/tags/GOPS/" style="font-size: 10px;">GOPS</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/NLP/" style="font-size: 10px;">NLP</a> <a href="/tags/SRE/" style="font-size: 15px;">SRE</a> <a href="/tags/aliyun/" style="font-size: 10px;">aliyun</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/iap/" style="font-size: 10px;">iap</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/oss/" style="font-size: 10px;">oss</a> <a href="/tags/weekreport/" style="font-size: 15px;">weekreport</a> <a href="/tags/%E4%B8%9A%E5%8A%A1%E5%8A%9F%E8%83%BD/" style="font-size: 10px;">业务功能</a> <a href="/tags/%E4%BA%A4%E6%98%93%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">交易系统</a> <a href="/tags/%E4%BF%A1%E6%81%AF/" style="font-size: 15px;">信息</a> <a href="/tags/%E5%91%A8%E6%8A%A5/" style="font-size: 20px;">周报</a> <a href="/tags/%E5%B7%A5%E4%BD%9C/" style="font-size: 10px;">工作</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%B8%88/" style="font-size: 10px;">工程师</a> <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" style="font-size: 10px;">年终总结</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 10px;">总结</a> <a href="/tags/%E6%8A%80%E6%9C%AF%E5%A4%A7%E4%BC%9A/" style="font-size: 10px;">技术大会</a> <a href="/tags/%E6%8A%80%E6%9C%AF%E8%BF%90%E8%90%A5/" style="font-size: 10px;">技术运营</a> <a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 10px;">文学</a> <a href="/tags/%E6%96%87%E6%A1%A3/" style="font-size: 10px;">文档</a> <a href="/tags/%E6%96%B9%E6%B3%95%E8%AE%BA/" style="font-size: 10px;">方法论</a> <a href="/tags/%E7%94%9F%E6%B4%BB/" style="font-size: 15px;">生活</a> <a href="/tags/%E7%9F%A5%E8%AF%86/" style="font-size: 15px;">知识</a> <a href="/tags/%E7%A1%AE%E5%AE%9A%E6%80%A7/" style="font-size: 10px;">确定性</a> <a href="/tags/%E7%A4%BE%E4%BC%9A%E5%AD%A6/" style="font-size: 10px;">社会学</a> <a href="/tags/%E8%BF%90%E7%BB%B4/" style="font-size: 20px;">运维</a> <a href="/tags/%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/" style="font-size: 10px;">静态博客</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">May 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/11/">November 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/02/29/k8s%E7%BB%99%E8%BF%90%E7%BB%B4%E5%B8%A6%E6%9D%A5%E4%BB%80%E4%B9%88/">k8s给运维带来什么</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/19/2024-02-19-%E8%BF%90%E7%BB%B4%E4%B8%AD%E9%87%8D%E8%A6%81%E7%9A%84%E4%BA%8B/">运维中重要的事</a>
+          </li>
+        
+          <li>
+            <a href="/2023/07/10/2023-07-10-LLM%E4%B8%8E%E6%9C%AC%E5%9C%B0%E7%9F%A5%E8%AF%86%E5%BA%93/">LLM与本地知识库</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/11/2023-06-11-%E8%B0%88%E8%B0%88%20devops%E4%B8%8E%E6%95%B0%E5%AD%97%E5%8C%96/">谈谈devops与数字化</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/19/2023-05-19-WeekReport/">WeekReport</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2024 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

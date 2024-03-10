@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Tornado Code Reading-TCPServer | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="##TCPserver 一个非阻塞， 单进程的 TCP 服务器 为了使用 TCPServer, 定义一个子类改写其中的 handle_stream 方法 如果让服务器通过 SSL 传输， 如下例 1234TCPServer(ssl_options&#x3D;&amp;#123;	&quot;certfile&quot;: os.path.join(data_dir, &quot;mydomain.crt&quot;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tornado Code Reading-TCPServer">
+<meta property="og:url" content="http://example.com/2013/09/16/2013-09-16-tornado-code-reading-tcpserver/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="##TCPserver 一个非阻塞， 单进程的 TCP 服务器 为了使用 TCPServer, 定义一个子类改写其中的 handle_stream 方法 如果让服务器通过 SSL 传输， 如下例 1234TCPServer(ssl_options&#x3D;&amp;#123;	&quot;certfile&quot;: os.path.join(data_dir, &quot;mydomain.crt&quot;">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2013-09-16T08:31:00.000Z">
+<meta property="article:modified_time" content="2024-02-07T02:14:07.834Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-2013-09-16-tornado-code-reading-tcpserver" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2013/09/16/2013-09-16-tornado-code-reading-tcpserver/" class="article-date">
+  <time datetime="2013-09-16T08:31:00.000Z" itemprop="datePublished">2013-09-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Tornado Code Reading-TCPServer
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>##<a target="_blank" rel="noopener" href="https://github.com/facebook/tornado/blob/master/tornado/tcpserver.py">TCPserver</a></p>
+<p>一个非阻塞， 单进程的 <code>TCP</code> 服务器</p>
+<p>为了使用 <code>TCPServer</code>, 定义一个子类改写其中的 <code>handle_stream</code> 方法</p>
+<p>如果让服务器通过 <code>SSL</code> 传输， 如下例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TCPServer(ssl_options=&#123;</span><br><span class="line">	&quot;certfile&quot;: os.path.join(data_dir, &quot;mydomain.crt&quot;),</span><br><span class="line">	&quot;keyfile&quot;: os.path.join(data_dir, &quot;mydomain.key&quot;),</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><code>TCPServer</code> simple single-process::</p>
+<ul>
+<li><code>listen</code>: 监听单个进程</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">server = TCPServer()</span><br><span class="line">server.listen(8888)</span><br><span class="line">IOLoop.instance().start()</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>bind</code> / <code>start</code>: simple multi-process::</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">server = TCPServer()</span><br><span class="line">server.bind(8888)</span><br><span class="line">server.start(0) #Forks multiple sub-process</span><br><span class="line">IOLoop.instance().start()</span><br></pre></td></tr></table></figure>
+
+<p>如果使用<code>start</code>接口， 一个 <code>.IOLoop</code> 不可以传入 <code>TCPServer</code> 结构里。 <code>start</code>将总是开始服务在默认的单例 <code>.IOLoop</code></p>
+<ul>
+<li><code>add_sockets</code>: 高级多进程::</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sockets = bind_sockets(8888)</span><br><span class="line">tornaado.process.fork_processes(0)</span><br><span class="line">server = TCPServer()</span><br><span class="line">server.add_sockets(sockets)</span><br><span class="line">IOLoop.instance().start()</span><br></pre></td></tr></table></figure>
+
+<p><code>add_sockets</code> 接口更为复杂， 但是和<code>tornado.process.fork_processes</code>使用将会更明了， <code>add_sockets</code>也可以用在单进程服务中 ， 如果你想要创建你的监听套节字而不是<code>~tornado.netutil.bind_sockets</code></p>
+<hr>
+<p>以上是怎么应用<br>下面看源码</p>
+<p><strong>初始化</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">def __init__(self, io_loop=None, ssl_options=None, max_buffer_size=None):</span><br><span class="line">	self.io_loop = io_loop</span><br><span class="line">	self.ssl_options = ssl_options</span><br><span class="line">	self.sockets = &#123;&#125;</span><br><span class="line">	self._pending_sockets = []</span><br><span class="line">	self._started = False</span><br><span class="line">	self.max_buffer_size = max_buffer_size</span><br><span class="line">	#下面是检验 SSL 文件，此处略</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>listen</strong></p>
+<p>在给定的端口接受连接<br>这个方法可能被调用多次为了监听多个端口。<code>listen</code> 立即生效; 之后不必调用<code>TCPServer.start</code> , 但是， <code>,IOLoop</code> 是必要的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sockets = bind_sockets(port, address=address)</span><br><span class="line">self.add_sockets(sockets)</span><br></pre></td></tr></table></figure>
+
+<p>源码里的 <code>bind_sockets</code> 见 <a href="#bind_sockets">bind_sockets</a>, <code>add_sockets</code> 见下</p>
+<p><strong>add_sockets</strong></p>
+<p>让服务接受多个连接</p>
+<p><code>sockets</code> 参数是一个socket数组, <code>add_sockets</code>一般和 <code>tornado.process.fork_processes</code>联合使用 为了控制 多进程服务的启动</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if self.io_loop is None:</span><br><span class="line">	self.io_loop = IOLoop.current()</span><br><span class="line"></span><br><span class="line">for sock in sockets:</span><br><span class="line">	self._sockets[sock.fileno()] = sock</span><br><span class="line">	add_accept_handler(sock, self._handle_connection, io_loop=self.io.loop) </span><br></pre></td></tr></table></figure>
+
+<p>上面的 add_accept_handler 见 <a href="#add_accept_handler">add_accept_handler</a><br>add_accept_handler 第二个参数 self._handle_connection是个回调函数, 分析如下</p>
+<blockquote>
+<p>_handle_connection在接受客户端的连接处理结束后会被调用，调用时传入连接和ioloop对象初始化 IOStream,用于对客户端的异步读写;然后调用 <code>handle_stream</code>(注意这里的handle_stream 文档说了如果你只是用<code>tcpserver</code>那么，handle_stream得自己重写, 如果用tornado的httpserver 那handle_stream 在 <a target="_blank" rel="noopener" href="https://github.com/facebook/tornado/blob/master/tornado/httpserver.py">httpserver</a>), 传入创建的<code>IOStream</code>对象初始化一个<code>HTTPConnection</code>, <code>HTTPConnection</code>  封装了<code>IOStream</code> 的一些操作， 用于处俩 <code>HTTPRequest</code> 并返回。 至此 <code>HTTPServer</code>的创建、启动、注册回调函数过程结束</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#如果self.ssl_options不为空，处理ssl代码略</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">	<span class="keyword">if</span> self.ssl_options <span class="keyword">in</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">		stream = SSLTOSTREAM(connection, io_loop=self.io_loop, max_buffer_size=self.max_buffer_size)</span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		stream = IOSTream(connection, io_loop=self.io_loop, max_buffer_size=self.max_buffer_size)</span><br><span class="line">	self.handle_stream(stream, address)</span><br><span class="line"><span class="keyword">except</span> Excetpion:</span><br><span class="line">	app_log.error(<span class="string">&#x27;Error in connection callback&#x27;</span>, exc_info=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<p>从上面的分析和源码 可知 服务器的工作流程 socket-&gt;bind-&gt;listen创建 listen socket 监听客户端， 并将每个listen socket 的 fd 注册到IOLoop的单例实例中; 当 listen socket 可读时回调 _handle_events 处理客户端请求；在与客户端通信的过程中使用 IOStream 封装读写缓冲区， 实现与客户端的异步读写。 下面我们将具体了解listen socket 的 fd 被注册到IOLoop的单例实例中  见 <a target="_blank" rel="noopener" href="http://zs1621.github.io/blog/2013/09/19/tornado-code-reading-ioloop/">IOLoop</a></p>
+<hr>
+<p>##<a target="_blank" rel="noopener" href="https://github.com/facebook/tornado/blob/master/tornado/netutil.py">netutil</a></p>
+<p><a name="bind_sockets" id="bind_sockets"><strong>bind_sockets</strong></a></p>
+<ul>
+<li><p>解释:创建监听套节字绑定到给定的端口和地址</p>
+</li>
+<li><p>参数</p>
+<ul>
+<li>address: IP地址或主机名。如果是主机名，服务将会监听所有跟此域名有关的<code>IP</code></li>
+<li>Family: <code>socket.AF_INET</code> 或 <code>socket.AF_INET6</code></li>
+<li>backlog: 这个参数跟<code>socket.listen()&lt;socket.socket.listen&gt;</code>一样</li>
+<li>flags: </li>
+</ul>
+</li>
+<li><p>代码</p>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">sockets = []</span><br><span class="line"><span class="keyword">if</span> address == <span class="string">&quot;&quot;</span>:</span><br><span class="line">	address = <span class="literal">None</span></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> socket.has_ipv6 <span class="keyword">and</span> family == socket.AF_UNSPEC:</span><br><span class="line">	family = socket.AF_INET</span><br><span class="line"><span class="keyword">if</span> flags <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">	flags = socket.AI_PASSIVE</span><br><span class="line">	<span class="comment">#见 [getaddrinfo](https://github.com/zs1621/pythostudy/wiki/socket)</span></span><br><span class="line">	<span class="comment">#`getaddrinfo`会返回服务器的所有网卡信息， 每个网卡都要监听客户端的请求并返回创建的sockets</span></span><br><span class="line"><span class="keyword">for</span> res <span class="keyword">in</span> <span class="built_in">set</span>(socket.getaddrinfo(address, port, family, socket.SOCK.STREAM, <span class="number">0</span>, flags)):</span><br><span class="line">	af, socktype, proto, canoname, sockaddr = res</span><br><span class="line">	<span class="keyword">try</span>:</span><br><span class="line">		<span class="comment">#创建套节字</span></span><br><span class="line">		sock = socket.socket(af, socktype, proto)</span><br><span class="line">	<span class="keyword">except</span> socket.error <span class="keyword">as</span> e:</span><br><span class="line">		<span class="keyword">if</span> e.args[<span class="number">0</span>] == errno.EAFNOSUPPORT:</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		<span class="keyword">raise</span></span><br><span class="line">	set_close_exec(sock.fileno())</span><br><span class="line">	<span class="keyword">if</span> os.name != <span class="string">&#x27;nt&#x27;</span>:</span><br><span class="line">		<span class="comment">#TCP连接中，recv等函数默认为阻塞模式(block)，</span></span><br><span class="line">		<span class="comment">#即直到有数据到来之前函数不会返回，</span></span><br><span class="line">		<span class="comment">#而我们有时则需要一种超时机制使其在一定时间后返回而不管是否有数据到来，</span></span><br><span class="line">		<span class="comment">#这里我们就会用到setsockopt()函数 见 [setsockopt](http://blog.chinaunix.net/uid-25749806-id-348637.html)</span></span><br><span class="line">		sock.setsockopt(socket.SOL_SOCKET, socket.SOREUSERADDR, <span class="number">1</span>)</span><br><span class="line">	<span class="comment">#在linux ipv6 sockets 也接受 ipv4，这样的话不能同时绑定 ipv4 和 ipv6.为了方便，在ipv6 sockets中总是禁用ipv4 </span></span><br><span class="line">	<span class="keyword">if</span> af == socket.AF_INET6:</span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">hasattr</span>(socket, <span class="string">&quot;IPPROTO_IPV6&quot;</span>):</span><br><span class="line">			sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY)</span><br><span class="line">	sock.setblocking(<span class="number">0</span>)</span><br><span class="line">	sock.bind(sockaddr)</span><br><span class="line">	<span class="comment">#默认设定等待被处理的连接最大个数</span></span><br><span class="line">	sock.listen(backlog)</span><br><span class="line">	sockets.append(sock)</span><br><span class="line"><span class="keyword">return</span> sockets</span><br></pre></td></tr></table></figure>
+
+<p><a name="add_accept_handler" id="add_accept_handler"><strong>add_accept_handler</strong></a>: 添加一个<code>IOLoop</code>事件去接受新的连接在 <code>sock</code></p>
+<blockquote>
+<p>当一个连接被接受了， <code>callback(connection, address)</code>(<code>connection</code>是socket对象， <code>address</code>是连接的另外结尾处的地址)将会运行</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> io_loop <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line"> 	io_loop = IOLoop.current()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">accept_handler</span>(<span class="params">fd, events</span>):</span><br><span class="line">	<span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">		<span class="keyword">try</span>:</span><br><span class="line">			connection, address = sock.accept()</span><br><span class="line">		<span class="keyword">except</span> socket.error <span class="keyword">as</span> e:</span><br><span class="line">			<span class="comment">#EWOULDBLOCK 和 EAGAIN 表明我们</span></span><br><span class="line">			<span class="comment">#已经接受了每个可以接受的连接</span></span><br><span class="line">			<span class="comment">#具体见[EWOULDBLOCK](http://stackoverflow.com/questions/3647539/socket-error-errno-ewouldblock)</span></span><br><span class="line">			<span class="keyword">if</span> e.args[<span class="number">0</span>] <span class="keyword">in</span> (errno.EWOULDBLOCK, errno.EAGAIN):</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			<span class="comment">#ECONNABORTED 表明有个连接还在接受队列时被关闭了</span></span><br><span class="line">			<span class="keyword">if</span> e.args[<span class="number">0</span>] == errno.ECONNABORTED:</span><br><span class="line">				<span class="keyword">continue</span></span><br><span class="line">			<span class="keyword">raise</span></span><br><span class="line">		callback(connection, address)</span><br><span class="line">io_loop.add_handler(sock.fileno(), accept_handler, IOLoop.READ)</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2013/09/16/2013-09-16-tornado-code-reading-tcpserver/" data-id="clsukmp3e0007ek2047cf8y64" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2013/09/19/2013-09-19-tornado-code-reading-ioloop/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Tornado Code Reading - IOLoop
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2013/09/10/2013-09-10-visionmedia-slash-send-reading/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">visionmedia/send Reading</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/NoSQL/">NoSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/codeReading/">codeReading</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/dev-life/">dev-life</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/translation/">translation</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/web/">web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/web-basic/">web basic</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/2021/" rel="tag">2021</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Applepay/" rel="tag">Applepay</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChatGPT/" rel="tag">ChatGPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GOPS/" rel="tag">GOPS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LLM/" rel="tag">LLM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LangChain/" rel="tag">LangChain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NLP/" rel="tag">NLP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SRE/" rel="tag">SRE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aliyun/" rel="tag">aliyun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iap/" rel="tag">iap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oss/" rel="tag">oss</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weekreport/" rel="tag">weekreport</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%9A%E5%8A%A1%E5%8A%9F%E8%83%BD/" rel="tag">业务功能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%A4%E6%98%93%E7%B3%BB%E7%BB%9F/" rel="tag">交易系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BF%A1%E6%81%AF/" rel="tag">信息</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%91%A8%E6%8A%A5/" rel="tag">周报</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E4%BD%9C/" rel="tag">工作</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E7%A8%8B%E5%B8%88/" rel="tag">工程师</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" rel="tag">年终总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E5%A4%A7%E4%BC%9A/" rel="tag">技术大会</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%BF%90%E8%90%A5/" rel="tag">技术运营</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E5%AD%A6/" rel="tag">文学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E6%A1%A3/" rel="tag">文档</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%B9%E6%B3%95%E8%AE%BA/" rel="tag">方法论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%9F%E6%B4%BB/" rel="tag">生活</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86/" rel="tag">知识</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A1%AE%E5%AE%9A%E6%80%A7/" rel="tag">确定性</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A4%BE%E4%BC%9A%E5%AD%A6/" rel="tag">社会学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/" rel="tag">静态博客</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/2021/" style="font-size: 10px;">2021</a> <a href="/tags/Applepay/" style="font-size: 10px;">Applepay</a> <a href="/tags/ChatGPT/" style="font-size: 10px;">ChatGPT</a> <a href="/tags/GOPS/" style="font-size: 10px;">GOPS</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/NLP/" style="font-size: 10px;">NLP</a> <a href="/tags/SRE/" style="font-size: 15px;">SRE</a> <a href="/tags/aliyun/" style="font-size: 10px;">aliyun</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/iap/" style="font-size: 10px;">iap</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/oss/" style="font-size: 10px;">oss</a> <a href="/tags/weekreport/" style="font-size: 15px;">weekreport</a> <a href="/tags/%E4%B8%9A%E5%8A%A1%E5%8A%9F%E8%83%BD/" style="font-size: 10px;">业务功能</a> <a href="/tags/%E4%BA%A4%E6%98%93%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">交易系统</a> <a href="/tags/%E4%BF%A1%E6%81%AF/" style="font-size: 15px;">信息</a> <a href="/tags/%E5%91%A8%E6%8A%A5/" style="font-size: 20px;">周报</a> <a href="/tags/%E5%B7%A5%E4%BD%9C/" style="font-size: 10px;">工作</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%B8%88/" style="font-size: 10px;">工程师</a> <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" style="font-size: 10px;">年终总结</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 10px;">总结</a> <a href="/tags/%E6%8A%80%E6%9C%AF%E5%A4%A7%E4%BC%9A/" style="font-size: 10px;">技术大会</a> <a href="/tags/%E6%8A%80%E6%9C%AF%E8%BF%90%E8%90%A5/" style="font-size: 10px;">技术运营</a> <a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 10px;">文学</a> <a href="/tags/%E6%96%87%E6%A1%A3/" style="font-size: 10px;">文档</a> <a href="/tags/%E6%96%B9%E6%B3%95%E8%AE%BA/" style="font-size: 10px;">方法论</a> <a href="/tags/%E7%94%9F%E6%B4%BB/" style="font-size: 15px;">生活</a> <a href="/tags/%E7%9F%A5%E8%AF%86/" style="font-size: 15px;">知识</a> <a href="/tags/%E7%A1%AE%E5%AE%9A%E6%80%A7/" style="font-size: 10px;">确定性</a> <a href="/tags/%E7%A4%BE%E4%BC%9A%E5%AD%A6/" style="font-size: 10px;">社会学</a> <a href="/tags/%E8%BF%90%E7%BB%B4/" style="font-size: 20px;">运维</a> <a href="/tags/%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/" style="font-size: 10px;">静态博客</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">May 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/11/">November 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/02/29/k8s%E7%BB%99%E8%BF%90%E7%BB%B4%E5%B8%A6%E6%9D%A5%E4%BB%80%E4%B9%88/">k8s给运维带来什么</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/19/2024-02-19-%E8%BF%90%E7%BB%B4%E4%B8%AD%E9%87%8D%E8%A6%81%E7%9A%84%E4%BA%8B/">运维中重要的事</a>
+          </li>
+        
+          <li>
+            <a href="/2023/07/10/2023-07-10-LLM%E4%B8%8E%E6%9C%AC%E5%9C%B0%E7%9F%A5%E8%AF%86%E5%BA%93/">LLM与本地知识库</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/11/2023-06-11-%E8%B0%88%E8%B0%88%20devops%E4%B8%8E%E6%95%B0%E5%AD%97%E5%8C%96/">谈谈devops与数字化</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/19/2023-05-19-WeekReport/">WeekReport</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2024 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

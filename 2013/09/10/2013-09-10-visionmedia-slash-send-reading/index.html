@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>visionmedia/send Reading | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="send入口 1exports &#x3D; module.exports &#x3D; send;  send 函数返回 SendStream 构造函数 123function send(req, path, options) &amp;#123;	return new SendStream(req, path, options);&amp;#125;  来看SendStream  参数  req 即 request path :">
+<meta property="og:type" content="article">
+<meta property="og:title" content="visionmedia&#x2F;send Reading">
+<meta property="og:url" content="http://example.com/2013/09/10/2013-09-10-visionmedia-slash-send-reading/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="send入口 1exports &#x3D; module.exports &#x3D; send;  send 函数返回 SendStream 构造函数 123function send(req, path, options) &amp;#123;	return new SendStream(req, path, options);&amp;#125;  来看SendStream  参数  req 即 request path :">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2013-09-09T16:41:00.000Z">
+<meta property="article:modified_time" content="2024-02-07T02:14:07.818Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-2013-09-10-visionmedia-slash-send-reading" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2013/09/10/2013-09-10-visionmedia-slash-send-reading/" class="article-date">
+  <time datetime="2013-09-09T16:41:00.000Z" itemprop="datePublished">2013-09-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/codeReading/">codeReading</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      visionmedia/send Reading
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong><code>send</code>入口</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exports = module.exports = send;</span><br></pre></td></tr></table></figure>
+
+<p><strong><code>send</code> 函数返回 <code>SendStream</code> 构造函数</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function send(req, path, options) &#123;</span><br><span class="line">	return new SendStream(req, path, options);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>来看<code>SendStream</code></strong></p>
+<ul>
+<li>参数 <ul>
+<li>req 即 <code>request</code></li>
+<li>path : <code>string</code> 路径</li>
+<li>options: </li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function SendStream(req, path, options) &#123;</span><br><span class="line">	....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>继承 <code>Stream.prototype</code></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SendStream.prototype.__proto__ = Stream.prototype;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>下面都是 <code>SendStream</code> 原型链的方法</p>
+<ul>
+<li>hidden: 赋值 this._hidden, return this</li>
+<li>index: 赋值默认的 index <code>path</code>, this._index, return this</li>
+<li>root: 赋值根路径,  this._root </li>
+<li>maxage: 赋值最大缓存时间 , this._maxage</li>
+<li>error: 根据<code>status</code>-&gt;触发<code>error</code></li>
+<li>redirect: 如果有监听事件<code>directory</code>的监听者 那么触发<code>directory</code></li>
+<li>isMalicious: 检测<code>pathname</code>是否有潜在的问题,判断方法如果 没有<code>_root</code>且 <code>path</code>包含<code>..</code> 那么 就是有异常的路径;</li>
+<li>hasTrailingSlash: 判断路径最后一位是不是<code>/</code></li>
+<li>hasLeadingDot: 就是文件是否有后缀 形如<code>aa.html</code></li>
+<li>isCachable: 是否缓存， 判断方法 <code>(res.statusCode &gt;= 200 &amp;&amp; res.statusCode &lt; 300) || 304 == res.statusCode</code></li>
+<li>isFresh: 判断缓存是否是新的 判断方法 引用模块 <code>fresh</code></li>
+<li>removeContentHeaderFields 去除包含 <code>content</code>的头 <code>key</code></li>
+<li>onStatError: </li>
+</ul>
+</li>
+<li><p>主体方法 <code>pipe</code> , 参数 <code>res</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">var self = this</span><br><span class="line">, args = arguments</span><br><span class="line">, path = this.path</span><br><span class="line">, root = this._root</span><br><span class="line"></span><br><span class="line">this.res = res;</span><br><span class="line">//判断uri的有效性</span><br><span class="line">path = utils.decode(path);</span><br><span class="line">if (-1 == path) return this.error(400);</span><br><span class="line"></span><br><span class="line">//如果`path`里包含`\0` ，表明`path`为空</span><br><span class="line">if (~path.indexOf(&#x27;\0&#x27;)) return this.error(400);</span><br><span class="line"></span><br><span class="line">//连接 this._root 和 path</span><br><span class="line">if (root) path = normalize(join(this._root, path));</span><br><span class="line"></span><br><span class="line">//如果异常路径禁止访问</span><br><span class="line">if (this.isMalicious()) return this.error(403);</span><br><span class="line"></span><br><span class="line">//此时`path`已经是 `this._root`和 `path`的结合, 所以此种情况不会出现,如果有root</span><br><span class="line">if (root &amp;&amp; 0 != path.indexOf(root)) return this.error(403)</span><br><span class="line"></span><br><span class="line">//如果_hidden为`false`,那么不支持隐藏文件，此时文件如果以`.`开头那么就不支持 </span><br><span class="line">if (!this._hidden &amp;&amp; this.hasLeadingDot()) return this.error(404);</span><br><span class="line"></span><br><span class="line">//index 文件支持</span><br><span class="line">if (this._index &amp;&amp; this.hasTrailingSlash()) path += this._index</span><br><span class="line"></span><br><span class="line">//最后看path 的信息</span><br><span class="line">fs.stat(path, function(err, stat)&#123;</span><br><span class="line">	if (err) return self.onStatError(err); //上面已介绍</span><br><span class="line">	if (stat.isDirectory) return self.redirect(self.path); //见上</span><br><span class="line">	self.emit(&#x27;file&#x27;, path, stat); //见下</span><br><span class="line">	self.send(path, stat);//见下</span><br><span class="line">&#125;);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>方法 <strong><code>send</code></strong><ul>
+<li>path: 路径</li>
+<li>stat: 文件状态</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">var options = this.options;</span><br><span class="line">var len = stat.size;</span><br><span class="line">var res = this.res;</span><br><span class="line">var req = this.req;</span><br><span class="line">var ranges = req.headers.range; //截取部分文件之用</span><br><span class="line">var offset = options.start || 0;</span><br><span class="line"></span><br><span class="line">//赋值header</span><br><span class="line">this.setHeader(stat);</span><br><span class="line"></span><br><span class="line">//赋值 content-type</span><br><span class="line">this.type(path);</span><br><span class="line"></span><br><span class="line">//条件 GET 支持, isFresh() 见 [fresh](https://github.com/visionmedia/node-fresh/blob/master/index.js)</span><br><span class="line">if (this.isConditionGET()</span><br><span class="line">&amp;&amp; this.isCachable()</span><br><span class="line">&amp;&amp; this.isFresh()) &#123;</span><br><span class="line">	return this.notModified();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//</span><br><span class="line">len = Math.max(0, len - offset);</span><br><span class="line">if (options.end != undefined) &#123;</span><br><span class="line">	var bytes = options.end - offset + 1;</span><br><span class="line">	if (len &gt; bytes) len = bytes;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// Range 支持</span><br><span class="line">if (ranges) &#123;</span><br><span class="line">	...	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// content-length</span><br><span class="line">res.setHeader(&#x27;Content-Length&#x27;, len);</span><br><span class="line"></span><br><span class="line">// HEAD support</span><br><span class="line">if (&#x27;HEAD&#x27; == req.method) return res.end();</span><br><span class="line"></span><br><span class="line">this.stream(path, options); //见下</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>方法 <code>stream</code><ul>
+<li>参数<ul>
+<li>path : 路径</li>
+<li>options</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">var self = this;</span><br><span class="line">var res = this.res;</span><br><span class="line">var req = this.req;</span><br><span class="line"></span><br><span class="line">//pipe 把流数据加入 `res`管道</span><br><span class="line">var stream = fs.createReadStream(path, options);</span><br><span class="line">this.emit(&#x27;stream&#x27;, stream);</span><br><span class="line">stream.pipe(res);</span><br><span class="line"></span><br><span class="line">//socket 关闭， </span><br><span class="line"></span><br><span class="line">req.on(&#x27;close&#x27;, stream.destroy.bind(stream));</span><br><span class="line"></span><br><span class="line">//error处理</span><br><span class="line">steam.on(&#x27;error&#x27;, function(err)&#123;</span><br><span class="line">	//不回复</span><br><span class="line">	if (res._header) &#123;</span><br><span class="line">		console.error(err.stack);</span><br><span class="line">		req.destroy();</span><br><span class="line">		return;</span><br><span class="line">	&#125;</span><br><span class="line">	erro.status = 500;</span><br><span class="line">	self.emit(&#x27;error&#x27;, err);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">//end</span><br><span class="line">stream.on(&#x27;end&#x27;, function()&#123;</span><br><span class="line">	self.emit(&#x27;end&#x27;);	</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2013/09/10/2013-09-10-visionmedia-slash-send-reading/" data-id="clsukmp3d0006ek20ht40d32m" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2013/09/16/2013-09-16-tornado-code-reading-tcpserver/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Tornado Code Reading-TCPServer
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2013/09/04/2013-09-04-tornado-code-reading/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Tornado code Reading</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/NoSQL/">NoSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/codeReading/">codeReading</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/dev-life/">dev-life</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/translation/">translation</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/web/">web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/web-basic/">web basic</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/2021/" rel="tag">2021</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Applepay/" rel="tag">Applepay</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChatGPT/" rel="tag">ChatGPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GOPS/" rel="tag">GOPS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LLM/" rel="tag">LLM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LangChain/" rel="tag">LangChain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NLP/" rel="tag">NLP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SRE/" rel="tag">SRE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aliyun/" rel="tag">aliyun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iap/" rel="tag">iap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oss/" rel="tag">oss</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weekreport/" rel="tag">weekreport</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%9A%E5%8A%A1%E5%8A%9F%E8%83%BD/" rel="tag">业务功能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%A4%E6%98%93%E7%B3%BB%E7%BB%9F/" rel="tag">交易系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BF%A1%E6%81%AF/" rel="tag">信息</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%91%A8%E6%8A%A5/" rel="tag">周报</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E4%BD%9C/" rel="tag">工作</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E7%A8%8B%E5%B8%88/" rel="tag">工程师</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" rel="tag">年终总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E5%A4%A7%E4%BC%9A/" rel="tag">技术大会</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%BF%90%E8%90%A5/" rel="tag">技术运营</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E5%AD%A6/" rel="tag">文学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E6%A1%A3/" rel="tag">文档</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%B9%E6%B3%95%E8%AE%BA/" rel="tag">方法论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%9F%E6%B4%BB/" rel="tag">生活</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86/" rel="tag">知识</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A1%AE%E5%AE%9A%E6%80%A7/" rel="tag">确定性</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A4%BE%E4%BC%9A%E5%AD%A6/" rel="tag">社会学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/" rel="tag">静态博客</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/2021/" style="font-size: 10px;">2021</a> <a href="/tags/Applepay/" style="font-size: 10px;">Applepay</a> <a href="/tags/ChatGPT/" style="font-size: 10px;">ChatGPT</a> <a href="/tags/GOPS/" style="font-size: 10px;">GOPS</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/NLP/" style="font-size: 10px;">NLP</a> <a href="/tags/SRE/" style="font-size: 15px;">SRE</a> <a href="/tags/aliyun/" style="font-size: 10px;">aliyun</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/iap/" style="font-size: 10px;">iap</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/oss/" style="font-size: 10px;">oss</a> <a href="/tags/weekreport/" style="font-size: 15px;">weekreport</a> <a href="/tags/%E4%B8%9A%E5%8A%A1%E5%8A%9F%E8%83%BD/" style="font-size: 10px;">业务功能</a> <a href="/tags/%E4%BA%A4%E6%98%93%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">交易系统</a> <a href="/tags/%E4%BF%A1%E6%81%AF/" style="font-size: 15px;">信息</a> <a href="/tags/%E5%91%A8%E6%8A%A5/" style="font-size: 20px;">周报</a> <a href="/tags/%E5%B7%A5%E4%BD%9C/" style="font-size: 10px;">工作</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%B8%88/" style="font-size: 10px;">工程师</a> <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" style="font-size: 10px;">年终总结</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 10px;">总结</a> <a href="/tags/%E6%8A%80%E6%9C%AF%E5%A4%A7%E4%BC%9A/" style="font-size: 10px;">技术大会</a> <a href="/tags/%E6%8A%80%E6%9C%AF%E8%BF%90%E8%90%A5/" style="font-size: 10px;">技术运营</a> <a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 10px;">文学</a> <a href="/tags/%E6%96%87%E6%A1%A3/" style="font-size: 10px;">文档</a> <a href="/tags/%E6%96%B9%E6%B3%95%E8%AE%BA/" style="font-size: 10px;">方法论</a> <a href="/tags/%E7%94%9F%E6%B4%BB/" style="font-size: 15px;">生活</a> <a href="/tags/%E7%9F%A5%E8%AF%86/" style="font-size: 15px;">知识</a> <a href="/tags/%E7%A1%AE%E5%AE%9A%E6%80%A7/" style="font-size: 10px;">确定性</a> <a href="/tags/%E7%A4%BE%E4%BC%9A%E5%AD%A6/" style="font-size: 10px;">社会学</a> <a href="/tags/%E8%BF%90%E7%BB%B4/" style="font-size: 20px;">运维</a> <a href="/tags/%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/" style="font-size: 10px;">静态博客</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">May 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/11/">November 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/02/29/k8s%E7%BB%99%E8%BF%90%E7%BB%B4%E5%B8%A6%E6%9D%A5%E4%BB%80%E4%B9%88/">k8s给运维带来什么</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/19/2024-02-19-%E8%BF%90%E7%BB%B4%E4%B8%AD%E9%87%8D%E8%A6%81%E7%9A%84%E4%BA%8B/">运维中重要的事</a>
+          </li>
+        
+          <li>
+            <a href="/2023/07/10/2023-07-10-LLM%E4%B8%8E%E6%9C%AC%E5%9C%B0%E7%9F%A5%E8%AF%86%E5%BA%93/">LLM与本地知识库</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/11/2023-06-11-%E8%B0%88%E8%B0%88%20devops%E4%B8%8E%E6%95%B0%E5%AD%97%E5%8C%96/">谈谈devops与数字化</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/19/2023-05-19-WeekReport/">WeekReport</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2024 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
