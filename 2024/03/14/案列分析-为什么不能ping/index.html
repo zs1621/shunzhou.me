@@ -8,18 +8,22 @@
         
         舜子</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:type" content="article">
+    <meta name="description" content="问题重现场景# vim &#x2F;etc&#x2F;hosts  将下面两行贴入 &#x2F;etc&#x2F;hosts 127.0.0.1　 test.unknow.host 127.0.0.1   test.localhost 问什么ping不同test.unknow.host  ping -c 1 test.unknow.host    notok ping -c 1 test.localhost      ok排查初步排查">
+<meta property="og:type" content="article">
 <meta property="og:title" content="案例分析-为什么不能ping">
 <meta property="og:url" content="https://shunzhou.me/2024/03/14/%E6%A1%88%E5%88%97%E5%88%86%E6%9E%90-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BDping/">
 <meta property="og:site_name" content="舜子">
+<meta property="og:description" content="问题重现场景# vim &#x2F;etc&#x2F;hosts  将下面两行贴入 &#x2F;etc&#x2F;hosts 127.0.0.1　 test.unknow.host 127.0.0.1   test.localhost 问什么ping不同test.unknow.host  ping -c 1 test.unknow.host    notok ping -c 1 test.localhost      ok排查初步排查">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240314090953401.png">
 <meta property="article:published_time" content="2024-03-14T01:35:11.000Z">
-<meta property="article:modified_time" content="2024-03-14T01:36:01.498Z">
+<meta property="article:modified_time" content="2024-03-14T01:58:25.516Z">
 <meta property="article:author" content="zs1621">
 <meta property="article:tag" content="案例分析">
 <meta property="article:tag" content="dns">
 <meta property="article:tag" content="入门">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shunzhou.me/img/typro/image-20240314090953401.png">
     
     
     
@@ -59,7 +63,119 @@
         三月 14, 2024
     </time>
     <div id="post-content" class="markdown-body">
-        
+        <h3 id="问题重现场景"><a href="#问题重现场景" class="headerlink" title="问题重现场景"></a>问题重现场景</h3><pre><code># vim /etc/hosts  将下面两行贴入 /etc/hosts
+127.0.0.1　 test.unknow.host
+127.0.0.1   test.localhost</code></pre><ul>
+<li>问什么ping不同test.unknow.host</li>
+</ul>
+<pre><code>ping -c 1 test.unknow.host    notok
+ping -c 1 test.localhost      ok</code></pre><h3 id="排查"><a href="#排查" class="headerlink" title="排查"></a>排查</h3><h4 id="初步排查-对比strace-记录"><a href="#初步排查-对比strace-记录" class="headerlink" title="初步排查 - 对比strace 记录"></a>初步排查 - 对比strace 记录</h4><pre><code>strace ping -c 1 test.localhost</code></pre><blockquote>
+<p>connect(5, {sa_family=AF_UNIX, sun_path=”/var/run/nscd/socket”}, 110) = 0<br>sendto(5, “\2\0\0\0\r\0\0\0\6\0\0\0hosts\0”, 18, MSG_NOSIGNAL, NULL, 0) = 18<br>poll([{fd=5, events=POLLIN|POLLERR|POLLHUP}], 1, 5000) = 1 ([{fd=5, revents=POLLIN|POLLHUP}])<br>recvmsg(5, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base=”hosts\0”, iov_len=6}, {iov_base=”\310O\3\0\0\0\0\0”, iov_len=8}], msg_iovlen=2, msg_control=[{cmsg_len=20, cmsg_level=SOL_SOCKET, cmsg_type=SCM_RIGHTS, cmsg_data=[6]}], msg_controllen=20, msg_flags=MSG_CMSG_CLOEXEC}, MSG_CMSG_CLOEXEC) = 14<br>mmap(NULL, 217032, PROT_READ, MAP_SHARED, 6, 0) = 0x7f3fe5371000<br>close(6)                                = 0<br>close(5)                                = 0<br><strong>socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0) = 5</strong><br><strong>connect(5, {sa_family=AF_UNIX, sun_path=”/var/run/nscd/socket”}, 110) = 0</strong><br><strong>sendto(5, “\2\0\0\0\16\0\0\0\17\0\0\0test.localhost\0”, 27, MSG_NOSIGNAL, NULL, 0) = 27</strong><br><strong>poll([{fd=5, events=POLLIN|POLLERR|POLLHUP}], 1, 5000) = 1 ([{fd=5, revents=POLLIN|POLLHUP}])</strong><br><strong>read(5, “\2\0\0\0\1\0\0\0\1\0\0\0\4\0\0\0\17\0\0\0\0\0\0\0”, 24) = 24</strong><br><strong>read(5, “\177\0\0\1\2test.localhost\0”, 20) = 20</strong><br>close(5)                                = 0<br>openat(AT_FDCWD, “/usr/lib64/charset.alias”, O_RDONLY|O_NOFOLLOW) = -1 ENOENT (No such file or directory)<br>socket(AF_INET, SOCK_DGRAM, IPPROTO_IP) = 5<br>connect(5, {sa_family=AF_INET, sin_port=htons(1025), sin_addr=inet_addr(“127.0.0.1”)}, 16) = 0<br>getsockname(5, {sa_family=AF_INET, sin_port=htons(41236), sin_addr=inet_addr(“127.0.0.1”)}, [16]) = 0<br>close(5)                                = 0<br>setsockopt(3, SOL_IP, IP_RECVERR, [1], 4) = 0<br>setsockopt(3, SOL_IP, IP_RECVTTL, [1], 4) = 0<br>setsockopt(3, SOL_IP, IP_RETOPTS, [1], 4) = 0<br>setsockopt(3, SOL_SOCKET, SO_SNDBUF, [324], 4) = 0<br>setsockopt(3, SOL_SOCKET, SO_RCVBUF, [65536], 4) = 0<br>getsockopt(3, SOL_SOCKET, SO_RCVBUF, [131072], [4]) = 0<br>fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(0x88, 0), …}) = 0<br>write(1, “PING test.localhost (127.0.0.1) “…, 54PING test.localhost (127.0.0.1) 56(84) bytes of data.<br>) = 54</p>
+</blockquote>
+<pre><code>strace ping -c 1 test.unknow.host</code></pre><blockquote>
+<p>socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0) = 5<br>connect(5, {sa_family=AF_UNIX, sun_path=”/var/run/nscd/socket”}, 110) = 0<br>sendto(5, “\2\0\0\0\r\0\0\0\6\0\0\0hosts\0”, 18, MSG_NOSIGNAL, NULL, 0) = 18<br>poll([{fd=5, events=POLLIN|POLLERR|POLLHUP}], 1, 5000) = 1 ([{fd=5, revents=POLLIN|POLLHUP}])<br>recvmsg(5, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base=”hosts\0”, iov_len=6}, {iov_base=”\310O\3\0\0\0\0\0”, iov_len=8}], msg_iovlen=2, msg_control=[{cmsg_len=20, cmsg_level=SOL_SOCKET, cmsg_type=SCM_RIGHTS, cmsg_data=[6]}], msg_controllen=20, msg_flags=MSG_CMSG_CLOEXEC}, MSG_CMSG_CLOEXEC) = 14<br>mmap(NULL, 217032, PROT_READ, MAP_SHARED, 6, 0) = 0x7f0ace9ce000<br>close(6)                                = 0<br>close(5)                                = 0<br><strong>socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0) = 5</strong><br><strong>connect(5, {sa_family=AF_UNIX, sun_path=”/var/run/nscd/socket”}, 110) = 0</strong><br><strong>sendto(5, “\2\0\0\0\16\0\0\0\21\0\0\0test.unknow.host\0”, 29, MSG_NOSIGNAL, NULL, 0) = 29</strong><br><strong>poll([{fd=5, events=POLLIN|POLLERR|POLLHUP}], 1, 5000) = 1 ([{fd=5, revents=POLLIN}])</strong><br><strong>read(5, “\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0”, 24) = 24</strong><br>close(5)                                = 0<br>openat(AT_FDCWD, “/usr/share/locale/locale.alias”, O_RDONLY|O_CLOEXEC) = 5<br>fstat(5, {st_mode=S_IFREG|0644, st_size=2998, …}) = 0<br>read(5, “# Locale name alias data base.\n#”…, 4096) = 2998<br>read(5, “”, 4096)                       = 0<br>close(5)                                = 0<br>openat(AT_FDCWD, “/usr/share/locale/en_US.UTF-8/LC_MESSAGES/libc.mo”, O_RDONLY) = -1 ENOENT (No such file or directory)<br>openat(AT_FDCWD, “/usr/share/locale/en_US.utf8/LC_MESSAGES/libc.mo”, O_RDONLY) = -1 ENOENT (No such file or directory)<br>openat(AT_FDCWD, “/usr/share/locale/en_US/LC_MESSAGES/libc.mo”, O_RDONLY) = -1 ENOENT (No such file or directory)<br>openat(AT_FDCWD, “/usr/share/locale/en.UTF-8/LC_MESSAGES/libc.mo”, O_RDONLY) = -1 ENOENT (No such file or directory)<br>openat(AT_FDCWD, “/usr/share/locale/en.utf8/LC_MESSAGES/libc.mo”, O_RDONLY) = -1 ENOENT (No such file or directory)<br>openat(AT_FDCWD, “/usr/share/locale/en/LC_MESSAGES/libc.mo”, O_RDONLY) = -1 ENOENT (No such file or directory)<br>write(2, “ping: test.unknow.host: Name or “…, 50ping: test.unknow.host: Name or service not known<br>) = 50<br>exit_group(2)                           = ?<br>+++ exited with 2 +++</p>
+</blockquote>
+<p>从两段strace结果可以看到 会先去nscd去获取结果</p>
+<blockquote>
+<p>nscd:   name service cache daemon</p>
+<p>Nscd is a daemon that provides a <strong>cache</strong> for the most common name service requests. The default configuration file, <em>/etc/nscd.conf</em>, determines the behavior of the cache daemon</p>
+<p>简单翻译下就是nscd是个缓存。它会缓存  <em>passwd</em> database(/etc/passwd)  或者 hosts database(<em>/etc/hosts</em> and <em>/etc/resolv.conf</em> for the <em>hosts</em> database)  来提高性能</p>
+</blockquote>
+<ul>
+<li><p>初步分析</p>
+<blockquote>
+<p>test.localhost 可以从 nscd中读到数据  test.unknow.host 中都不到数据</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="那么排除nscd-缓存，再看下呢"><a href="#那么排除nscd-缓存，再看下呢" class="headerlink" title="那么排除nscd 缓存，再看下呢"></a>那么排除nscd 缓存，再看下呢</h4><blockquote>
+<p>因为要确认到底有没有去读 /etc/hosts </p>
+</blockquote>
+<pre><code>systemctl stop nscd </code></pre><ul>
+<li><p>strace ping -c 1 test.unknow.host</p>
+<blockquote>
+<p><strong>openat(AT_FDCWD, “/etc/hosts”, O_RDONLY|O_CLOEXEC) = 5</strong><br>fstat(5, {st_mode=S_IFREG|0644, st_size=266, …}) = 0<br>lseek(5, 0, SEEK_SET)                   = 0<br>read(5, “127.0.0.1\tlocalhost\tlocalhost.lo”…, 4096) = 266<br>read(5, “”, 4096)                       = 0<br>close(5)   </p>
+<p>…</p>
+<p>socket(AF_INET, SOCK_DGRAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 5<br>setsockopt(5, SOL_IP, IP_RECVERR, [1], 4) = 0<br><strong>connect(5, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr(“100.100.2.136”)}, 16) = 0</strong></p>
+</blockquote>
+</li>
+</ul>
+<p>可以看到确实读了/etc/hosts。 而且因为没找到需要的test.unknow.host 。 又去请求了dns</p>
+<ul>
+<li><p>strace ping -c 1 test.localhost</p>
+<blockquote>
+<p><strong>openat(AT_FDCWD, “/etc/hosts”, O_RDONLY|O_CLOEXEC) = 5</strong><br>fstat(5, {st_mode=S_IFREG|0644, st_size=266, …}) = 0<br>lseek(5, 0, SEEK_SET)                   = 0<br>read(5, “127.0.0.1\tlocalhost\tlocalhost.lo”…, 4096) = 266<br>read(5, “”, 4096)                       = 0<br>close(5)                                = 0<br>…<br><strong>socket(AF_INET, SOCK_DGRAM, IPPROTO_IP) = 5</strong><br><strong>connect(5, {sa_family=AF_INET, sin_port=htons(1025), sin_addr=inet_addr(“127.0.0.1”)}, 16) = 0</strong><br>getsockname(5, {sa_family=AF_INET, sin_port=htons(49162), sin_addr=inet_addr(“127.0.0.1”)}, [16]) = 0<br>close(5)                                = 0<br>…<br>fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(0x88, 0), …}) = 0<br>write(1, “PING test.localhost (127.0.0.1) “…, 54PING test.localhost (127.0.0.1) 56(84) bytes of data.</p>
+</blockquote>
+</li>
+</ul>
+<p>对比看下 test.localhost是从/etc/hosts读到了数据</p>
+<h4 id="到这里大概知道问题范围了"><a href="#到这里大概知道问题范围了" class="headerlink" title="到这里大概知道问题范围了"></a>到这里大概知道问题范围了</h4><blockquote>
+<p>现在需要问的问题是:  为什么从/etc/hosts 读不到 test.unknow.host</p>
+</blockquote>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> <p>确认字符匹配</p>
+<blockquote>
+<p> 确实test.unknow.host字符找到了  </p>
+</blockquote>
+</li>
+<li><input checked="" disabled="" type="checkbox"> <p>从代码的角度看 解析有bug ?  了解了下 ping 会先调用  getaddrinfo 去获取 hostname的ip地址</p>
+</li>
+</ul>
+<pre><code class="c">  #include &lt;stdio.h&gt;
+  #include &lt;sys/types.h&gt;
+  #include &lt;sys/socket.h&gt;
+  #include &lt;netdb.h&gt;
+  #include &lt;arpa/inet.h&gt;
+  int main(void) &#123;
+    struct addrinfo* addr;
+    int result = getaddrinfo(&quot;test.localhost&quot;, NULL, NULL, &amp;addr);
+    if (result != 0) &#123;
+      printf(&quot;Error from getaddrinfo: %s\n&quot;, gai_strerror(result));
+      return 1;
+    &#125;
+    struct sockaddr_in* internet_addr = (struct sockaddr_in*) addr-&gt;ai_addr;
+    printf(&quot;test.localhost is at: %s\n&quot;, inet_ntoa(internet_addr-&gt;sin_addr));
+    return 0;
+  &#125;</code></pre>
+<p>  尝试使用vscode去打断点后发现太复杂了。找不到具体的读取/etc/hosts的地方</p>
+<h4 id="遇事不决GPT"><a href="#遇事不决GPT" class="headerlink" title="遇事不决GPT"></a>遇事不决GPT</h4><ul>
+<li><p>when to search /etc/hosts  in   <code>glibc-2.31/sysdeps/posix/getaddrinfo.c</code>   of glibc2.31</p>
+<pre><code>However, the search into /etc/hosts isn&#39;t directly specified in getaddrinfo.c. The resolution is abstracted in this file and the actual parsing of /etc/hosts is done in the files/ subdirectory of the nss (Name Service Switch) part of glibc.</code></pre></li>
+<li><p>what file in  nss directory </p>
+<pre><code>This is located via this path: nss/nss_files/files-hosts.c</code></pre></li>
+<li><p>which function ?</p>
+<pre><code>The primary function responsible for parsing the /etc/hosts file in glibc&#39;s nss_files/files-hosts.c is the gethostbyname3_r function.</code></pre></li>
+<li><p>this is content of /etc/hosts: – 127.0.0.1　 test.unknow.host why gethostbyname3_r   can not reslove test.unknow.host?</p>
+<pre><code>If gethostbyname3_r function can&#39;t resolve test.unknown.host, there might be several reasons behind it. Here are a few things you might want to check:
+1. The entries in /etc/nsswitch.conf
+2. The /etc/hosts file format 
+3. The system&#39;s DNS Caching
+4. Environment Variables
+5. Code Error
+6. Permissions</code></pre></li>
+<li><p>continue</p>
+<ul>
+<li><p>问</p>
+<pre><code>content of /etc/hosts
+```127.0.0.1　 test.unknow.host```  
+
+---
+can u find the specific error </code></pre></li>
+<li><p>答:</p>
+<pre><code>The potential issues here could be:
+
+Non-ASCII Space: Between the IP address and the hostname, it is critical to use ASCII spaces</code></pre></li>
+</ul>
+</li>
+<li><p>how  to  find Non-ASCII Space</p>
+<pre><code>LC_ALL=C grep -n &#39;[^[:print:][:space:]]&#39; /etc/hosts</code></pre><p><img src="https://shunzhou.me/img/typro/image-20240314090953401.png" alt="image-20240314090953401"></p>
+</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>学习了 dns解析的路径，了解到还有nscd缓存服务</li>
+<li>搭建了debug  glibc的 环境 。</li>
+</ul>
+
     </div>
 </article>
 
