@@ -17,7 +17,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shunzhou.me/img/typro/image-20240314090953401.png">
 <meta property="article:published_time" content="2024-03-14T01:35:11.000Z">
-<meta property="article:modified_time" content="2024-03-14T02:55:10.925Z">
+<meta property="article:modified_time" content="2024-03-14T02:57:32.023Z">
 <meta property="article:author" content="zs1621">
 <meta property="article:tag" content="案例分析">
 <meta property="article:tag" content="dns">
@@ -149,7 +149,11 @@ ping -c 1 test.localhost      ok</code></pre><h3 id="排查"><a href="#排查" c
 <ul>
 <li>问：</li>
 </ul>
-<pre><code> this is content of /etc/hosts: -- 127.0.0.1　 test.unknow.host why gethostbyname3_r   can not reslove test.unknow.host?</code></pre><ul>
+<pre><code> this is content of /etc/hosts:
+ --
+  127.0.0.1　 test.unknow.host
+
+  why gethostbyname3_r   can not reslove test.unknow.host?</code></pre><ul>
 <li>答：</li>
 </ul>
 <pre><code>If gethostbyname3_r function can&#39;t resolve test.unknown.host, there might be several reasons behind it. Here are a few things you might want to check:
