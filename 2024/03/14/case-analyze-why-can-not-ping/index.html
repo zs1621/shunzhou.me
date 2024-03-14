@@ -17,7 +17,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shunzhou.me/img/typro/image-20240314090953401.png">
 <meta property="article:published_time" content="2024-03-14T01:35:11.000Z">
-<meta property="article:modified_time" content="2024-03-14T01:58:25.516Z">
+<meta property="article:modified_time" content="2024-03-14T02:54:17.342Z">
 <meta property="article:author" content="zs1621">
 <meta property="article:tag" content="案例分析">
 <meta property="article:tag" content="dns">
@@ -145,14 +145,20 @@ ping -c 1 test.localhost      ok</code></pre><h3 id="排查"><a href="#排查" c
 <pre><code>This is located via this path: nss/nss_files/files-hosts.c</code></pre></li>
 <li><p>which function ?</p>
 <pre><code>The primary function responsible for parsing the /etc/hosts file in glibc&#39;s nss_files/files-hosts.c is the gethostbyname3_r function.</code></pre></li>
-<li><p>this is content of /etc/hosts: – 127.0.0.1　 test.unknow.host why gethostbyname3_r   can not reslove test.unknow.host?</p>
-<pre><code>If gethostbyname3_r function can&#39;t resolve test.unknown.host, there might be several reasons behind it. Here are a few things you might want to check:
-1. The entries in /etc/nsswitch.conf
-2. The /etc/hosts file format 
-3. The system&#39;s DNS Caching
-4. Environment Variables
-5. Code Error
-6. Permissions</code></pre></li>
+<li><p>continue</p>
+<ul>
+<li>问：<pre><code>this is content of /etc/hosts: -- 127.0.0.1　 test.unknow.host why gethostbyname3_r   can not reslove test.unknow.host?</code></pre></li>
+<li>答：<br>```<br>If gethostbyname3_r function can’t resolve test.unknown.host, there might be several reasons behind it. Here are a few things you might want to check:</li>
+</ul>
+<ol>
+<li>The entries in /etc/nsswitch.conf</li>
+<li>The /etc/hosts file format </li>
+<li>The system’s DNS Caching</li>
+<li>Environment Variables</li>
+<li>Code Error</li>
+<li>Permissions<pre><code></code></pre></li>
+</ol>
+</li>
 <li><p>continue</p>
 <ul>
 <li><p>问</p>
