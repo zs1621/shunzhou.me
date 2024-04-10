@@ -21,7 +21,7 @@ stylesheets:
 # scripts loaded in the end of the body
 scripts:
   - /js/jquery-3.4.1.min.js
-  - /js/highlight-9.13.1.min.js
+  - /js/highlight-11.9.0.min.js
   - /js/transition.js
   - /js/smooth-scroll.min.js
 
@@ -35,7 +35,7 @@ hljs:
     right: ':'
     copy: Copy Code
 
-# atom: atom.xml # website feed.
+atom: atom.xml # website feed.
 
 # Gitment
 # Introduction: https://imsun.net/posts/gitment-introduction/
