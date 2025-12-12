@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        排障-syn-ack丢包问题排查 |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="问题现象: 质效SAE构建集群docker push 有小概率丢包  dial tcp 10.xxx.xxx.100:443 connect:  connection timed out 分析背景 拉起的pod执行 docker login&#x2F;push等操作会偶现超时，且docker是依赖宿主机docker  请求链路很简单如图 确认10.xxx.xxx.100 nginx下有没有收到请求 通过ng">
+<meta property="og:type" content="article">
+<meta property="og:title" content="排障-syn-ack丢包问题排查">
+<meta property="og:url" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="问题现象: 质效SAE构建集群docker push 有小概率丢包  dial tcp 10.xxx.xxx.100:443 connect:  connection timed out 分析背景 拉起的pod执行 docker login&#x2F;push等操作会偶现超时，且docker是依赖宿主机docker  请求链路很简单如图 确认10.xxx.xxx.100 nginx下有没有收到请求 通过ng">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/traffic-chain.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/14-drop.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/100-packet-1.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-2.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-3.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-4.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-5.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-6.png">
+<meta property="article:published_time" content="2025-07-16T11:10:50.000Z">
+<meta property="article:modified_time" content="2025-12-12T11:34:19.479Z">
+<meta property="article:author" content="zs1621">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="网络">
+<meta property="article:tag" content="排障">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/traffic-chain.png">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">排障-syn-ack丢包问题排查</h1>
+    <time id="post-date" datetime="2025-07-16T11:10:50.000Z">
+        七月 16, 2025
+    </time>
+    <div id="post-content" class="markdown-body">
+        <h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象:"></a>问题现象:</h2><blockquote>
+<p>质效SAE构建集群docker push 有小概率丢包</p>
+</blockquote>
+<pre><code>dial tcp 10.xxx.xxx.100:443 connect:  connection timed out </code></pre><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><blockquote>
+<p>拉起的pod执行 docker login/push等操作会偶现超时，且docker是依赖宿主机docker</p>
+</blockquote>
+<p>请求链路很简单如图<br><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/traffic-chain.png" alt=""></p>
+<h3 id="确认10-xxx-xxx-100-nginx下有没有收到请求"><a href="#确认10-xxx-xxx-100-nginx下有没有收到请求" class="headerlink" title="确认10.xxx.xxx.100 nginx下有没有收到请求"></a>确认10.xxx.xxx.100 nginx下有没有收到请求</h3><blockquote>
+<p>通过nginx日志排查，没有发现对应请求</p>
+</blockquote>
+<h3 id="10-xxx-xxx-100-有没有主动丢syn包"><a href="#10-xxx-xxx-100-有没有主动丢syn包" class="headerlink" title="10.xxx.xxx.100 有没有主动丢syn包"></a>10.xxx.xxx.100 有没有主动丢syn包</h3><blockquote>
+<p>passive_connections_rejected_total 指标虚线看了没有</p>
+</blockquote>
+<h3 id="尝试重现"><a href="#尝试重现" class="headerlink" title="尝试重现"></a>尝试重现</h3><ul>
+<li><p>拉起pod模拟真实场景</p>
+<p>核心逻辑尝试docker login , 如果login 日志有失败则 给i讯飞机器人发送消息提醒 </p>
+</li>
+</ul>
+<pre><code class="yaml"># 2-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docker-login-loop
+spec:
+  template:
+    spec:
+      nodeName: node-10.yyy.yyy.14
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: docker-login-container
+        # Using a small image that includes the &#39;sh&#39; shell
+        image: artifacts.xxxx.com/docker-repo/curlimages/curl:latest
+        command: [&quot;/bin/sh&quot;, &quot;-c&quot;]
+        resources:
+          ...
+        args:
+        - |
+          while true; do
+            timex=`date +&quot;%Y-%m-%d %H:%M:%S&quot;`
+            echo $timex
+            echo &quot;Attempting docker login... $&#123;timex&#125;&quot; &gt;&gt; /home/curl_user/x.log
+            echo $DOCKER_PASSWORD | /usr/bin/docker login -u $DOCKER_USERNAME --password-stdin artifacts.xxxx.com &gt;&gt; /home/curl_user/x.log 2&gt;&amp;1
+            echo &quot;Login command finished. Waiting 5 seconds.&quot; &gt;&gt; /home/curl_user/x.log
+            tail -n 3 /home/curl_user/x.log | grep &quot;timed out&quot;  &amp;&amp; curl  -X POST -H &quot;Content-Type: application/json&quot;    -d &#39;&#123;&quot;msg_type&quot;:&quot;text&quot;,&quot;content&quot;:&#123;&quot;text&quot;:&quot;capture packet drop - 抓包提醒无需关注 @shunzhou&quot;&#125;&#125;&#39;  https://open.xfchat.xxxx.com/open-apis/bot/v2/hook/xxx-xxxx-xxx-xxxx-xxxxxx
+            sleep 5
+          done
+        env:
+        - ...
+        volumeMounts:
+        - name: docker-bin-volume
+          ...
+      volumes:
+      - name: docker-bin-volume
+        ...
+</code></pre>
+<ul>
+<li>同时在源端和对端做抓包, 因为流量较大需要滚动保留10个包</li>
+</ul>
+<blockquote>
+<p>这里有个细节是因为pod是挂载了宿主机的/var/run/docker.sock 所以其实在pod容器内是抓不到包的。 直接在宿主机里抓即可</p>
+</blockquote>
+<pre><code class="bash"># 源端
+tcpdump host 10.103.10.xxx.xxx.100  -s200 -W 10 -C 10 -w yyy14.pcap &amp;
+
+# 目标端
+tcpdump host 10.yyy.yyy.14 -s200 -W 10 -C 10 -w xxx100.pcap &amp;</code></pre>
+<h3 id="复现后分析"><a href="#复现后分析" class="headerlink" title="复现后分析"></a>复现后分析</h3><ul>
+<li>14的包<br><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/14-drop.png" alt=""></li>
+</ul>
+<ul>
+<li>100的包 通过114收到的来自10.xxx.xxx.100的syn-ack的 seq来找到对应的<br><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/100-packet-1.png" alt=""></li>
+</ul>
+<blockquote>
+<p>基于上面2个包能够确认是 10.xxx.xxx.100在收到yyy.14的syn包后，其实是有回包， 回包也被yyy.14的tcpdump收到 说明,yyy.14收到syn-ack后 没有对此做ack。10.xxx.xxx.100会持续发送syn-ack直到超时</p>
+</blockquote>
+<blockquote>
+<p>抓到此包时，还给网络组发工单来协助排查， 其实这个问题应该先怀疑机器的问题。 但是网路组也给了一个思路，通过tcpping来看，是否能重现， 如果能重现排除应用侧的问题。但是其实此包基本能判断是包已经进入了机器，且tcp握手是linux内核的事了 ，跟应用层也没有关系</p>
+</blockquote>
+<h3 id="通过tcpping-来探测"><a href="#通过tcpping-来探测" class="headerlink" title="通过tcpping 来探测"></a>通过tcpping 来探测</h3><pre><code class="bash">while true; do
+  # Run tcping and capture its output to prevent it from printing to the console
+  tcping -t 5 10.xxx.xxx.100 443 &gt; /dev/null 2&gt;&amp;1
+
+  # Check the exit code of the last command ($?)
+  if [ $? -ne 0 ]; then
+    # If the exit code is not 0 (i.e., it failed/timed out)
+    echo &quot;Connection to 10.xxx.xxx.100:443 timed out at $(date)&quot;
+    curl  -X POST -H &quot;Content-Type: application/json&quot;    -d &#39;&#123;&quot;msg_type&quot;:&quot;text&quot;,&quot;content&quot;:&#123;&quot;text&quot;:&quot;capture packet drop - tcpping timeout @shunzhou&quot;&#125;&#125;&#39;  https://open.xfchat.xxxx.com/open-apis/bot/v2/hook/xxxx-xxx-xxx-aa06-xxxxxx
+  else
+    # Optional: What to do on success
+    echo &quot;Connection to 10.xxx.xxx.100:443 is successful.&quot;
+  fi
+
+  sleep 1
+done</code></pre>
+<p>部署后 也能偶现。  抓包，也是一样的现象 10.yyy.yyy.14收到10.xxx.xxx.100的syn-ack 后，并没有发送ack 回包。  至此再次确认了非docker应用导致丢包  </p>
+<h3 id="10-xxx-xxx-100其实被多个网段请求。-对比其他验证"><a href="#10-xxx-xxx-100其实被多个网段请求。-对比其他验证" class="headerlink" title="10.xxx.xxx.100其实被多个网段请求。 对比其他验证"></a>10.xxx.xxx.100其实被多个网段请求。 对比其他验证</h3><p>对比了</p>
+<p>10.xxx.zzz.0/24(专属云集群)  tcpping 没有问题<br>10.<a href="http://www.www.0/24">www.www.0/24</a>  tcpping 也没有问题</p>
+<p>再次验证是10.yyy.yyy.0/24 这个专属k8s集群的机器有关</p>
+<h3 id="意外发现"><a href="#意外发现" class="headerlink" title="意外发现"></a>意外发现</h3><blockquote>
+<p>继续看抓包信息 无意间将 tcp.stream == 1463, 如下图，可以看到10.xxx.xxx.100 和 100.84.194.15 竟然发生交互了， 然后再次确认了下 seq numer也正是和 10.xxx.xxx.100发给10.yyy.yyy.14的syn-ack包。</p>
+</blockquote>
+<p><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-2.png" alt=""></p>
+<p>我们看看这个ip是谁的?  </p>
+<p><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-3.png" alt=""></p>
+<p>是另外一个节点的promethues 的 pod ip ?? 为啥 ??<br>(<em>这个时候如果对k8s比较熟练可能能找到原因。但是我并没有找到问题</em>)</p>
+<p>再理一理</p>
+<ol>
+<li>10.yyy.yyy.14 - syn - 10.xxx.xxx.100</li>
+<li>10.xxx.xxx.100 - syn-ack - 10.yyy.yyy.14</li>
+<li>10.yyy.yyy.14 收到了包 -&gt; tcpdump -&gt; iptable(netfilter) -&gt; 应用层 </li>
+</ol>
+<p>这时候只有1个猜测：</p>
+<ol>
+<li>既然tcpdump抓到此包，那么结合之前的网段的排除，可以怀疑k8s网络策略。</li>
+</ol>
+<p>因为客户端应用发起连接之后，<strong>三次握手是发生在内核里</strong>。跟应用就没关系了。 </p>
+<h3 id="找k8s集群维护方"><a href="#找k8s集群维护方" class="headerlink" title="找k8s集群维护方"></a>找k8s集群维护方</h3><blockquote>
+<p>这个专属集群是SAE帮忙建设的 , 摇到网络专家浩哥帮忙分析，将抓到的包和异常情况同步后 , 大佬很快找到根因</p>
+</blockquote>
+<p>来自浩哥的分析：</p>
+<pre><code>IPVS使用NF_INET_LOCAL_IN钩子点，位于INPUT链之后的 LOCAL_IN 路径上。在数据包即将交给本机传输层协议栈处理之前，IPVS 的钩子函数被调用，检查报文的目标 IP:Port 是否匹配k8s的service地址(VIP:VPort)。
+如果匹配：根据调度算法从service关联的后端Pod中选择一个处理请求。
+如果不匹配： 返回 NF_ACCEPT，数据包继续由本机协议栈处理。
+本例中tcping的使用的随机端口与serivce nodeport重复，所以优先匹配了ipvs规则。
+见下图 的连接  PORT: 32410 , 就和 prometheus的 NodePort 重复。 导致 10.xxx.xxx.100 的syn-ack 被转到了  prometheus pod 9090端口了  </code></pre><p><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-4.png" alt=""></p>
+<p><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-5.png" alt=""></p>
+<p><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-6.png" alt=""></p>
+<p>这里找到这个异常包后当时只关注了那个ip, 如果关注下port，还是有一定概率可以找到nodeport 的问题</p>
+<h2 id="总结反思"><a href="#总结反思" class="headerlink" title="总结反思"></a>总结反思</h2><p>整个排查花了挺长时间， 主要时间花在重现，抓包， 定界上面。<br>从这个排查 我们可以学到一些定界手段</p>
+<ol>
+<li>通过通知+tcpdump 滚动抓包来解决流量过大，抓不到特定包的问题</li>
+<li>抓到包后，基于包的分析大部分情况能够定大概范围， 网络问题， 机器问题，毕竟这个涉及到很多沟通成本</li>
+<li>通过tcpping 脚本来排除应用的干扰，只关注tcp的握手，挥手</li>
+</ol>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>
