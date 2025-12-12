@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        Koa.js Code Reading |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TBC 继续挖坑待填… ##Koa 源码简况  version： 0.8.2 用到的库 escape-html: &#x3D;1.0.1 statuses: &#x3D;1.0.1 accepts: 1.0.0 type-is: 1.1.0 set-type: 1.0.0 mime-types: 1.0.0 finished: 1.2.0 co: 3.0.2 debug fresh: 0.2.1 koa-compos">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Koa.js Code Reading">
+<meta property="og:url" content="https://shunzhou.me/2014/01/17/koa-dot-js-code-reading/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="TBC 继续挖坑待填… ##Koa 源码简况  version： 0.8.2 用到的库 escape-html: &#x3D;1.0.1 statuses: &#x3D;1.0.1 accepts: 1.0.0 type-is: 1.1.0 set-type: 1.0.0 mime-types: 1.0.0 finished: 1.2.0 co: 3.0.2 debug fresh: 0.2.1 koa-compos">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/koajs/koa/master/docs/middleware.gif">
+<meta property="article:published_time" content="2014-01-17T07:23:00.000Z">
+<meta property="article:modified_time" content="2024-02-18T23:57:54.460Z">
+<meta property="article:author" content="zs1621">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/koajs/koa/master/docs/middleware.gif">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">Koa.js Code Reading</h1>
+    <time id="post-date" datetime="2014-01-17T07:23:00.000Z">
+        一月 17, 2014
+    </time>
+    <div id="post-content" class="markdown-body">
+        <p>TBC 继续挖坑待填…</p>
+<p>##<a href="https://github.com/koajs/koa" target="_blank" rel="noopener">Koa</a></p>
+<p>源码简况</p>
+<ul>
+<li>version： 0.8.2</li>
+<li>用到的库<ul>
+<li>escape-html: =1.0.1</li>
+<li>statuses: =1.0.1</li>
+<li>accepts: 1.0.0</li>
+<li>type-is: 1.1.0</li>
+<li>set-type: 1.0.0</li>
+<li>mime-types: 1.0.0</li>
+<li><a href="https://zs1621.github.io/blog/2014/07/14/expressjs-slash-finished-code-reading/" target="_blank" rel="noopener">finished: 1.2.0</a></li>
+<li><a href="https://zs1621.github.io/blog/2014/11/27/co-coding-reading/" target="_blank" rel="noopener">co: 3.0.2</a></li>
+<li>debug</li>
+<li>fresh: 0.2.1</li>
+<li><a href="https://zs1621.github.io/blog/2014/05/28/koa-compose-code-reading/" target="_blank" rel="noopener">koa-compose: 2.2.0</a></li>
+<li>koa-is-json: 1.0.0</li>
+<li>cookies: 0.4.0</li>
+<li>delegates: 0.0.3</li>
+<li><a href="https://github.com/visionmedia/node-delegates/blob/master/index.js" target="_blank" rel="noopener">delegates</a>: 0.0.3 -已读 -13/5</li>
+<li>dethroy: 1.0.0</li>
+<li>vary: 0.1.0</li>
+<li>error-inject: 1.0.0</li>
+<li>parseurl: 1.2.0</li>
+<li><a href="https://github.com/visionmedia/node-only" target="_blank" rel="noopener">only</a>: 0.0.2  -已读 -9/5</li>
+</ul>
+</li>
+<li>运行条件: node 版本大于0.11.9</li>
+</ul>
+<p>##<strong>从入口说起</strong></p>
+<pre><code>var koa = require(&#39;koa&#39;);
+var app = koa();
+
+app.use(function *(){
+    this.body = &#39;Hello World&#39;;    
+});
+
+app.listen(3000);</code></pre><p>上面是一个最简单的服务,输出<code>Hello World</code>; 我们用到两个koa的api</p>
+<ul>
+<li>app.use()</li>
+<li>app.listen();</li>
+</ul>
+<p>下面就先从app.listen() 开始</p>
+<p>看 <a href="https://github.com/koajs/koa/blob/master/lib/application.js" target="_blank" rel="noopener">application.js</a> </p>
+<pre><code>app.listen = function () {
+    var server = http.createServer(this.callback()) ;  
+    return server.listen.apply(server, arguments);
+}</code></pre><blockquote>
+<p>http.createServer([requestListener])<br> returns a new web server object</p>
+</blockquote>
+<blockquote>
+<p><code>requestListener</code> is a function which is automatically added to the <code>&#39;request&#39;</code> 事件</p>
+</blockquote>
+<p>由代码可以知道 this.callback() 就是一个 <code>requestListener</code>;</p>
+<p>来到<code>app.callback</code></p>
+<pre><code>app.callback = function () {
+    var mw = [respond].concat(this.middleware);   // 实际上 respond 就是最后一个需要执行的中间件， 负责返回数据的 
+    var gen = compose(mw); 
+    var fn = co(gen);  // co 和 compose 就是将一个个middle，按序执行的操作, 此时middle还没有运行
+    var self = this;
+
+    if (!this.listeners(&#39;error&#39;).length) this.on(&#39;error&#39;, this.onerror);
+
+    return function (req, res) {
+        res.statusCode = 404;    
+        var ctx = self.createContext(req, res);
+        finished(ctx, ctx.onerror);
+        fn.call(ctx, ctx.onerror); // 这步运行了说明服务器接收到了请求， 然后一步步的运行middle 和 请求业务处理
+    }
+}</code></pre><p>上面的代码基本上就解释了整个请求到回复的流程</p>
+<p>附张图, 一图胜千言</p>
+<p><img src="https://raw.githubusercontent.com/koajs/koa/master/docs/middleware.gif" alt="gif"></p>
+<p>下面分解开来</p>
+<ul>
+<li><code>createContext(req, res)</code></li>
+<li><code>finished(ctx, ctx.onerror)</code></li>
+<li><code>fn.call(ctx, ctx.onerror)</code></li>
+</ul>
+<p>###app.createContext(req, res)</p>
+<ul>
+<li>参数 req,res</li>
+<li>返回内容:context, context具体内容如下<ul>
+<li>context: <code>Object.create(this.context)</code></li>
+<li>context.app: <code>request.app=response.app=</code></li>
+<li>context.req: <code>request.req = response.app = req</code></li>
+<li>context.res: <code>request.res = response.res = res</code></li>
+<li>context.ctx: <code>response.ctx = context</code></li>
+<li>context.onerror: <code>context.onerror.bind(context)</code> <a href="https://github.com/koajs/koa/blob/master/lib/context.js#l98" target="_blank" rel="noopener">this.context</a></li>
+<li>context.originalUrl: <code>request.originalUrl = req.url</code></li>
+<li>context.cookie: <code>new Cookies(req, res, this.keys)</code> -&gt; <a href="https://github.com/expressjs/cookies" target="_blank" rel="noopener">cookie</a> TODO</li>
+<li>context.accept: <code>request.accept = accepts(app)</code> -&gt; <a href="https://github.com/jshttp/accepts" target="_blank" rel="noopener">accepts</a></li>
+</ul>
+</li>
+</ul>
+<p>###finished(ctx, ctx.onerror)</p>
+<p>TBC</p>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        connect code reading |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="lib -&gt; patch.js headerSent res.__defineGetter__(&#39;headerSent&#39;, function(){     return this._header;   });这里的this._header是header内容发出后才有的， 内容为header的所有内容， 所以headerSent 只有在res.end()后才有值 lib-&amp;gt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="connect code reading">
+<meta property="og:url" content="https://shunzhou.me/2013/09/02/connect-code-reading/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="lib -&gt; patch.js headerSent res.__defineGetter__(&#39;headerSent&#39;, function(){     return this._header;   });这里的this._header是header内容发出后才有的， 内容为header的所有内容， 所以headerSent 只有在res.end()后才有值 lib-&amp;gt">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2013-09-02T14:12:00.000Z">
+<meta property="article:modified_time" content="2024-02-18T23:57:54.460Z">
+<meta property="article:author" content="zs1621">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">connect code reading</h1>
+    <time id="post-date" datetime="2013-09-02T14:12:00.000Z">
+        九月 02, 2013
+    </time>
+    <div id="post-content" class="markdown-body">
+        <p><a href="https://github.com/zs1621/connect/blob/master/lib/patch.js" target="_blank" rel="noopener">lib -&gt; patch.js</a></p>
+<p><strong>headerSent</strong></p>
+<pre><code>res.__defineGetter__(&#39;headerSent&#39;, function(){
+    return this._header;
+  });</code></pre><p>这里的this._header是header内容发出后才有的， 内容为header的所有内容， 所以headerSent 只有在res.end()后才有值</p>
+<p><a href="https://github.com/zs1621/connect/blob/master/lib/middleware/compress.js" target="_blank" rel="noopener">lib-&gt;middle-&gt;compress.js</a></p>
+<p><strong>options</strong></p>
+<p>compress中间件用了nodejs 内部模块 <code>zlib</code></p>
+<p>这里的options 参考 <a href="http://nodejs.org/api/zlib.html#zlib_options" target="_blank" rel="noopener">options</a></p>
+<pre><code>res.on(&#39;header&#39;, function(){
+
+})</code></pre><p>监听到 <code>header</code> 开始</p>
+<ul>
+<li>如果没有compress 直接return;</li>
+<li><code>var encoding = res.getHeader(&#39;Content-Encoding&#39;) || &#39;identity&#39;</code></li>
+<li>如果 <code>encoding</code> 不等于 <code>identity</code> 说明已经编码了 直接 return  </li>
+<li>如果需要压缩的文件 符合过滤条件 也即在给的文件列表中 就继续下一步, 否则 return  </li>
+<li>如果请求头文件 没有 accept-encoding 值 ， return (why)</li>
+<li>如果请求方法 为 <code>HEAD</code> , <code>return</code></li>
+<li>默认压缩方法为 <code>gzip</code></li>
+<li>确定压缩方法 即给 <code>method</code> 赋值</li>
+<li>此时<code>method</code> 还是空的话  return </li>
+<li>压缩流文件 <code>stream = exports.methods[method](options)</code> 即 <code>zlib.createGzip</code> 或 <code>zlib.createDeflate</code> 得到 流 <code>stream</code></li>
+<li>开始赋值 <code>Content-Encoding</code> , 并去除 <code>Content-Length</code> 明显压缩后 文件大小会变<br>此时 <code>stream</code> 监听 到 发出去的数据 就 开始 res.write<code>stream.write(new Buffer(chunk, encoding))</code> 这里的 stream 监听 是 <code>node version 0.10</code>后的<code>stream api</code> 具体 参考 <a href="https://github.com/joyent/node/blob/master/doc/api/stream.markdown" target="_blank" rel="noopener">stream</a></li>
+<li>直到 流文件 <code>&quot;流出&quot;</code></li>
+</ul>
+<p><a href="https://github.com/senchalabs/connect/blob/master/lib/middleware/basicAuth.js" target="_blank" rel="noopener">lib -&gt; middle -&gt; basicAuth.js</a></p>
+<p><strong>3种应用形式</strong></p>
+<ul>
+<li><p>简单输入 username , password </p>
+<pre><code>connect(connect.basicAuth(&#39;username&#39;, &#39;password&#39;));</code></pre></li>
+<li><p>回调</p>
+</li>
+</ul>
+<pre><code>   connect()
+   .use(connect.basicAuth(function(user, pass){
+      return &#39;tj&#39; == user &amp; &#39;wahoo&#39; == pass;
+   }))</code></pre><ul>
+<li>异步回调</li>
+</ul>
+<pre><code>   connect()
+   .use(connect.basicAuth(function(user, pass, fn){
+      User.authenticate({user: user, pass: pass}, fn); 
+   }))</code></pre><p><strong>Authrization</strong></p>
+<p>页面需要授权的时候，浏览器会弹出一个登入窗口, 输入正确的帐号， 浏览器会发送一个ＨＴＴＰ请求， 但此时会包含这样的一个 Header:</p>
+<pre><code>Authorization: Basic bXl1c2VyOm15cGFzcw==</code></pre><p>这里的 <code>bXl1c2VyOm15cGFzcw==</code> 是 <code>base64 encoded</code>。例如, <code>base64_decode(&#39;bXl1c2VyOm15cGFzcw==&#39;)</code> -&gt; <code>myuser:mypass</code></p>
+<p>理解头文件的 Authrization, 下面来看代码</p>
+<pre><code>      if (&#39;string&#39; == typeof callback)  //对应第一个应用例子, 见上 
+      callback = function(user, pass) {
+             return user == username &amp;&amp; pass == password; 
+      } //这时给callback赋值 function</code></pre><p>下面解析出头文件的即 <code>req.headers.authorization</code> 解码出用户输入的用户名和密码得到 <code>user</code> 和 <code>pass</code></p>
+<p>最后调用<code>callback</code>做验证 分一下两种情况</p>
+<ul>
+<li><p>异步callback</p>
+<pre><code>if (callback.length &gt;= 3) {
+var pause = utils.pause(req); 
+callback(user, pass, function(err, user){
+    if (err || !user) return unauthorized(res, realm);    
+    req.user = req.remoteUser = user;
+    next();
+    pause.resume(); // nodejs version &lt; 0.10, 在中间间使用异步调用时使用， 为了在异步操作完成后， 重新触发消息， 以免事件丢失
+});
+}</code></pre></li>
+<li><p>同步callback</p>
+<pre><code>if (callback(user, pass){
+req.user = req.remoteUser = user; 
+next();
+}else {
+unauthorized(res, realm); 
+})</code></pre></li>
+</ul>
+<p><a href="https://github.com/zs1621/connect/blob/master/lib/middle/static.js" target="_blank" rel="noopener">lib -&gt;middle -&gt;static.js</a></p>
+<p><strong>应用</strong></p>
+<pre><code>connect()
+    .use(connect.static(__dirname+ &#39;/public&#39;, {maxAge: 1000}))</code></pre><p><strong>参数</strong></p>
+<p><code>root</code>: </p>
+<p><code>options</code>:<br>    - ‘maxAge’ 浏览器缓存时间  默认为0<br>    - ‘hidden’ 允许隐藏文件的转换 默认false<br>    - ‘redirect’ 如果路径是一个文件夹， 指向 ‘/’ 默认 true<br>    - ‘index’ 默认的文件名‘index.html’</p>
+<p>代码主体就是</p>
+<pre><code>send(req, path)
+    .maxage(options.maxAge || 0)
+    .root(root)
+    .index(options.index || &#39;index.html&#39;)
+    .hidden(options.hidden)
+    .on(&#39;error&#39;, error)
+    .on(&#39;directory&#39;, directory)
+    .pipe(res)</code></pre><p>对于 <code>send</code> 模块分析见 <a href="zs1621.github.io/blog/2013/09/10/visionmedia-slash-send-reading">send</a></p>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

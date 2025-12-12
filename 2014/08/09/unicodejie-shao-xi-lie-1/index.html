@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        &#39;unicode&#39;介绍系列1 |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Unicode系列目前有准备有2篇文章  介绍Unicode Unicode在python(2.x)中的应用(让人头疼有么有)   好的下面开始 what Unicode Unicode 是一种字符集, 规定字符对应的二进制代码  平常所说的ASCII码呢，就是英语的128个字符对应的二进制代码  why Unicode 如其名,统一编码,所有的字符都有对应的独一无二的二进制代码, 这样就能一统天">
+<meta property="og:type" content="article">
+<meta property="og:title" content="&#39;unicode&#39;介绍系列1">
+<meta property="og:url" content="https://shunzhou.me/2014/08/09/unicodejie-shao-xi-lie-1/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="Unicode系列目前有准备有2篇文章  介绍Unicode Unicode在python(2.x)中的应用(让人头疼有么有)   好的下面开始 what Unicode Unicode 是一种字符集, 规定字符对应的二进制代码  平常所说的ASCII码呢，就是英语的128个字符对应的二进制代码  why Unicode 如其名,统一编码,所有的字符都有对应的独一无二的二进制代码, 这样就能一统天">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2014-08-09T09:10:12.000Z">
+<meta property="article:modified_time" content="2024-02-18T23:57:54.460Z">
+<meta property="article:author" content="zs1621">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">&#39;unicode&#39;介绍系列1</h1>
+    <time id="post-date" datetime="2014-08-09T09:10:12.000Z">
+        八月 09, 2014
+    </time>
+    <div id="post-content" class="markdown-body">
+        <p><code>Unicode</code>系列目前有准备有2篇文章</p>
+<ul>
+<li>介绍Unicode</li>
+<li>Unicode在python(2.x)中的应用(让人头疼有么有)</li>
+</ul>
+<p> 好的下面开始</p>
+<h2 id="what-Unicode"><a href="#what-Unicode" class="headerlink" title="what Unicode"></a>what Unicode</h2><ul>
+<li>Unicode 是一种字符集, 规定字符对应的二进制代码 </li>
+<li>平常所说的ASCII码呢，就是英语的128个字符对应的二进制代码</li>
+</ul>
+<h2 id="why-Unicode"><a href="#why-Unicode" class="headerlink" title="why Unicode"></a>why Unicode</h2><ul>
+<li>如其名,统一编码,所有的字符都有对应的独一无二的二进制代码, 这样就能一统天下</li>
+</ul>
+<h2 id="unicode-缺陷"><a href="#unicode-缺陷" class="headerlink" title="unicode 缺陷"></a>unicode 缺陷</h2><ul>
+<li>Unicode 规定了符号的二进制代码， 却没有规定这个二进制代码如何存储<ul>
+<li>如’严’的Unicode为4E25, 至少需要两个字节来表示, 就是说这个字符需要两个字节, 问题就来了,计算机不知道怎么区分2个字节表示一个符号，计算机也可以认为1个字节一个字符, 如果统一都用4字节表示每个字符，那么对于一个字节就可以表示的字符， 就是浪费,这是不能忍的</li>
+<li>所以需要一种比较号好的实现模式,去解决…</li>
+</ul>
+</li>
+</ul>
+<p>##UTF-8</p>
+<ul>
+<li>UFT-8是在互联网上使用的最广的一种Unicode的实现方式。</li>
+<li>这是一种可变长度的编码方式, 可以使用1~4个字节表示一个符号</li>
+<li>编码规则:<ul>
+<li>对于单字节的符号, 字节的第一位设为0, 后面7位是个符号的Unicode码, 因此对于英语字母, UTF-8和ASCII码相同</li>
+<li>对于n字节的符号(n &gt; 1), 第一个字节的前n位都设位1, 第n+1位设为0, 后面字节的前两位一律设为10, 剩下的二进位,全部位这个符号的Unicode</li>
+</ul>
+</li>
+</ul>
+<p>TBC</p>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

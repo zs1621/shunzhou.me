@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        Tornado Code Reading - IOLoop |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="##IOLoop 对着IOLoop 的源码瞅了一天，楞是没有明白， 为什么 父类实例可以调用子类方法? 最后看到configurabletornado 解读 看一下可配置接口的实现 configurable两函数 @classmethod def configurable_base(cls):     return IOLoop  @classmethod def configurable_def">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tornado Code Reading - IOLoop">
+<meta property="og:url" content="https://shunzhou.me/2013/09/19/tornado-code-reading-ioloop/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="##IOLoop 对着IOLoop 的源码瞅了一天，楞是没有明白， 为什么 父类实例可以调用子类方法? 最后看到configurabletornado 解读 看一下可配置接口的实现 configurable两函数 @classmethod def configurable_base(cls):     return IOLoop  @classmethod def configurable_def">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2013-09-19T04:36:00.000Z">
+<meta property="article:modified_time" content="2024-02-18T23:57:54.460Z">
+<meta property="article:author" content="zs1621">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">Tornado Code Reading - IOLoop</h1>
+    <time id="post-date" datetime="2013-09-19T04:36:00.000Z">
+        九月 19, 2013
+    </time>
+    <div id="post-content" class="markdown-body">
+        <p>##<a href="https://github.com/facebook/tornado/blob/master/tornado/ioloop.py" target="_blank" rel="noopener">IOLoop</a></p>
+<p>对着IOLoop 的源码瞅了一天，楞是没有明白， 为什么 父类实例可以调用子类方法?</p>
+<p>最后看到<a href="http://hswg.info/blog/2013/03/24/configurable-of-tornado-note/" target="_blank" rel="noopener">configurable</a><br><a href="http://ispe54.blogspot.com/2013/04/tornado-7.html" target="_blank" rel="noopener">tornado 解读</a></p>
+<p>看一下可配置接口的实现</p>
+<p><a name='IOLoop' id='IOLoop'>configurable两函数</a></p>
+<pre><code class="python">@classmethod
+def configurable_base(cls):
+    return IOLoop
+
+@classmethod
+def configurable_default(cls):
+    if hasattr(select, &quot;epoll&quot;):
+        from tornado.platform.epoll import EPollIOLoop
+        return EPollIOLoop
+    if hasattr(select, &quot;kqueue&quot;):
+        #python 2.6+ on BSD or Mac
+        from tornado.platform.kqueue import KQueueIOLoop
+        return KQueueIOLoop
+    from tornado.platform.select import SelectIOLoop
+    return SelectIOLoop</code></pre>
+<blockquote>
+<p>Configurable类是可配置接口的父类， 可配置接口对外提供一致的接口标志， 但它的子类实现可以在运行时进行configure。一般跨平台时由于子类实现有多种选择， 这时候就可以使用配置接口， 例如 select 和 epoll。首先注意 Configurable 的两个函数: configurable_base 和 configurable_default, 两函数都需要被子类(即可配置接口类)覆盖重写。其中， base函数一般返回接口类自身， default 返回接口的默认子类实现， 除非接口指定了 __impl_class。IOLoop及其子类实现都没有实现初始化函数也没有构造函数， 七构造函数继承于 Configurable, 如下::</p>
+</blockquote>
+<pre><code>def __new__(cls, **kwargs):
+    base = cls.configurable_base()
+    args = {}
+    if cls is base:
+        impl = cls.configured_class()
+        if base.__impl_kwargs:
+            args.update(base.__impl_kwargs)
+    else:
+        impl = cls
+    args.update(kwargs)
+    instance = super(Configurable, cls).__new__(impl)
+    instance.initialize(**args)
+    return instance</code></pre><p>当子类对象被构造时， 子类<strong>new</strong>被调用， 因此参数里的cls 指的是Configurable的子类(可配置接口类， 如IOLoop)。先得到base,  <a href="#IOLoop">IOLoop代码</a> 可知, configurable_base返回的是自身类。由于 base 和 cls 是一样的， 所以调用 configured_class() 得到接口的子类实现(见<a href="#configured_class">configured_class</a>) 其实就是调用 base的 configurable_default(?????TBD), 就是返回一个子类实现(epoll/kqueue/select之一),顺便把<strong>impl_kwargs合并到args 里 。然后调用Configurable类的父类(Object)的 __new</strong>方法， 生成一个impl的对象， 紧接着把args当参数调用该队想的initialize(继承PollIOLoop) , 返回该对象。 所以， 当构造IOLoop对象时， 实际得到的是EPollIOLoop或其它相关子类。可以看出， Configurable 类主要提供构造方法， 相当于对象工厂根据配置来生产对象， 同时开放configure接口以供配置。而子类按照约定调整配置即可得到不同对象， 代码得到了复用 或其它相关子类。可以看出， Configurable 类主要提供构造方法， 相当于对象工厂根据配置来生产对象， 同时开放configure接口以供配置。而子类按照约定调整配置即可得到不同对象， 代码得到了复用   </p>
+<p>上面的过程如果不好太理解  可以去看  <a href="https://github.com/zs1621/pythostudy/blob/master/tcp/tcp_loop_server.py" target="_blank" rel="noopener">example</a> 这样大致能理解 ioloop 实例的初始化过程</p>
+<p><a name="configured_class" id="configured_class">configured_class</a></p>
+<pre><code>base = cls.configurable_base()
+if cls.__impl_class is None:
+    base._impl_class = cls.configurable_default()
+return base.__impl_class</code></pre><p>===</p>
+<p>上面主要解释了 IOLoop 为什么能调用子类方法  以及  可配置接口的实现<br>下面来看 IOLoop 的对象 instance</p>
+<p>IOLoop 实现了单例的概念, 具体见 <a href="https://github.com/zs1621/pythostudy/blob/master/class/singleton.py" target="_blank" rel="noopener">IOLoop单例</a></p>
+<p>理解了上面的概念 接着 <a href="http://zs1621.github.io/blog/2013/09/16/tornado-code-reading-tcpserver/" target="_blank" rel="noopener">TCPServer</a> 最后的 add_handle !其实 此时的 object 已经是确定的 <code>EOLoop</code> 或者 <code>Kqueue</code> 的对象！ 这里的 add_handle 是 它们的父类 <code>POLoop</code> 的 方法， 这明显就是继承了! </p>
+<p>add_handler 代码如下， 首先把 处理方法的上下文 存入 <em>handlers ，等调用时再恢复， 这个机制是 statck_context 见 <a href="">statck_content</a> 做到的。 第二步 先来看下  self.<em>impl 从哪里来  -&gt; self._impl = impl 此时需要知道是谁调用 initialize  -&gt; 这里初始化是在构造函数 __new</em></em> 里调用的, <code>instance.initialize(**args)</code>此时的instance 为 <code>EPollIOLoop</code> 实例 -&gt;  <code>super(EPollIOLoop, self).initialize(impl=select.epoll, **kwargs)</code> -&gt; EPollIOLoop 的父类的 initialize() 很明显 impl 为 select.epoll<a target="_blank" rel="noopener" href="http://docs.python.org/2/library/select.html">epoll</a></p>
+<pre><code> def add_handler(self, fd, handler, events):
+     self._handlers[fd] = statck_context.wrap(handler)
+    self._impl.register(fd, events | self.ERROR)</code></pre><p>这步呢 就是把 监听 fd 和 accept_handler方法进行关联, 至此事件分发到此就结束了</p>
+<p>======</p>
+<p>下面来看下 IOLoop 的主循环 <code>start()</code></p>
+<pre><code>def start(self):
+    if not logging.getLogger().handlers:
+        logging.basicConfig
+    if self._stopped:
+        self._stopped = False
+        return
+    old_current = getattr(IOLoop._current, &quot;instance&quot;, None)
+    IOLoop._current.instance = self
+    self._thread_ident = thread.get_ident() #Return the ‘thread identifier’ of the current thread. This is a nonzero integer
+    self._running = True
+
+    old_wakeup_fd = None
+    if hasattr(singal, &#39;set_wakeup_fd&#39;) and os.name == &#39;posix&#39;:
+        try:
+            old_wakeup_fd = signal.set_wakeup_fd(self._waker.write_fileno())
+            if old_wakeup_fd != -1:
+                signal.set_walkeup_fd(old_wakeup_fd)
+                old_walkup_fd = None
+        except ValueError:
+            pass
+</code></pre><p>上面这段代码 TBD</p>
+<pre><code>while True:
+    poll_timeout = _POLL_TIMEOUT
+    #Prevent IO event starvation by delaying new callbacks 
+    # to the next iteration of the event loop.
+    with self._callback_lock:
+        callbacks = self._callbacks
+        self._callbacks = []
+    for callback in callbacks:
+        self._run_callback(callback)
+    # Closures may be holding on to a lot of memory, so allow
+    # them to be freed before we go into our poll wait.
+    callbacks = callback = None
+
+    if self._timeouts:
+        now = self.time()
+        while self_timeouts:
+            if self._timesouts[0].callback is None:
+                # the timeout was cancelled
+                heapq.heappop(self._timeouts)
+                self._cancellations -= 1
+            elif self._timeouts[0].deadline &lt;= now:
+                timeout = heapq.heappop(self._timeouts)
+                self._run_callback(timeout.callback)
+                del timeout
+            else:
+                seconds = self._timeouts[0].deadline - now
+                poll_timeout = min(seconds, poll_timeout)
+                break
+</code></pre>
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

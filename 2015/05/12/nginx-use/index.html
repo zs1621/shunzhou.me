@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        Nginx use |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nginx config description (注意事项) proxy_buffer_size    Syntax: proxy_buffer_size *size*; Default: proxy_buffer_size 4k|8k; Context: http,server,location把代理服务器传来的第一部分(通常是response header)放在proxy_buffer里">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx use">
+<meta property="og:url" content="https://shunzhou.me/2015/05/12/nginx-use/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="Nginx config description (注意事项) proxy_buffer_size    Syntax: proxy_buffer_size *size*; Default: proxy_buffer_size 4k|8k; Context: http,server,location把代理服务器传来的第一部分(通常是response header)放在proxy_buffer里">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-05-12T01:58:46.000Z">
+<meta property="article:modified_time" content="2024-02-18T23:57:54.460Z">
+<meta property="article:author" content="zs1621">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">Nginx use</h1>
+    <time id="post-date" datetime="2015-05-12T01:58:46.000Z">
+        五月 12, 2015
+    </time>
+    <div id="post-content" class="markdown-body">
+        <h2 id="Nginx-config-description-注意事项"><a href="#Nginx-config-description-注意事项" class="headerlink" title="Nginx config description (注意事项)"></a>Nginx config description (注意事项)</h2><ul>
+<li>proxy_buffer_size  </li>
+</ul>
+<pre><code>Syntax: proxy_buffer_size *size*;
+Default: proxy_buffer_size 4k|8k;
+Context: http,server,location</code></pre><p>把代理服务器传来的第一部分(通常是response header)放在proxy_buffer里</p>
+<ul>
+<li>proxy_buffers</li>
+</ul>
+<pre><code>Syntax: proxy_buffers *number size*;
+Default: proxy_buffers *8 4k|8k*;
+Context: http,server,location</code></pre><p>设置buffers的个数和大小(单一链接).默认size等于一个内存页,取决于平台</p>
+<ul>
+<li>proxy_buffering </li>
+</ul>
+<pre><code>Syntax: proxy_buffering *on | off*;
+Default: proxy_buffering on;
+Context: http,server,location</code></pre><p>开启/关闭 proxy_buffering, buffering on ， nginx接受到代理服务器的返回就会将其存入buffers.如果回复内容超过设置的大小，会将回复内容存入临时文件(temporary file)硬盘里</p>
+<ul>
+<li>proxy_temp_path</li>
+</ul>
+<pre><code> Syntax: proxy_temp_path *path*;
+ Default: proxy_temp_path proxy_temp;
+ Context: http,server,location</code></pre><p> 定义一个文件夹存储proxy server传来的数据</p>
+<h2 id="nginx-use-问题"><a href="#nginx-use-问题" class="headerlink" title="nginx use 问题"></a>nginx use 问题</h2><ul>
+<li>proxy server 为django, django返回的文件5m左右,但是最后下载下来的只有69k,最后跟了下nginx error log, 看到如下错误</li>
+</ul>
+<pre><code> open() &quot;/***/nginx/proxy_temp/0/12/00001213420&quot; failed (13: Permission denied) while reading upstream,</code></pre><p>问题就很明显了，这就是proxy_buffering里的返回内容大了,会先将其存入硬盘,但运行nginx的用户对临时文件无权限，所以将临时文件夹的用户权限改下问题就解决了</p>
+<ul>
+<li>proxy server 为django,  访问服务器出现django出现如下错误:</li>
+</ul>
+<pre><code> Invalid HTTP_HOST header(you may need to set ALLOWED_HOSTS): 127.0.0.1:3456</code></pre><p> 这个问题就是django在请求来的时候会检查request header 里的 host.如果host不是预设的xxxx.com那么就会报500错误，一般是因为nginx没有加<code>proxy_set_header Host $host;</code>, 加上这个说明就好了 ip <code>proxy_set_header X-Real-IP $remote_addr</code> 也是同样的道理</p>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

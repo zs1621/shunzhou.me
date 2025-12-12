@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        Tornado Code Reading - tornado.concurrent |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="##Future背景Future 代表一个函数的调用结果. 函数返回一个值或者抛出一个异常， 所以future 包含一个值或者一个异常(可以通过future.result()获得这个结果，异常和返回值). Fuures存在与对应的函数结束前. 在 一个  多线程场景下,简单的调用 future.result()等待另外一个线程或者进程完成。在 异步场景下，你可以附带一个callback给futur">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tornado Code Reading - tornado.concurrent">
+<meta property="og:url" content="https://shunzhou.me/2013/11/08/tornado-code-reading-tornado-dot-concurrent/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="##Future背景Future 代表一个函数的调用结果. 函数返回一个值或者抛出一个异常， 所以future 包含一个值或者一个异常(可以通过future.result()获得这个结果，异常和返回值). Fuures存在与对应的函数结束前. 在 一个  多线程场景下,简单的调用 future.result()等待另外一个线程或者进程完成。在 异步场景下，你可以附带一个callback给futur">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2013-11-08T05:38:00.000Z">
+<meta property="article:modified_time" content="2024-02-18T23:57:54.460Z">
+<meta property="article:author" content="zs1621">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">Tornado Code Reading - tornado.concurrent</h1>
+    <time id="post-date" datetime="2013-11-08T05:38:00.000Z">
+        十一月 08, 2013
+    </time>
+    <div id="post-content" class="markdown-body">
+        <p>##Future背景<br>Future 代表一个函数的调用结果. 函数返回一个值或者抛出一个异常， 所以future 包含一个值或者一个异常(可以通过future.result()获得这个结果，异常和返回值). Fuures存在与对应的函数结束前. 在 一个  多线程场景下,简单的调用 future.result()等待另外一个线程或者进程完成。在 异步场景下，你可以附带一个callback给future为了当调用结束可以得到通知。（with future.add_done_callback or io_loop.add_future） </p>
+<p>##了解 Future<br><code>Futures</code> 已经在Python3.2应用了 <a href="http://python.readthedocs.org/en/latest/library/concurrent.futures.html#concurrent.futures" target="_blank" rel="noopener">concurrent.futures</a> , 如果在python3.2之前版本用 可以 (pip install futures). 那在 tornado 中如果可以将用就用python包，否则将会使用一个兼容的类 <code>tornado.concurrent.Future</code> </p>
+<h2 id="class-tornado-concurrent-Future"><a href="#class-tornado-concurrent-Future" class="headerlink" title="class tornado.concurrent.Future"></a>class tornado.concurrent.Future</h2><p><strong>这个类封装了异步操作的结果</strong>。在同步程序中， Futures被用来等待一个线程或者进程池的结果。在Tornado一般用在 IOLoop.add_future 或者 在一个 gen.coroutine </p>
+<pre><code>&quot;&quot;&quot;
+如果有 concurrent.futures 可用，那就用它; 否则用 _DummyFuture 
+&quot;&quot;&quot;
+if futures is None:
+    Future = _DummyFuture
+else:
+    Future = futures.Future</code></pre><h2 id="DummyFuture"><a href="#DummyFuture" class="headerlink" title="_DummyFuture"></a>_DummyFuture</h2><ul>
+<li>result</li>
+</ul>
+<pre><code>&quot;&quot;&quot;
+先检查有没有完成 ，没有完成 ,直接抛出异常!如果有异常就raise 异常，否则返回 result
+&quot;&quot;&quot;
+def result(self, timeout=None):
+    self._check_done()
+    if self._exception:
+        raise self._exception
+    return self._result</code></pre><ul>
+<li>exception</li>
+</ul>
+<p>这个函数先与result唯一的不同是 无异常的时候 return None ;</p>
+<ul>
+<li>add_done_callback(fn)</li>
+</ul>
+<pre><code class="python">&quot;&quot;&quot;
+给Future加入一个回调。当它完成将会 以Future为参数调用回调函数. 
+&quot;&quot;&quot;
+def add_done_callback(self, fn):
+    if self.done:
+        fn(self)
+    else:
+        self._callbacks.append(fn)</code></pre>
+<h2 id="TracebackFuture"><a href="#TracebackFuture" class="headerlink" title="TracebackFuture"></a>TracebackFuture</h2><p>存储 异常的追踪</p>
+<h2 id="DummyExecutor"><a href="#DummyExecutor" class="headerlink" title="DummyExecutor"></a>DummyExecutor</h2><pre><code>class DummyExecutor(object):
+    def submit(self, fn, *args, **kwargs):
+        future = TracebackFuture()
+        try:
+            future.set_result(fn(*args, **kwargs))
+        except Exception:
+            future.set_exc_info(sys.exc_info())
+        return future
+    def shutdown(self, wait=True):
+        pass</code></pre><h2 id="run-on-executor"><a href="#run-on-executor" class="headerlink" title="run_on_executor"></a>run_on_executor</h2><pre><code class="python">def run_on_executor(fn):
+    &quot;&quot;&quot;
+    异步的跑同步方法
+    &quot;&quot;&quot;
+    @functools.wraps(fn):
+    def wrapper(self, *args, **kwargs):
+        callback = kwargs.pop(&quot;callback&quot;, None)
+        future = self.executor.submit(fn, self, *args, **kwargs) #self.executor  理解为线程池
+        if callback:
+            self.io_loop.add_future(future, \
+                lambda future: callback(future.result()))
+        return future
+    return wrapper</code></pre>
+<p>这里有关于<code>run_on_executor</code>的应用例子 <a href="https://gist.github.com/zs1621/7921770" target="_blank" rel="noopener">https://gist.github.com/zs1621/7921770</a></p>
+<h2 id="return-future"><a href="#return-future" class="headerlink" title="return_future"></a>return_future</h2><ul>
+<li>what use: 让函数通过回调返回一个<code>Future</code></li>
+<li>how use: @return_future</li>
+</ul>
+<blockquote>
+<p>看 tornado 源码的 test文件 concurrent_test.py; </p>
+</blockquote>
+<pre><code class="python">class ReturnFutureTest(AsyncTestCase):
+    @return_future
+    def sync_future(self, callback): # 同步future
+        print (callback, &#39;+++++++++++++++&#39;) # d -&gt; 对应log 的d
+        callback(42)
+
+    @return_future
+    def async_future(self, callback): #异步future
+        print (callback, &#39;+++++++++++++++&#39;) # d -&gt; 对应 log 的 d
+        self.io_loop.add_callback(callback, 42)
+
+    def test_sync_future(self): #测试同步 
+        future = self.sync_future()
+        self.assertEqual(future.result(), 42)
+
+    def test_async_future(self): #测试异步
+        future = self.async_future()
+        self.assertFalse(future.done())
+        self.io_loop.add_future(future, self.stop) #add_future
+        future2 = self.wait()
+        self.assertIs(future, future2)
+        self.assertEqual(future.result(), 42)</code></pre>
+<p>联合 concurrent.py -&gt; return_future</p>
+<pre><code class="python">def return_future(f):
+    replacer = ArgReplacer(f, &#39;callback&#39;) # 1 
+
+    @fuctools.wraps(f)
+    def wrapper(*args, **kwrags):
+        print (args, kwrags, &quot;argsssssssss&quot;) #a 对应下面的 log -&gt; a
+        future = TracebackFuture() # 2
+        callback, args, kwargs = replacer.replace(
+            lambda value=_NO_RESULT: future.set_result(value),
+            args, kwargs) # 1  替代 f 函数的 `callback`,  
+        print (callback, args, kwargs, &#39;callback&#39;) #b 对应下面的 log -&gt; b
+
+        def handle_error(typ, value, tb):
+            future.set_exc_info((typ, value, tb))
+            return True
+
+        exc_info = None
+        with ExceptionStackContext(handle_error): # 4
+            try:
+                result = f(*args, **kwargs) 
+                print (result, &#39;result-------------------&#39;) #c 对应下面的 log -&gt; c
+                if result is not None:
+                        raise ReturnValueIgoredError(
+                            &quot;@return_future should not be used with functions&quot;
+                            &quot;that return values&quot;)
+            except:
+                exc_info = sys.exc_info()
+                raise
+        if exc_info is not None:
+            raise_exc_info(exc_info)
+
+        if callback is not None:
+            def run_callback(future):
+                result = future.result()
+                print (future, &quot;+__+_+_+_+_&quot;) #e -&gt; 对应下面 ＬＯＧ -&gt; e
+                if result is _NO_RESULT:
+                    callback()
+                else:
+                    callback(future.result())
+            future.add_done_callback(wrap(run_callback)) # 6
+        return future
+    return wrapper</code></pre>
+<p>###分几种情况 1. 同步无回调 2.同步有回调 3.异步无回调 4.异步有回调</p>
+<ul>
+<li><strong>同步无回调LOG</strong>  <code>f(args, kwargs): future = sync_process()</code><ul>
+<li><em>a</em> –  (&lt;test_return_future.ReturnFutureTest testMethod=test_no_callback&gt;,) {} argsssssssss</li>
+<li><em>b</em> – None (&lt;test_return_future.ReturnFutureTest testMethod=test_no_callback&gt;,) {‘callback’: &lt;function <lambda> at 0xb6ba8f0c&gt;} callback</li>
+<li><em>c</em> – None result—————— </li>
+<li><em>d</em> – (function <lambda> at 0xb6ba8f0c&gt;) +++++++++++++</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>从 a-b 可以理解 replacer.replace 的作用: 提取callback 的值， 并将callback 放入kwargs; 由c 可以知道 f() 函数是不会return 的; f()的结果只能由 future.result() 得到, 只要知道reuturn_future 是返回Future 本身是不会return 的， 如果return 就会报错; 由d 可知匿名函数<code>fuction &lt;lambda&gt; at 0xb6ba8f0c</code>赋值给了callback,而这个匿名函数的作用就是<code>set_result</code>。</p>
+</blockquote>
+<ul>
+<li><strong>同步有回调LOG</strong> <code>f(args, kwargs, callback): future = sync_process() callback(future)</code><ul>
+<li><em>a</em> – (&lt;test_return_future.ReturnFutureTest testMethod=test_callback_kw&gt;,) {‘callback’:&lt;bound method ReturnFutureTest.stop of &lt;test_return_future.ReturnFutureTest testMethod=test_callback_kw&gt;&gt;} argsssssssss</li>
+<li><em>b</em> – &lt;bound method ReturnFutureTest.stop of &lt;test_return_future.ReturnFutureTest testMethod=test_callback_kw&gt;&gt; (&lt;test_return_future.ReturnFutureTest testMethod=test_callback_kw&gt;,) {‘callback’: &lt;function <lambda> at 0xb6bd8f44&gt;} callback  </li>
+<li><em>c</em> –  None result——————</li>
+<li><em>d</em> – 额额 function <lambda> at 0xb6bd8f44 +++++++++++++ </li>
+<li><em>e</em> – 额额 Future at 0xb6b9cc8cL state=finished returned int +<em>_+</em>+<em>+</em>+_ </li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>与无回调相比; 明显多出 e log; run_callback 就是将 future.result()作为callback的参数运行; </p>
+</blockquote>
+<ul>
+<li><strong>异步无回调LOG</strong> <code>f(args, kwargs): future = async_process()</code><ul>
+<li><em>a</em> – (&lt;test_return_future.ReturnFutureTest testMethod=test_async_future&gt;,) {} argsssssssss </li>
+<li><em>b</em> – None (&lt;test_return_future.ReturnFutureTest testMethod=test_async_future&gt;,) {‘callback’: &lt;function <lambda> at 0x8518f44&gt;} callback </li>
+<li><em>c</em> – None result—————— </li>
+<li><em>d</em> – (function <lambda> at 0x8518f44) ++++++++++++++ </li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>与同步无回调相比; 看<code>test_async_future(self)</code>, 将 f() 获得的 future -&gt; self.io_loop.add_future(future, self.stop) -&gt; self.stop(future) -&gt; 最后通过 self.wait()获得的结果 就是 例子中42 . 现实中一般将 return_future 与 gen.engine 联合使用  , 通过在 gen.engine -&gt; yield f() 获得结果</p>
+</blockquote>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

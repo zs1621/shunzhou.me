@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        Tornado Code Reading-TCPServer |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="##TCPserver 一个非阻塞， 单进程的 TCP 服务器 为了使用 TCPServer, 定义一个子类改写其中的 handle_stream 方法 如果让服务器通过 SSL 传输， 如下例 TCPServer(ssl_options&#x3D;{     &quot;certfile&quot;: os.path.join(data_dir, &quot;mydomain.crt&quot;),">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tornado Code Reading-TCPServer">
+<meta property="og:url" content="https://shunzhou.me/2013/09/16/tornado-code-reading-tcpserver/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="##TCPserver 一个非阻塞， 单进程的 TCP 服务器 为了使用 TCPServer, 定义一个子类改写其中的 handle_stream 方法 如果让服务器通过 SSL 传输， 如下例 TCPServer(ssl_options&#x3D;{     &quot;certfile&quot;: os.path.join(data_dir, &quot;mydomain.crt&quot;),">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2013-09-16T08:31:00.000Z">
+<meta property="article:modified_time" content="2024-02-18T23:57:54.460Z">
+<meta property="article:author" content="zs1621">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">Tornado Code Reading-TCPServer</h1>
+    <time id="post-date" datetime="2013-09-16T08:31:00.000Z">
+        九月 16, 2013
+    </time>
+    <div id="post-content" class="markdown-body">
+        <p>##<a href="https://github.com/facebook/tornado/blob/master/tornado/tcpserver.py" target="_blank" rel="noopener">TCPserver</a></p>
+<p>一个非阻塞， 单进程的 <code>TCP</code> 服务器</p>
+<p>为了使用 <code>TCPServer</code>, 定义一个子类改写其中的 <code>handle_stream</code> 方法</p>
+<p>如果让服务器通过 <code>SSL</code> 传输， 如下例</p>
+<pre><code>TCPServer(ssl_options={
+    &quot;certfile&quot;: os.path.join(data_dir, &quot;mydomain.crt&quot;),
+    &quot;keyfile&quot;: os.path.join(data_dir, &quot;mydomain.key&quot;),
+})</code></pre><p><code>TCPServer</code> simple single-process::</p>
+<ul>
+<li><code>listen</code>: 监听单个进程</li>
+</ul>
+<pre><code>server = TCPServer()
+server.listen(8888)
+IOLoop.instance().start()</code></pre><ul>
+<li><code>bind</code> / <code>start</code>: simple multi-process::</li>
+</ul>
+<pre><code>server = TCPServer()
+server.bind(8888)
+server.start(0) #Forks multiple sub-process
+IOLoop.instance().start()</code></pre><p>如果使用<code>start</code>接口， 一个 <code>.IOLoop</code> 不可以传入 <code>TCPServer</code> 结构里。 <code>start</code>将总是开始服务在默认的单例 <code>.IOLoop</code></p>
+<ul>
+<li><code>add_sockets</code>: 高级多进程::</li>
+</ul>
+<pre><code>sockets = bind_sockets(8888)
+tornaado.process.fork_processes(0)
+server = TCPServer()
+server.add_sockets(sockets)
+IOLoop.instance().start()</code></pre><p><code>add_sockets</code> 接口更为复杂， 但是和<code>tornado.process.fork_processes</code>使用将会更明了， <code>add_sockets</code>也可以用在单进程服务中 ， 如果你想要创建你的监听套节字而不是<code>~tornado.netutil.bind_sockets</code></p>
+<hr>
+<p>以上是怎么应用<br>下面看源码</p>
+<p><strong>初始化</strong></p>
+<pre><code>def __init__(self, io_loop=None, ssl_options=None, max_buffer_size=None):
+    self.io_loop = io_loop
+    self.ssl_options = ssl_options
+    self.sockets = {}
+    self._pending_sockets = []
+    self._started = False
+    self.max_buffer_size = max_buffer_size
+    #下面是检验 SSL 文件，此处略</code></pre><p><strong>listen</strong></p>
+<p>在给定的端口接受连接<br>这个方法可能被调用多次为了监听多个端口。<code>listen</code> 立即生效; 之后不必调用<code>TCPServer.start</code> , 但是， <code>,IOLoop</code> 是必要的</p>
+<pre><code>sockets = bind_sockets(port, address=address)
+self.add_sockets(sockets)</code></pre><p>源码里的 <code>bind_sockets</code> 见 <a href="#bind_sockets">bind_sockets</a>, <code>add_sockets</code> 见下</p>
+<p><strong>add_sockets</strong></p>
+<p>让服务接受多个连接</p>
+<p><code>sockets</code> 参数是一个socket数组, <code>add_sockets</code>一般和 <code>tornado.process.fork_processes</code>联合使用 为了控制 多进程服务的启动</p>
+<pre><code>if self.io_loop is None:
+    self.io_loop = IOLoop.current()
+
+for sock in sockets:
+    self._sockets[sock.fileno()] = sock
+    add_accept_handler(sock, self._handle_connection, io_loop=self.io.loop) </code></pre><p>上面的 add_accept_handler 见 <a href="#add_accept_handler">add_accept_handler</a><br>add_accept_handler 第二个参数 self._handle_connection是个回调函数, 分析如下</p>
+<blockquote>
+<p>_handle_connection在接受客户端的连接处理结束后会被调用，调用时传入连接和ioloop对象初始化 IOStream,用于对客户端的异步读写;然后调用 <code>handle_stream</code>(注意这里的handle_stream 文档说了如果你只是用<code>tcpserver</code>那么，handle_stream得自己重写, 如果用tornado的httpserver 那handle_stream 在 <a href="https://github.com/facebook/tornado/blob/master/tornado/httpserver.py" target="_blank" rel="noopener">httpserver</a>), 传入创建的<code>IOStream</code>对象初始化一个<code>HTTPConnection</code>, <code>HTTPConnection</code>  封装了<code>IOStream</code> 的一些操作， 用于处俩 <code>HTTPRequest</code> 并返回。 至此 <code>HTTPServer</code>的创建、启动、注册回调函数过程结束</p>
+</blockquote>
+<pre><code class="python">#如果self.ssl_options不为空，处理ssl代码略
+try:
+    if self.ssl_options in not None:
+        stream = SSLTOSTREAM(connection, io_loop=self.io_loop, max_buffer_size=self.max_buffer_size)
+    else:
+        stream = IOSTream(connection, io_loop=self.io_loop, max_buffer_size=self.max_buffer_size)
+    self.handle_stream(stream, address)
+except Excetpion:
+    app_log.error(&#39;Error in connection callback&#39;, exc_info=True)</code></pre>
+<p>从上面的分析和源码 可知 服务器的工作流程 socket-&gt;bind-&gt;listen创建 listen socket 监听客户端， 并将每个listen socket 的 fd 注册到IOLoop的单例实例中; 当 listen socket 可读时回调 _handle_events 处理客户端请求；在与客户端通信的过程中使用 IOStream 封装读写缓冲区， 实现与客户端的异步读写。 下面我们将具体了解listen socket 的 fd 被注册到IOLoop的单例实例中  见 <a href="http://zs1621.github.io/blog/2013/09/19/tornado-code-reading-ioloop/" target="_blank" rel="noopener">IOLoop</a></p>
+<hr>
+<p>##<a href="https://github.com/facebook/tornado/blob/master/tornado/netutil.py" target="_blank" rel="noopener">netutil</a></p>
+<p><a name="bind_sockets" id="bind_sockets"><strong>bind_sockets</strong></a></p>
+<ul>
+<li><p>解释:创建监听套节字绑定到给定的端口和地址</p>
+</li>
+<li><p>参数</p>
+<ul>
+<li>address: IP地址或主机名。如果是主机名，服务将会监听所有跟此域名有关的<code>IP</code></li>
+<li>Family: <code>socket.AF_INET</code> 或 <code>socket.AF_INET6</code></li>
+<li>backlog: 这个参数跟<code>socket.listen()&lt;socket.socket.listen&gt;</code>一样</li>
+<li>flags: </li>
+</ul>
+</li>
+<li><p>代码</p>
+</li>
+</ul>
+<pre><code class="python">sockets = []
+if address == &quot;&quot;:
+    address = None
+if not socket.has_ipv6 and family == socket.AF_UNSPEC:
+    family = socket.AF_INET
+if flags is None:
+    flags = socket.AI_PASSIVE
+    #见 [getaddrinfo](https://github.com/zs1621/pythostudy/wiki/socket)
+    #`getaddrinfo`会返回服务器的所有网卡信息， 每个网卡都要监听客户端的请求并返回创建的sockets
+for res in set(socket.getaddrinfo(address, port, family, socket.SOCK.STREAM, 0, flags)):
+    af, socktype, proto, canoname, sockaddr = res
+    try:
+        #创建套节字
+        sock = socket.socket(af, socktype, proto)
+    except socket.error as e:
+        if e.args[0] == errno.EAFNOSUPPORT:
+            continue
+        raise
+    set_close_exec(sock.fileno())
+    if os.name != &#39;nt&#39;:
+        #TCP连接中，recv等函数默认为阻塞模式(block)，
+        #即直到有数据到来之前函数不会返回，
+        #而我们有时则需要一种超时机制使其在一定时间后返回而不管是否有数据到来，
+        #这里我们就会用到setsockopt()函数 见 [setsockopt](http://blog.chinaunix.net/uid-25749806-id-348637.html)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SOREUSERADDR, 1)
+    #在linux ipv6 sockets 也接受 ipv4，这样的话不能同时绑定 ipv4 和 ipv6.为了方便，在ipv6 sockets中总是禁用ipv4 
+    if af == socket.AF_INET6:
+        if hasattr(socket, &quot;IPPROTO_IPV6&quot;):
+            sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY)
+    sock.setblocking(0)
+    sock.bind(sockaddr)
+    #默认设定等待被处理的连接最大个数
+    sock.listen(backlog)
+    sockets.append(sock)
+return sockets</code></pre>
+<p><a name="add_accept_handler" id="add_accept_handler"><strong>add_accept_handler</strong></a>: 添加一个<code>IOLoop</code>事件去接受新的连接在 <code>sock</code></p>
+<blockquote>
+<p>当一个连接被接受了， <code>callback(connection, address)</code>(<code>connection</code>是socket对象， <code>address</code>是连接的另外结尾处的地址)将会运行</p>
+</blockquote>
+<pre><code class="python">if io_loop is None:
+     io_loop = IOLoop.current()
+def accept_handler(fd, events):
+    while True:
+        try:
+            connection, address = sock.accept()
+        except socket.error as e:
+            #EWOULDBLOCK 和 EAGAIN 表明我们
+            #已经接受了每个可以接受的连接
+            #具体见[EWOULDBLOCK](http://stackoverflow.com/questions/3647539/socket-error-errno-ewouldblock)
+            if e.args[0] in (errno.EWOULDBLOCK, errno.EAGAIN):
+                return
+            #ECONNABORTED 表明有个连接还在接受队列时被关闭了
+            if e.args[0] == errno.ECONNABORTED:
+                continue
+            raise
+        callback(connection, address)
+io_loop.add_handler(sock.fileno(), accept_handler, IOLoop.READ)</code></pre>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

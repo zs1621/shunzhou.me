@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        运维的第一性原理? |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="运维工作性质 试着描述运维(operation)的几类   服务器资产保管员 ？  - 基础设施, 数据中心类 为研发提供服务的服务人员 ?  - devops 偏 ops 公司内部的工具平台运维 保障网站的可靠性 ？ - SRE 业务稳定性 产品生命周期中偏运营部分 ? -  技术支撑工程师 为客户解决问题  运维的价值以较小的成本，来支撑业务的高效稳定输出 运维工作要领 对生产环境敬畏 -1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="运维的第一性原理?">
+<meta property="og:url" content="https://shunzhou.me/2021/08/24/%E8%BF%90%E7%BB%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E6%80%A7%E5%8E%9F%E7%90%86/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="运维工作性质 试着描述运维(operation)的几类   服务器资产保管员 ？  - 基础设施, 数据中心类 为研发提供服务的服务人员 ?  - devops 偏 ops 公司内部的工具平台运维 保障网站的可靠性 ？ - SRE 业务稳定性 产品生命周期中偏运营部分 ? -  技术支撑工程师 为客户解决问题  运维的价值以较小的成本，来支撑业务的高效稳定输出 运维工作要领 对生产环境敬畏 -1">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-08-23T22:59:21.000Z">
+<meta property="article:modified_time" content="2024-02-19T11:08:40.600Z">
+<meta property="article:author" content="zs1621">
+<meta property="article:tag" content="运维">
+<meta property="article:tag" content="SRE">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">运维的第一性原理?</h1>
+    <time id="post-date" datetime="2021-08-23T22:59:21.000Z">
+        八月 24, 2021
+    </time>
+    <div id="post-content" class="markdown-body">
+        <h2 id="运维工作性质"><a href="#运维工作性质" class="headerlink" title="运维工作性质"></a>运维工作性质</h2><blockquote>
+<p>试着描述运维(operation)的几类</p>
+</blockquote>
+<ul>
+<li>服务器资产保管员 ？  - 基础设施, 数据中心类</li>
+<li>为研发提供服务的服务人员 ?  - devops 偏 ops 公司内部的工具平台运维</li>
+<li>保障网站的可靠性 ？ - SRE 业务稳定性</li>
+<li>产品生命周期中偏运营部分 ? -  技术支撑工程师 为客户解决问题</li>
+</ul>
+<h2 id="运维的价值"><a href="#运维的价值" class="headerlink" title="运维的价值"></a>运维的价值</h2><p>以较小的成本，来支撑业务的高效稳定输出</p>
+<h2 id="运维工作要领"><a href="#运维工作要领" class="headerlink" title="运维工作要领"></a>运维工作要领</h2><ul>
+<li><p>对生产环境敬畏 -1</p>
+<ul>
+<li>任何时候要有备份。 重要系统要有备用环境，也即高可用</li>
+<li>要明白命令-操作背后的影响及回滚方式 (这个很难，要求你对所运维领域足够理解)</li>
+<li>变更操作前问一句:   我知道我在干嘛? </li>
+</ul>
+</li>
+<li><p>风险意识 很多 double check? - 2</p>
+<ul>
+<li>定期梳理所负责产品的可能风险<ul>
+<li>负载 ?  流量？ </li>
+<li>机器?</li>
+<li>备份是否按既定策略执行正?</li>
+</ul>
+</li>
+<li>演练</li>
+</ul>
+</li>
+<li><p>工具化 产品化 - 3</p>
+<ul>
+<li>脏活累活</li>
+<li>软件工程在发展过程中， 会出现各种工具，产品。 如果你有一直维护的工具。那么思考将其产品化</li>
+<li>开源-也是产品化的思路</li>
+</ul>
+</li>
+<li><p>故障ONCALL 及定位 - 4</p>
+<ul>
+<li>个人觉得最体现运维综合素质的能力</li>
+<li>如果上面 1， 2 做好了 。故障会少。 3做好了可能给你的故障排查带来便利</li>
+<li>故障一定要复盘。哪怕再小？<ul>
+<li>响应步骤是否合理</li>
+<li>哪里阻碍了？ 知识不够</li>
+</ul>
+</li>
+<li>实际的生产故障处理更重要的能力是快速恢复<ul>
+<li>对于用户忍耐度有限的重点业务, 重要的能力<strong>定界</strong>能力，并且定出大概范围，通过重启/切流/降流来减少用户影响实乃最重要的点。 </li>
+<li>定位根因: 需要在平常创造事后定位的条件  - 功夫在平时<ul>
+<li>日志全</li>
+<li>指标曲线全</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>运维人始终需要关注的东西:</p>
+<blockquote>
+<p>组件， 架构， 技术栈一直在变 。  运维人需要保持学习。 从稳定性目标考虑我们需要关注不变的东西</p>
+</blockquote>
+<ul>
+<li>日志</li>
+<li>指标</li>
+<li>跟踪</li>
+<li>事件</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

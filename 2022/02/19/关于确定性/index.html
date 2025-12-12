@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        关于确定性 |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="『信息是用来消除随机不确定性的东西』    -  Shannon 香农关于这个关于信息的定义很震撼 ! 最近家人住院有关医保流程的事，有个较深的感触。 异地医保需要备案，但是我只能打电话去当地备案，备案好了。我一直心存疑虑，我到底备案成功了么，我的身份证号有没有报错等。 这个疑虑一直到办理出院时，医保结算一直失败。这是我猜想可能是备案时出了问题。于是打电话确认了一般，将职工医保换成城乡医保之后，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于确定性">
+<meta property="og:url" content="https://shunzhou.me/2022/02/19/%E5%85%B3%E4%BA%8E%E7%A1%AE%E5%AE%9A%E6%80%A7/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="『信息是用来消除随机不确定性的东西』    -  Shannon 香农关于这个关于信息的定义很震撼 ! 最近家人住院有关医保流程的事，有个较深的感触。 异地医保需要备案，但是我只能打电话去当地备案，备案好了。我一直心存疑虑，我到底备案成功了么，我的身份证号有没有报错等。 这个疑虑一直到办理出院时，医保结算一直失败。这是我猜想可能是备案时出了问题。于是打电话确认了一般，将职工医保换成城乡医保之后，">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-02-19T14:59:45.000Z">
+<meta property="article:modified_time" content="2024-02-19T11:08:40.600Z">
+<meta property="article:author" content="zs1621">
+<meta property="article:tag" content="运维">
+<meta property="article:tag" content="信息">
+<meta property="article:tag" content="确定性">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">关于确定性</h1>
+    <time id="post-date" datetime="2022-02-19T14:59:45.000Z">
+        二月 19, 2022
+    </time>
+    <div id="post-content" class="markdown-body">
+        <p>『信息是用来消除随机不确定性的东西』    -  Shannon</p>
+<p>香农关于这个关于信息的定义很震撼 !</p>
+<p>最近家人住院有关医保流程的事，有个较深的感触。 异地医保需要备案，但是我只能打电话去当地备案，备案好了。我一直心存疑虑，我到底备案成功了么，我的身份证号有没有报错等。 这个疑虑一直到办理出院时，医保结算一直失败。这是我猜想可能是备案时出了问题。于是打电话确认了一般，将职工医保换成城乡医保之后， 出院医保结算正常。 其实之前我也打电话问了，关于医保类型填错了的问题， 但是接电话的工作人员告诉我没事的，只要备案登记了就 好了。。  这种对信息的认知有问题会导致连续的错误以及焦虑。 这里我们假设，这个备案系统是线上的， 我能看到备案记录， 这会极大增加我的确定性。当然它也支持修改。 那么这段时间的焦虑以及结算时错误的时间成本， 结算不行带来的焦虑都可以减少。最近都在说数字化转型，此时我觉得能体会到数字化转型的痛点了。 </p>
+<p>再谈到我的工作，关于平时的运维工作， 运维人员需要确定性。所以我们需要拼命学习各种工具， 框架， 知识。 做所有的操作时，我们想知道这个操作执行后的结果。 想要一个非常确定的结果。为了知道这个确定结果，有两种思路。1. 读懂命令的文档，在网上搜索其可能会出现的结果。综合推理得出一个相对确定的结果  2.  模拟一个和线上一样的环境，自己操作一遍，来观察操作后的现象。 有点类似实验行为。   这两种思路比较适用非常高危的操作。 大部分情况，我们要搜索操作相关的信息， 然后推理分析来得出一个相对靠谱的结论。 这就是为了获得其确定性。</p>
+<p>工作中还有一部分事务是编程。编程也想要确定性，想知道其预期结果。所以有了测试。 测试能较少编程的不确定性 。 我们知道错误越早暴露，修复成本越低。所以对代码进行尽可能多的测试，会减少成本。而且这个确定性能极大减少程序员的心智负担。 前面提到的运维工作， 其实在故障和线上操作时的心智负担更重。 我目前作为运维工程师的个人职责中有写到，致力于减少运维人员的心智负担。 这个写得有些大，但我觉得是一件有价值且有挑战的事 !</p>
+<p>【update-20220410】<a href="https://weibo.com/1727858283/Ljvv75q62" target="_blank" rel="noopener">https://weibo.com/1727858283/Ljvv75q62</a>  如果你的工作能够减少别人的不确定性, 必然是有价值的。具体点:  减少 boss 的不确定性~~</p>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        node-thunkify Code Reading |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="##thunkify ##code function thunkify(fn) {     assert(&#39;function&#39; &#x3D;&#x3D; typeof fn, &#39;function required&#39;);          return function () {         var args &#x3D; slice.call(arguments);">
+<meta property="og:type" content="article">
+<meta property="og:title" content="node-thunkify Code Reading">
+<meta property="og:url" content="https://shunzhou.me/2014/05/21/node-thunkify-code-reading/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="##thunkify ##code function thunkify(fn) {     assert(&#39;function&#39; &#x3D;&#x3D; typeof fn, &#39;function required&#39;);          return function () {         var args &#x3D; slice.call(arguments);">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2014-05-21T04:02:00.000Z">
+<meta property="article:modified_time" content="2024-02-18T23:57:54.460Z">
+<meta property="article:author" content="zs1621">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">node-thunkify Code Reading</h1>
+    <time id="post-date" datetime="2014-05-21T04:02:00.000Z">
+        五月 21, 2014
+    </time>
+    <div id="post-content" class="markdown-body">
+        <p>##<a href="https://github.com/visionmedia/node-thunkify" target="_blank" rel="noopener">thunkify</a></p>
+<p>##code</p>
+<pre><code>function thunkify(fn) {
+    assert(&#39;function&#39; == typeof fn, &#39;function required&#39;);    
+
+    return function () {
+        var args = slice.call(arguments);    
+        var ctx = this;
+        return function (done) {   // done 是回调函数
+            var called;
+            args.push(function() {
+                if (called) return;
+                called = true;    
+                done.apply(null, arguments); 
+            }); // 将回调处理加入参数列表
+
+            try {
+                fn.apply(ctx, args);   // 函数处理 
+            } catch (err) {
+                done(err);   // 异常获取并用回调处理 
+            }
+        }
+    }
+};</code></pre><p>##例子</p>
+<pre><code>var thunkify = require(&#39;thunkify&#39;);
+var fs = require(&#39;fs&#39;);
+
+
+var read = thunkify(fs.readFile);
+
+read(&#39;package.json&#39;, &#39;utf8&#39;)(function(err, str){
+});</code></pre>
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

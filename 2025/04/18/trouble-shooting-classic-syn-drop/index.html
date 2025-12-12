@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        经典syn丢包问题排查 |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="背景 auth&#x2F;base服务迁移到新虚机(5.4.x  kernel)  现象 auth&#x2F;base服务偶现 请求 console.devops.xxxx.com 80 端口超时现象  排查排除机器性能问题 从监控看没有性能问题，怀疑可能机器性能不够导致丢包. 从nginx日志看上线后来自这2个服务请求量是之前2倍+   操作  将console.devops.xxxx.com nginx机器从2C">
+<meta property="og:type" content="article">
+<meta property="og:title" content="经典syn丢包问题排查">
+<meta property="og:url" content="https://shunzhou.me/2025/04/18/trouble-shooting-classic-syn-drop/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="背景 auth&#x2F;base服务迁移到新虚机(5.4.x  kernel)  现象 auth&#x2F;base服务偶现 请求 console.devops.xxxx.com 80 端口超时现象  排查排除机器性能问题 从监控看没有性能问题，怀疑可能机器性能不够导致丢包. 从nginx日志看上线后来自这2个服务请求量是之前2倍+   操作  将console.devops.xxxx.com nginx机器从2C">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-04-17T16:44:42.000Z">
+<meta property="article:modified_time" content="2025-12-11T16:49:36.836Z">
+<meta property="article:author" content="zs1621">
+<meta property="article:tag" content="网络">
+<meta property="article:tag" content="丢包">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">经典syn丢包问题排查</h1>
+    <time id="post-date" datetime="2025-04-17T16:44:42.000Z">
+        四月 18, 2025
+    </time>
+    <div id="post-content" class="markdown-body">
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><blockquote>
+<p>auth/base服务迁移到新虚机(5.4.x  kernel)</p>
+</blockquote>
+<h2 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h2><blockquote>
+<p>auth/base服务偶现 请求 console.devops.xxxx.com 80 端口超时现象</p>
+</blockquote>
+<h2 id="排查"><a href="#排查" class="headerlink" title="排查"></a>排查</h2><h3 id="排除机器性能问题"><a href="#排除机器性能问题" class="headerlink" title="排除机器性能问题"></a>排除机器性能问题</h3><blockquote>
+<p>从监控看没有性能问题，怀疑可能机器性能不够导致丢包. 从nginx日志看上线后来自这2个服务请求量是之前2倍+</p>
+</blockquote>
+<ul>
+<li><p>操作</p>
+<blockquote>
+<p>将console.devops.xxxx.com nginx机器从2C4G 升级到4C8G , 且机器也重启了</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="重现问题排除网络问题"><a href="#重现问题排除网络问题" class="headerlink" title="重现问题排除网络问题"></a>重现问题排除网络问题</h3><blockquote>
+<p>通过源端telnet 10.103.x.vip 80 其实就能很好的重现问题。</p>
+<p>目标段抓包 也能比较明显的看到目标段收到syn包后没有回包。说明问题是出在目标段，排除网络问题</p>
+</blockquote>
+<h3 id="排除VIP问题"><a href="#排除VIP问题" class="headerlink" title="排除VIP问题"></a>排除VIP问题</h3><ul>
+<li><p>打通auth/base 到 10.103.x.a/b 实际ip并做了硬解析</p>
+<blockquote>
+<p> 硬解析后， 超时的问题出现少了。但是base服务还是会超时。 auth服务没有发生超时。</p>
+<p> 当然我们知道问题并没有解决， 因为telnet 10.103.x.b 80 仍然有问题。</p>
+<p> 09:07:00.261785 IP 10.103.x.c.53560 &gt; 10.103.x.b.80: Flags [S], seq 730499767, win 64240, options [mss 1460,sackOK,TS val 1341202159 ecr 0,nop,wscale 7], length 0<br> 09:07:01.311726 IP 10.103.x.c.53560 &gt; 10.103.x.b.80: Flags [S], seq 730499767, win 64240, options [mss 1460,sackOK,TS val 1341203210 ecr 0,nop,wscale 7], length 0<br> 09:07:03.359850 IP 10.103.x.c.53560 &gt; 10.103.x.b.80: Flags [S], seq 730499767, win 64240, options [mss 1460,sackOK,TS val 1341205258 ecr 0,nop,wscale 7], length 0<br> 09:07:07.391755 IP 10.103.x.c.53560 &gt; 10.103.x.b.80: Flags [S], seq 730499767, win 64240, options [mss 1460,sackOK,TS val 1341209290 ecr 0,nop,wscale 7], length 0<br> 09:07:15.839834 IP 10.103.x.c.53560 &gt; 10.103.x.b.80: Flags [S], seq 730499767, win 64240, options [mss 1460,sackOK,TS val 1341217738 ecr 0,nop,wscale 7], length 0<br> 09:07:32.224230 IP 10.103.x.c.53560 &gt; 10.103.x.b.80: Flags [S], seq 730499767, win 64240, options [mss 1460,sackOK,TS val 1341234122 ecr 0,nop,wscale 7], length 0<br> 09:08:04.480167 IP 10.103.x.c.53560 &gt; 10.103.x.b.80: Flags [S], seq 730499767, win 64240, options [mss 1460,sackOK,TS val 1341266378 ecr 0,nop,wscale 7], length 0<br> 09:08:04.480213 IP 10.103.x.b.80 &gt; 10.103.x.c.53560: Flags [S.], seq 1265105279, ack 730499768, win 28960, options [mss 1460,sackOK,TS val 1335626468 ecr 1341266378,nop,wscale 7], length 0</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="确定问题"><a href="#确定问题" class="headerlink" title="确定问题"></a>确定问题</h3><blockquote>
+<p>通过10.103.x.c 机器重现问题</p>
+<p>源地址系统内核版本:  5.4.247</p>
+<p>目标nginx内核版本:  3.10.0</p>
+</blockquote>
+<h4 id="重现步骤"><a href="#重现步骤" class="headerlink" title="重现步骤"></a>重现步骤</h4><ul>
+<li><p>开3个窗口 </p>
+</li>
+<li><p>窗口1（docker 容器内）: </p>
+<blockquote>
+<p>容器内的source-ip 是做了SNAT 的 </p>
+</blockquote>
+</li>
+<li><pre><code>docker run -it artifacts.xxxxx.com/docker-repo/library/busybox:latest /bin/sh</code></pre></li>
+<li><p>窗口2(主机): </p>
+<pre><code>telnet 10.103.x.b 80</code></pre></li>
+<li><p>窗口1</p>
+<pre><code>telnet 10.103.x.b 80 失败</code></pre></li>
+<li><p>nginx服务器:</p>
+<pre><code>tcpdump -i eth0 -nn  &quot;tcp and  host 10.103.x.c and  port 80 and (tcp[tcpflags] &amp; 2 != 0)&quot;</code></pre><blockquote>
+<p>可以观察到syn 包一直在发， 没有syn-ack包</p>
+</blockquote>
+</li>
+<li><p>nginx服务器修改 tcp_recyle</p>
+<pre><code>#/etc/sysctl.conf
+net.ipv4.tcp_tw_recycle = 0
+net.ipv4.tcp_timestamps = 1
+
+sysctl -p
+
+sysctl -a | grep tw_recy</code></pre></li>
+<li><p>再次重现出现不了syn包被丢弃的现象</p>
+</li>
+</ul>
+<h4 id="分析-为什么丢包"><a href="#分析-为什么丢包" class="headerlink" title="[分析]为什么丢包"></a>[分析]为什么丢包</h4><p>服务端的内核参数 net.ipv4.tcp_tw_recycle 和 net.ipv4.tcp_timestamps 的值都为 1时，服务器会检查每一个 SYN报文中的时间戳（Timestamp，跟同一ip下最近一次 FIN包时间对比），若 Timestamp 不是递增的关系，就扔掉这个SYN包</p>
+<p>那也就是说虽然在窗口1 和 窗口B  都是在相同主机， 但是前者是容器网络， 后者实主机网络， 他们访问10.103.x.b 80。所生成的 tcp timestamp不是严格递增的。</p>
+<p>回到线上确实是模拟的这种场景。 auth/base是容器网络， 还有其他服务是主机网络， 但是他们都会访问 console.devops.xxx.com </p>
+<h4 id="基于重现步骤总结"><a href="#基于重现步骤总结" class="headerlink" title="基于重现步骤总结"></a>基于重现步骤总结</h4><blockquote>
+<p>基于重现了问题看可以确定是</p>
+<p>net.ipv4.tcp_tw_recycle = 1<br>net.ipv4.tcp_timestamps = 1</p>
+<p>这两个内核参数的作用下。 来自同一个NAT -ip的syn包因为TSVal 值比之前的Fin TSVal值小导致的丢包 </p>
+<p>这两个内核参数的作用下。 来自同一个NAT -ip的syn包因为TSVal 值比之前的Fin TSVal值小导致的丢包 </p>
+</blockquote>
+<h2 id="再深入一步，怎么观测到"><a href="#再深入一步，怎么观测到" class="headerlink" title="再深入一步，怎么观测到"></a>再深入一步，怎么观测到</h2><h3 id="基于systemTap"><a href="#基于systemTap" class="headerlink" title="基于systemTap"></a>基于systemTap</h3><ul>
+<li>基于重现步骤我们在目标段可以抓到如下的包</li>
+</ul>
+<blockquote>
+<ol>
+<li><p>16:37:56.290959 IP 10.103.x.c.56564 &gt; 10.103.x.b.80: Flags [S], seq 2325280669, win 64240, options [mss 1460,sackOK,TS val 2098268712 ecr 0,nop,wscale 7], length 0</p>
+</li>
+<li><p>16:37:56.291007 IP 10.103.x.b.80 &gt; 10.103.x.c.56564: Flags [S.], seq 185803862, ack 2325280670, win 28960, options [mss 1460,sackOK,TS val 1103418279 ecr 2098268712,nop,wscale 7], length 0</p>
+</li>
+<li><p>16:37:56.291614 IP 10.103.x.c.56564 &gt; 10.103.x.b.80: Flags [.], ack 1, win 502, options [nop,nop,TS val 2098268713 ecr 1103418279], length 0</p>
+</li>
+<li><p>16:38:02.862396 IP 10.103.x.c.56564 &gt; 10.103.x.b.80: Flags [P.], seq 1:6, ack 1, win 502, options [nop,nop,TS val 2098275284 ecr 1103418279], length 5: HTTP</p>
+</li>
+<li><p>16:38:02.862434 IP 10.103.x.b.80 &gt; 10.103.x.c.56564: Flags [.], ack 6, win 227, options [nop,nop,TS val 1103424851 ecr 2098275284], length 0</p>
+</li>
+<li><p>16:38:02.862754 IP 10.103.x.b.80 &gt; 10.103.x.c.56564: Flags [P.], seq 1:326, ack 6, win 227, options [nop,nop,TS val 1103424851 ecr 2098275284], length 325: HTTP: HTTP/1.1 400 Bad Request</p>
+</li>
+<li><p>16:38:02.862777 IP 10.103.x.b.80 &gt; 10.103.x.c.56564: Flags [F.], seq 326, ack 6, win 227, options [nop,nop,TS val 1103424851 ecr 2098275284], length 0</p>
+</li>
+<li><p>16:38:02.863024 IP 10.103.x.c.56564 &gt; 10.103.x.b.80: Flags [.], ack 326, win 500, options [nop,nop,TS val 2098275285 ecr 1103424851], length 0</p>
+</li>
+<li><p>16:38:02.863261 IP 10.103.x.c.56564 &gt; 10.103.x.b.80: Flags [F.], seq 6, ack 327, win 501, options [nop,nop,TS val <em>2098275285</em> ecr 1103424851], length 0</p>
+</li>
+<li><p>16:38:02.863274 IP 10.103.x.b.80 &gt; 10.103.x.c.56564: Flags [.], ack 7, win 227, options [nop,nop,TS val 1103424851 ecr 2098275285], length 0</p>
+</li>
+</ol>
+<ol start="11">
+<li>16:38:10.624991 IP 10.103.x.c.34496 &gt; 10.103.x.b.80: Flags [S], seq 1325490191, win 64240, options [mss 1460,sackOK,TS val 1109072523 ecr 0,nop,wscale 7], length 0</li>
+<li>16:38:11.646833 IP 10.103.x.c.34496 &gt; 10.103.x.b.80: Flags [S], seq 1325490191, win 64240, options [mss 1460,sackOK,TS val 1109073546 ecr 0,nop,wscale 7], length 0</li>
+<li>16:38:13.695027 IP 10.103.x.c.34496 &gt; 10.103.x.b.80: Flags [S], seq 1325490191, win 64240, options [mss 1460,sackOK,TS val 1109075594 ecr 0,nop,wscale 7], length 0</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>上面的包 </p>
+<p>1-10 是正常的一次telnet 的包</p>
+<p>11-13  是目标端不断收到syn 包， 因为源端没有收到syn-ack导致 源端按照1,2,4..时间间隔重复发送syn包   </p>
+<p>通过这个包我们知道问题是出现在这台机器 ， 因为他没有发送syn-ack回包 </p>
+<p>成功的syn包 TSVal:  2098275285  结合下面的systemtap脚本 可以看到 上次的tcp tsval 是来自 10.103.x.c- ip的最后一次Fin 包里的 TS val<br>失败的syn包 TSVal:  1109072523</p>
+</blockquote>
+<ul>
+<li><p>可观测手段基于systemtap 脚本观测到的</p>
+<pre><code class="check.stap">global tm_tcpm_ts
+
+probe begin {
+        printf(&quot;Starting detecting...\n&quot;)
+}
+
+// $tm can&#39;t read in function tcp_peer_is_proven in our envirionment (kernel 3.10.0-693.11.1.el7.x86_64).
+// So the alternative way is read it from another function tcpm_check_stamp which is called in tcp_peer_is_proven.
+probe kernel.function(&quot;tcpm_check_stamp&quot;).return {
+    tm_tcpm_ts = $tm-&gt;tcpm_ts;
+}
+
+// Print tm-&gt;tcpm_ts, req-&gt;ts_recent, their delta and return code. 
+probe kernel.function(&quot;tcp_peer_is_proven&quot;).return {
+    //tm_tcpm_ts = @cast(tcp_get_metrics_req($req, $dst), &quot;struct tcp_metrics_block&quot;)-&gt;tcpm_ts;
+    if ($return==0) {
+        printf(&quot;tm-&gt;tcpm_ts:\t%d\treq-&gt;ts_recent:\t%d\tdelta:%d\treturn:\t%d\n&quot;,
+            tm_tcpm_ts,
+            $req-&gt;ts_recent,
+            (tm_tcpm_ts - $req-&gt;ts_recent),
+            $return);
+    }
+}
+</code></pre>
+<pre><code># stap  check.stap
+Starting detecting...
+# 1109072523 &lt; 2098275285 导致被丢包
+tm-&gt;tcpm_ts:    2098275285    req-&gt;ts_recent:    1109072523    delta:989202762    return:    0
+tm-&gt;tcpm_ts:    2098275285    req-&gt;ts_recent:    1109073546    delta:989201739    return:    0
+tm-&gt;tcpm_ts:    2098275285    req-&gt;ts_recent:    1109075594    delta:989199691    return:    0</code></pre></li>
+</ul>
+<h3 id="可观测2"><a href="#可观测2" class="headerlink" title="可观测2"></a>可观测2</h3><blockquote>
+<p>通过netstat， 经过此次问题之后我们目前将netstat 几个可能导致丢包都采集了, nginx入口机器建议都采集 </p>
+</blockquote>
+<pre><code>netstat -s | grep &quot;passive connections rejected because of time stamp&quot;  也能看到增加</code></pre><h2 id="解决方案及结论"><a href="#解决方案及结论" class="headerlink" title="解决方案及结论"></a>解决方案及结论</h2><blockquote>
+<p>源机器：内核 5.4.247 目标机器:  内核 3.10.x<br>源机器docker 容器 host 和 容器 bridge 两种模式同时请求  目标机器， 会触发 syn包被丢弃</p>
+</blockquote>
+<ul>
+<li>解决:</li>
+</ul>
+<pre><code># 目标机器禁用 tcp_tw_recyle  ，注意此参数在linux  4.12之后已经被移出了
+#/etc/sysctl.conf
+net.ipv4.tcp_tw_recycle = 0
+net.ipv4.tcp_timestamps = 1
+
+sysctl -p
+
+sysctl -a | grep tw_recy</code></pre>
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

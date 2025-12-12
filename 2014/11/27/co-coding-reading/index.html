@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        co Coding Reading |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="##co  最近co从版本3.1.0 -&gt; 4.0.0 主要改动在与 thunk -&gt; promise, 详情见stop advocating thunks,version 4.0.0 目前仍然支持thunk  主题 理解co原理   co对我来说理解比较困难，这个教程看起来不错, 但是需要知道这篇教程是针对3.1.0,但是原理是以一样的参考 理解co co原理理解2   了解thun">
+<meta property="og:type" content="article">
+<meta property="og:title" content="co Coding Reading">
+<meta property="og:url" content="https://shunzhou.me/2014/11/27/co-coding-reading/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="##co  最近co从版本3.1.0 -&gt; 4.0.0 主要改动在与 thunk -&gt; promise, 详情见stop advocating thunks,version 4.0.0 目前仍然支持thunk  主题 理解co原理   co对我来说理解比较困难，这个教程看起来不错, 但是需要知道这篇教程是针对3.1.0,但是原理是以一样的参考 理解co co原理理解2   了解thun">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2014-11-27T02:15:56.000Z">
+<meta property="article:modified_time" content="2024-02-18T23:57:54.460Z">
+<meta property="article:author" content="zs1621">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">co Coding Reading</h1>
+    <time id="post-date" datetime="2014-11-27T02:15:56.000Z">
+        十一月 27, 2014
+    </time>
+    <div id="post-content" class="markdown-body">
+        <p>##<a href="https://github.com/tj/co" target="_blank" rel="noopener">co</a></p>
+<blockquote>
+<p>最近co从版本3.1.0 -&gt; 4.0.0 主要改动在与 thunk -&gt; promise, 详情见<a href="https://github.com/tj/co/issues/143" target="_blank" rel="noopener">stop advocating thunks</a>,version 4.0.0 目前仍然支持thunk</p>
+</blockquote>
+<h2 id="主题"><a href="#主题" class="headerlink" title="主题"></a>主题</h2><ul>
+<li>理解co原理</li>
+</ul>
+<ul>
+<li>co对我来说理解比较困难，这个教程看起来不错, 但是需要知道这篇教程是针对3.1.0,但是原理是以一样的<br>参考 <a href="http://www.html-js.com/article/Nodejs-commonly-used-modules-detailed-address-correction-in-Pyramid-Harmony-Generator-yield-ES6-CO-framework-of-learning" target="_blank" rel="noopener">理解co</a></li>
+<li><a href="http://boke.io/gao-ding-koa-zhi-coyuan-ma/" target="_blank" rel="noopener">co原理理解2</a></li>
+</ul>
+<ul>
+<li>了解thunk,promise<ul>
+<li>所有的这些都源于<a href="http://callbackhell.com/" target="_blank" rel="noopener">callbackhell</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="promise"><a href="#promise" class="headerlink" title="promise"></a>promise</h3><pre><code>先放几个链接</code></pre><ul>
+<li><a href="htpps://promisesaplus.com/">promise/A+</a></li>
+<li><a href="http://mweb.baidu.com/p/promise-introduction.html" target="_blank" rel="noopener">百度无线</a></li>
+<li><a href="https://github.com/alsotang/node-lessons/tree/master/lesson17" target="_blank" rel="noopener">github</a> </li>
+</ul>
+<p>   TBC</p>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

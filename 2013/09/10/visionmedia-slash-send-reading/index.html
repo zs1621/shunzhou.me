@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        visionmedia/send Reading |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="send入口 exports &#x3D; module.exports &#x3D; send;send 函数返回 SendStream 构造函数 function send(req, path, options) {     return new SendStream(req, path, options); }来看SendStream  参数  req 即 request path : string 路径 op">
+<meta property="og:type" content="article">
+<meta property="og:title" content="visionmedia&#x2F;send Reading">
+<meta property="og:url" content="https://shunzhou.me/2013/09/10/visionmedia-slash-send-reading/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="send入口 exports &#x3D; module.exports &#x3D; send;send 函数返回 SendStream 构造函数 function send(req, path, options) {     return new SendStream(req, path, options); }来看SendStream  参数  req 即 request path : string 路径 op">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2013-09-09T16:41:00.000Z">
+<meta property="article:modified_time" content="2024-02-18T23:57:54.460Z">
+<meta property="article:author" content="zs1621">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">visionmedia/send Reading</h1>
+    <time id="post-date" datetime="2013-09-09T16:41:00.000Z">
+        九月 10, 2013
+    </time>
+    <div id="post-content" class="markdown-body">
+        <p><strong><code>send</code>入口</strong></p>
+<pre><code>exports = module.exports = send;</code></pre><p><strong><code>send</code> 函数返回 <code>SendStream</code> 构造函数</strong></p>
+<pre><code>function send(req, path, options) {
+    return new SendStream(req, path, options);
+}</code></pre><p><strong>来看<code>SendStream</code></strong></p>
+<ul>
+<li>参数 <ul>
+<li>req 即 <code>request</code></li>
+<li>path : <code>string</code> 路径</li>
+<li>options: </li>
+</ul>
+</li>
+</ul>
+<pre><code>function SendStream(req, path, options) {
+    ....
+}</code></pre><ul>
+<li>继承 <code>Stream.prototype</code></li>
+</ul>
+<pre><code>SendStream.prototype.__proto__ = Stream.prototype;</code></pre><ul>
+<li><p>下面都是 <code>SendStream</code> 原型链的方法</p>
+<ul>
+<li>hidden: 赋值 this._hidden, return this</li>
+<li>index: 赋值默认的 index <code>path</code>, this._index, return this</li>
+<li>root: 赋值根路径,  this._root </li>
+<li>maxage: 赋值最大缓存时间 , this._maxage</li>
+<li>error: 根据<code>status</code>-&gt;触发<code>error</code></li>
+<li>redirect: 如果有监听事件<code>directory</code>的监听者 那么触发<code>directory</code></li>
+<li>isMalicious: 检测<code>pathname</code>是否有潜在的问题,判断方法如果 没有<code>_root</code>且 <code>path</code>包含<code>..</code> 那么 就是有异常的路径;</li>
+<li>hasTrailingSlash: 判断路径最后一位是不是<code>/</code></li>
+<li>hasLeadingDot: 就是文件是否有后缀 形如<code>aa.html</code></li>
+<li>isCachable: 是否缓存， 判断方法 <code>(res.statusCode &gt;= 200 &amp;&amp; res.statusCode &lt; 300) || 304 == res.statusCode</code></li>
+<li>isFresh: 判断缓存是否是新的 判断方法 引用模块 <code>fresh</code></li>
+<li>removeContentHeaderFields 去除包含 <code>content</code>的头 <code>key</code></li>
+<li>onStatError: </li>
+</ul>
+</li>
+<li><p>主体方法 <code>pipe</code> , 参数 <code>res</code></p>
+<pre><code>var self = this
+, args = arguments
+, path = this.path
+, root = this._root
+</code></pre></li>
+</ul>
+<p>this.res = res;<br>//判断uri的有效性<br>path = utils.decode(path);<br>if (-1 == path) return this.error(400);</p>
+<p>//如果<code>path</code>里包含<code>\0</code> ，表明<code>path</code>为空<br>if (~path.indexOf(‘\0’)) return this.error(400);</p>
+<p>//连接 this._root 和 path<br>if (root) path = normalize(join(this._root, path));</p>
+<p>//如果异常路径禁止访问<br>if (this.isMalicious()) return this.error(403);</p>
+<p>//此时<code>path</code>已经是 <code>this._root</code>和 <code>path</code>的结合, 所以此种情况不会出现,如果有root<br>if (root &amp;&amp; 0 != path.indexOf(root)) return this.error(403)</p>
+<p>//如果_hidden为<code>false</code>,那么不支持隐藏文件，此时文件如果以<code>.</code>开头那么就不支持<br>if (!this._hidden &amp;&amp; this.hasLeadingDot()) return this.error(404);</p>
+<p>//index 文件支持<br>if (this._index &amp;&amp; this.hasTrailingSlash()) path += this._index</p>
+<p>//最后看path 的信息<br>fs.stat(path, function(err, stat){<br>    if (err) return self.onStatError(err); //上面已介绍<br>    if (stat.isDirectory) return self.redirect(self.path); //见上<br>    self.emit(‘file’, path, stat); //见下<br>    self.send(path, stat);//见下<br>});</p>
+<pre><code>  - 方法 **`send`**
+    - path: 路径
+    - stat: 文件状态
+</code></pre><p>var options = this.options;<br>var len = stat.size;<br>var res = this.res;<br>var req = this.req;<br>var ranges = req.headers.range; //截取部分文件之用<br>var offset = options.start || 0;</p>
+<p>//赋值header<br>this.setHeader(stat);</p>
+<p>//赋值 content-type<br>this.type(path);</p>
+<p>//条件 GET 支持, isFresh() 见 <a href="https://github.com/visionmedia/node-fresh/blob/master/index.js" target="_blank" rel="noopener">fresh</a><br>if (this.isConditionGET()<br>&amp;&amp; this.isCachable()<br>&amp;&amp; this.isFresh()) {<br>    return this.notModified();<br>}</p>
+<p>//<br>len = Math.max(0, len - offset);<br>if (options.end != undefined) {<br>    var bytes = options.end - offset + 1;<br>    if (len &gt; bytes) len = bytes;<br>}</p>
+<p>// Range 支持<br>if (ranges) {<br>    …<br>}</p>
+<p>// content-length<br>res.setHeader(‘Content-Length’, len);</p>
+<p>// HEAD support<br>if (‘HEAD’ == req.method) return res.end();</p>
+<p>this.stream(path, options); //见下</p>
+<pre><code>
+  - 方法 `stream`
+    - 参数
+       - path : 路径
+       - options
+</code></pre><p>var self = this;<br>var res = this.res;<br>var req = this.req;</p>
+<p>//pipe 把流数据加入 <code>res</code>管道<br>var stream = fs.createReadStream(path, options);<br>this.emit(‘stream’, stream);<br>stream.pipe(res);</p>
+<p>//socket 关闭， </p>
+<p>req.on(‘close’, stream.destroy.bind(stream));</p>
+<p>//error处理<br>steam.on(‘error’, function(err){<br>    //不回复<br>    if (res._header) {<br>        console.error(err.stack);<br>        req.destroy();<br>        return;<br>    }<br>    erro.status = 500;<br>    self.emit(‘error’, err);<br>});</p>
+<p>//end<br>stream.on(‘end’, function(){<br>    self.emit(‘end’);<br>});</p>
+<pre><code>
+</code></pre>
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

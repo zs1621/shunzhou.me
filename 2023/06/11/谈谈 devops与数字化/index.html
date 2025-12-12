@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        谈谈devops与数字化 |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="什么是devops  我们看下侠义的 devops 定义，可以先看下 Apple 的 devops 岗位的介绍    简介  We are passionate about continuously improving how we enable the software development lifecycle and opening up the boundaries to reinvent">
+<meta property="og:type" content="article">
+<meta property="og:title" content="谈谈devops与数字化">
+<meta property="og:url" content="https://shunzhou.me/2023/06/11/%E8%B0%88%E8%B0%88%20devops%E4%B8%8E%E6%95%B0%E5%AD%97%E5%8C%96/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="什么是devops  我们看下侠义的 devops 定义，可以先看下 Apple 的 devops 岗位的介绍    简介  We are passionate about continuously improving how we enable the software development lifecycle and opening up the boundaries to reinvent">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-06-11T07:36:09.000Z">
+<meta property="article:modified_time" content="2024-02-19T11:08:40.611Z">
+<meta property="article:author" content="zs1621">
+<meta property="article:tag" content="信息">
+<meta property="article:tag" content="devops">
+<meta name="twitter:card" content="summary">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">谈谈devops与数字化</h1>
+    <time id="post-date" datetime="2023-06-11T07:36:09.000Z">
+        六月 11, 2023
+    </time>
+    <div id="post-content" class="markdown-body">
+        <h3 id="什么是devops"><a href="#什么是devops" class="headerlink" title="什么是devops"></a>什么是devops</h3><blockquote>
+<ol>
+<li>我们看下侠义的 devops 定义，可以先看下 Apple 的 devops 岗位的介绍</li>
+</ol>
+</blockquote>
+<ul>
+<li>简介</li>
+</ul>
+<pre><code>We are passionate about continuously improving how we enable the software development lifecycle and opening up the boundaries to reinvent ground breaking solutions to engineering problems of scale. As a team member, you would develop applications and micro-services to build and improve our next-generation Build &amp; Test CI pipeline</code></pre><ul>
+<li>技能点<ul>
+<li>Proficient in Python programming</li>
+<li>Experience working on Unix/Linux-based platforms</li>
+<li>Experience with DevOps tools such as Chef, Docker, Kubernetes</li>
+<li>Experience with software development processes such as building, unit testing, code analysis, release process, and code coverage</li>
+<li>Experience with CI/CD process and platforms e.g., Jenkins</li>
+<li>Computer Science fundamentals (object-oriented design, data structures, algorithm design, and complexity analysis)</li>
+<li>Strong analytical and problem-solving skills</li>
+<li>Excellent written and oral communication skills and ability to work with large development teams</li>
+<li>Experience developing in an object-oriented programming language such as Swift (preferred), Java, C++</li>
+</ul>
+</li>
+</ul>
+<p>总结一下就是, 需要你对整个 CI/CD相关工具链熟悉, 方便你能够设计好的 pipeline(可能是个 devops平台, 或者是一系列的工具链)，来加速软件产品的交付。 一些大公司会建立自己一套 devops 平台,来涵盖从研发过程管理, 构建, 测试, 编译, 发布的整个流程。大部分中小公司会基于开源软件来走整个流程。建立平台当然需要工程师，那开发这个系统的人就是 devops 工程师。基于开源软件搭建这个流程，总需要人把各个开源软件串起来形成 pipeline。 那这个人就是 devops工程师。</p>
+<blockquote>
+<p>进一步定义 devops</p>
+<ol start="2">
+<li>一个好的工程师应该对自己开发的系统的整个生命周期负责。从设计文档(what, why, how), 代码质量, 可维护性等方面来维护自己开发的模块或系统。</li>
+</ol>
+</blockquote>
+<p>这样要求一个工程师的好处是什么？ </p>
+<p>最简单的责任制， 你需要对自己的过程，产物负责。</p>
+<ul>
+<li><p>因为自己开发的，自己会有考虑全面的动机</p>
+</li>
+<li><p>代码开发完的阶段自己可以 hold 住的话, 减少大量的信息同步(和测试同学的沟通， 和运维同学的沟通)</p>
+</li>
+</ul>
+<p>从上面2个 devops 的定义来说，其实本质上是减少沟通成本, 这确实也是实际工作中最大的成本。 进一步引申，devops 可以提高软件研发过程，上线过程确定性。  平台通过将过程内化到系统里来将过程规范化，确定化。 有devops 意识的工程师从源头进一步软件产物的确定性提高(代码质量，可维护性, 文档)。  </p>
+<p>这里又回到 Shannon对于信息的定义: 『信息是用来消除随机不确定性的东西』<em>关于信息确定性，可以看我之前的<a href="https://shunzhou.me/2022/02/19/%E5%85%B3%E4%BA%8E%E7%A1%AE%E5%AE%9A%E6%80%A7/">文章</a></em>。  我们进一步思考，为什么产生了 devops? 为什么所有企业都在谈数字化? 数字化本质上是信息规整化的过程, 把大量的人类生产过程转化为数字信息。承载数字信息的系统就需要大量的工程师去开发维护。那为了加速这些数字化系统的交付速度，就衍生出 devops 了。有了这些数字信息那么确定就会提高很多。举个例子</p>
+<p>支付宝把交易过程，简化了好多。 没有支付宝，淘宝我们怎么交易，有的人要反驳可用手机银行</p>
+<ol>
+<li>数字银行卡只是提供了钱的数字化，但是没有对产品的数字化，比如产品参数，别人的评价， 甚至产品体验(直播)。这些数字化的东西，提升了用户对产品的确定性， 加速了交易频率， 也让产品更快的触达消费者。</li>
+<li>支付宝是多个手机银行的集合。你是愿意用支付宝还是用多个银行的 app ?</li>
+</ol>
+<p>以前我会对抖音,头条这种谋杀时间的软件有成见，每天一刷就刷很长时间，没有创造任何东西。 现在看法改变了， 因为他通过推荐算法进一步提高了信息传播的效率。对于部分用户一刷刷很长时间，这些视频,文章确实从某种程度能帮助到他，另一方面比如化妆相关的产品（对李佳琦），直播实在是完美的表现形式。 衣服也是, 看图片是看不出什么的，你需要真人来演绎这些东西。这些东西都会增加人们对商品的确定性， 从而促进人们购物的意愿。这也是数字化的商业价值。最近2年，感受很深的是60+老人，比如我爸, 喜欢从抖音和拼多多购物，甚至成瘾。 整个网购从阿里巴巴 -&gt; 淘宝/京东 -&gt; 拼多多/抖音  。  这个场景覆盖的人群越来越下沉。</p>
+<p>上面只是从购物来展现数字化的价值。其他领域基本类似，数字化的需求是普遍需求， 那么对于devops的需求也是普遍需求。所以devops谈了多少年了，都聊烂了，但是一直没有过时, 因为纵使devops相关的工具链在变化，数字化的滚轮不会停止。</p>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>
