@@ -15,22 +15,22 @@
 <meta property="og:site_name" content="舜子">
 <meta property="og:description" content="问题现象: 质效SAE构建集群docker push 有小概率丢包  dial tcp 10.xxx.xxx.100:443 connect:  connection timed out 分析背景 拉起的pod执行 docker login&#x2F;push等操作会偶现超时，且docker是依赖宿主机docker  请求链路很简单如图 确认10.xxx.xxx.100 nginx下有没有收到请求 通过ng">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/traffic-chain.png">
-<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/14-drop.png">
-<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/100-packet-1.png">
-<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-2.png">
-<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-3.png">
-<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-4.png">
-<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-5.png">
-<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-6.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/traffic-chain.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/14-drop.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/100-packet-1.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/packet-2.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/packet-3.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/packet-4.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/packet-5.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/packet-6.png">
 <meta property="article:published_time" content="2025-07-16T11:10:50.000Z">
-<meta property="article:modified_time" content="2025-12-12T11:34:19.479Z">
+<meta property="article:modified_time" content="2025-12-12T12:06:19.313Z">
 <meta property="article:author" content="zs1621">
 <meta property="article:tag" content="k8s">
 <meta property="article:tag" content="网络">
 <meta property="article:tag" content="排障">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/2025-12-12-trouble-shooting-syc-ack-packet-drop/traffic-chain.png">
+<meta name="twitter:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/traffic-chain.png">
     
     
     
@@ -76,7 +76,7 @@
 <pre><code>dial tcp 10.xxx.xxx.100:443 connect:  connection timed out </code></pre><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><blockquote>
 <p>拉起的pod执行 docker login/push等操作会偶现超时，且docker是依赖宿主机docker</p>
 </blockquote>
-<p>请求链路很简单如图<br><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/traffic-chain.png" alt=""></p>
+<p>请求链路很简单如图<br><img src="./traffic-chain.png" alt=""></p>
 <h3 id="确认10-xxx-xxx-100-nginx下有没有收到请求"><a href="#确认10-xxx-xxx-100-nginx下有没有收到请求" class="headerlink" title="确认10.xxx.xxx.100 nginx下有没有收到请求"></a>确认10.xxx.xxx.100 nginx下有没有收到请求</h3><blockquote>
 <p>通过nginx日志排查，没有发现对应请求</p>
 </blockquote>
@@ -138,10 +138,10 @@ tcpdump host 10.103.10.xxx.xxx.100  -s200 -W 10 -C 10 -w yyy14.pcap &amp;
 # 目标端
 tcpdump host 10.yyy.yyy.14 -s200 -W 10 -C 10 -w xxx100.pcap &amp;</code></pre>
 <h3 id="复现后分析"><a href="#复现后分析" class="headerlink" title="复现后分析"></a>复现后分析</h3><ul>
-<li>14的包<br><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/14-drop.png" alt=""></li>
+<li>14的包<br><img src="./14-drop.png" alt=""></li>
 </ul>
 <ul>
-<li>100的包 通过114收到的来自10.xxx.xxx.100的syn-ack的 seq来找到对应的<br><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/100-packet-1.png" alt=""></li>
+<li>100的包 通过114收到的来自10.xxx.xxx.100的syn-ack的 seq来找到对应的<br><img src="./100-packet-1.png" alt=""></li>
 </ul>
 <blockquote>
 <p>基于上面2个包能够确认是 10.xxx.xxx.100在收到yyy.14的syn包后，其实是有回包， 回包也被yyy.14的tcpdump收到 说明,yyy.14收到syn-ack后 没有对此做ack。10.xxx.xxx.100会持续发送syn-ack直到超时</p>
@@ -172,9 +172,9 @@ done</code></pre>
 <h3 id="意外发现"><a href="#意外发现" class="headerlink" title="意外发现"></a>意外发现</h3><blockquote>
 <p>继续看抓包信息 无意间将 tcp.stream == 1463, 如下图，可以看到10.xxx.xxx.100 和 100.84.194.15 竟然发生交互了， 然后再次确认了下 seq numer也正是和 10.xxx.xxx.100发给10.yyy.yyy.14的syn-ack包。</p>
 </blockquote>
-<p><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-2.png" alt=""></p>
+<p><img src="./packet-2.png" alt=""></p>
 <p>我们看看这个ip是谁的?  </p>
-<p><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-3.png" alt=""></p>
+<p><img src="./packet-3.png" alt=""></p>
 <p>是另外一个节点的promethues 的 pod ip ?? 为啥 ??<br>(<em>这个时候如果对k8s比较熟练可能能找到原因。但是我并没有找到问题</em>)</p>
 <p>再理一理</p>
 <ol>
@@ -195,9 +195,9 @@ done</code></pre>
 如果匹配：根据调度算法从service关联的后端Pod中选择一个处理请求。
 如果不匹配： 返回 NF_ACCEPT，数据包继续由本机协议栈处理。
 本例中tcping的使用的随机端口与serivce nodeport重复，所以优先匹配了ipvs规则。
-见下图 的连接  PORT: 32410 , 就和 prometheus的 NodePort 重复。 导致 10.xxx.xxx.100 的syn-ack 被转到了  prometheus pod 9090端口了  </code></pre><p><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-4.png" alt=""></p>
-<p><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-5.png" alt=""></p>
-<p><img src="./2025-12-12-trouble-shooting-syc-ack-packet-drop/packet-6.png" alt=""></p>
+见下图 的连接  PORT: 32410 , 就和 prometheus的 NodePort 重复。 导致 10.xxx.xxx.100 的syn-ack 被转到了  prometheus pod 9090端口了  </code></pre><p><img src="./packet-4.png" alt=""></p>
+<p><img src="./packet-5.png" alt=""></p>
+<p><img src="./packet-6.png" alt=""></p>
 <p>这里找到这个异常包后当时只关注了那个ip, 如果关注下port，还是有一定概率可以找到nodeport 的问题</p>
 <h2 id="总结反思"><a href="#总结反思" class="headerlink" title="总结反思"></a>总结反思</h2><p>整个排查花了挺长时间， 主要时间花在重现，抓包， 定界上面。<br>从这个排查 我们可以学到一些定界手段</p>
 <ol>
