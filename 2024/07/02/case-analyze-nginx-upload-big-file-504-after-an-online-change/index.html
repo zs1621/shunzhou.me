@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        案例分析-服务上线后nginx-504的分析过程 |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="背景 一个封装jfrog接口的文件管理工具, 因为高可用改造, 从单节点变成双节点,因为服务依赖分布式存储，也引入了炎融云存储  问题 用户上传一个26g的文件 每次快到3小时就504了, 之前没有遇到过    链路如下   分析初步分析 504 Gateway 第一反应是后端服务执行超时了。 然后确认了下nginx  proxy_read_timeout 5400s &#x3D; 1.5hour 3小时大">
+<meta property="og:type" content="article">
+<meta property="og:title" content="案例分析-服务上线后nginx-504的分析过程">
+<meta property="og:url" content="https://shunzhou.me/2024/07/02/case-analyze-nginx-upload-big-file-504-after-an-online-change/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="背景 一个封装jfrog接口的文件管理工具, 因为高可用改造, 从单节点变成双节点,因为服务依赖分布式存储，也引入了炎融云存储  问题 用户上传一个26g的文件 每次快到3小时就504了, 之前没有遇到过    链路如下   分析初步分析 504 Gateway 第一反应是后端服务执行超时了。 然后确认了下nginx  proxy_read_timeout 5400s &#x3D; 1.5hour 3小时大">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240416055729789.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240416060003919.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240416061512681.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240414170311196.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240414170236160.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240416062724048.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240416062837535.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240416064939191.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240416065001098.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240416065847041.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240416065919551.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240416084214423.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240416084943885.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240416065718046.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240702062429018.png">
+<meta property="article:published_time" content="2024-07-01T22:05:28.000Z">
+<meta property="article:modified_time" content="2024-07-07T10:23:08.503Z">
+<meta property="article:author" content="zs1621">
+<meta property="article:tag" content="案例分析">
+<meta property="article:tag" content="nginx">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shunzhou.me/img/typro/image-20240416055729789.png">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">案例分析-服务上线后nginx-504的分析过程</h1>
+    <time id="post-date" datetime="2024-07-01T22:05:28.000Z">
+        七月 02, 2024
+    </time>
+    <div id="post-content" class="markdown-body">
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><blockquote>
+<p>一个封装jfrog接口的文件管理工具, 因为高可用改造, 从单节点变成双节点,因为服务依赖分布式存储，也引入了炎融云存储</p>
+</blockquote>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><blockquote>
+<p>用户上传一个26g的文件 每次快到3小时就504了, 之前没有遇到过</p>
+</blockquote>
+<p><img src="https://shunzhou.me/img/typro/image-20240416055729789.png" alt="image-20240416055729789"></p>
+<ul>
+<li>链路如下</li>
+</ul>
+<p><img src="https://shunzhou.me/img/typro/image-20240416060003919.png" alt="image-20240416060003919"></p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><h3 id="初步分析"><a href="#初步分析" class="headerlink" title="初步分析"></a>初步分析</h3><blockquote>
+<p>504 Gateway 第一反应是后端服务执行超时了。 然后确认了下nginx  proxy_read_timeout 5400s = 1.5hour</p>
+<p>3小时大于1.5 。 不匹配</p>
+</blockquote>
+<h2 id="重现"><a href="#重现" class="headerlink" title="重现"></a>重现</h2><blockquote>
+<p>研发同学说问题很好重现,  他的机器也有个26g的文件 , 于是趁着周末用的人少去重现了一把</p>
+<p>这种问题就老老实实一个节点一个节点的去分析 </p>
+</blockquote>
+<h3 id="nginx服务器"><a href="#nginx服务器" class="headerlink" title="nginx服务器"></a>nginx服务器</h3><p><img src="https://shunzhou.me/img/typro/image-20240416061512681.png" alt="image-20240416061512681"></p>
+<blockquote>
+<p>从上图能明显的看出来 用户上传用的时间很少  差不多9min, 11:52之后就是把收到的数据发送给java服务了</p>
+</blockquote>
+<p>可以通过lsof 和 strace 命令来验证这个逻辑 </p>
+<h4 id="upload-to-nginx-temp"><a href="#upload-to-nginx-temp" class="headerlink" title="upload to nginx temp"></a>upload to nginx temp</h4><p><img src="https://shunzhou.me/img/typro/image-20240414170311196.png" alt="image-20240414170311196"></p>
+<p><img src="https://shunzhou.me/img/typro/image-20240414170236160.png" alt="image-20240414170236160"></p>
+<blockquote>
+<p>上面2张图表示 nginx  从file fd 3  读数据并写到  file fd 4 也就是nginx的临时目录文件  </p>
+</blockquote>
+<h4 id="send-to-java-server"><a href="#send-to-java-server" class="headerlink" title="send to java server"></a>send to java server</h4><p><img src="https://shunzhou.me/img/typro/image-20240416062724048.png" alt="image-20240416062724048"></p>
+<p><img src="https://shunzhou.me/img/typro/image-20240416062837535.png" alt="image-20240416062837535"></p>
+<blockquote>
+<pre><code>sendfile - transfer data between file descriptors
+
+这里使用的是sendfile. 和nginx的配置对应。 sendfile on;
+
+上图能明显看出 temp 文件写完后，开始向java服务器传输数据 8u就是 nginx和java服务器之间建立socket连接描述符</code></pre></blockquote>
+<h3 id="java-服务"><a href="#java-服务" class="headerlink" title="java 服务"></a>java 服务</h3><h4 id="java-server-write-file-to-temp-file"><a href="#java-server-write-file-to-temp-file" class="headerlink" title="java server write file to temp file"></a>java server write file to temp file</h4><p><img src="https://shunzhou.me/img/typro/image-20240416064939191.png" alt="image-20240416064939191"></p>
+<p><img src="https://shunzhou.me/img/typro/image-20240416065001098.png" alt="image-20240416065001098"></p>
+<blockquote>
+<p>可以看到 从read from 783 write to 790  tomcat的一个临时文件 </p>
+</blockquote>
+<h4 id="save-to-upload-directory-ready-to-upload-jfrog"><a href="#save-to-upload-directory-ready-to-upload-jfrog" class="headerlink" title="save to upload directory , ready to upload jfrog"></a>save to upload directory , ready to upload jfrog</h4><p><img src="https://shunzhou.me/img/typro/image-20240416065847041.png" alt="image-20240416065847041"></p>
+<p><img src="https://shunzhou.me/img/typro/image-20240416065919551.png" alt="image-20240416065919551"></p>
+<blockquote>
+<p>看到这里 这是我们可以了解到 java 收到文件先写到本地临时文件 然后有read &amp; write 到 另外一个文件。首先这是不是合理的且不说。 因为之前了解到炎融云文件有性能问题 。 这里在这个文件服务里有3个io操作</p>
+<p>write [1]-&gt; read[2] -&gt; write[3] 。 在1完成后， nginx 和 java 是没有数据交互的。 此时java做 2 和3 步骤。 如果 2和3 做的时间超过 proxy_read_timeout的1.5小时。 那么必然会出现 504  </p>
+</blockquote>
+<p>那么随后的抓包能确认这个事</p>
+<ul>
+<li><p>nginx - java</p>
+<blockquote>
+<p>nginx 在timeout 之后 主动发给java  Fin 关闭连接， 25min之后 ， java程序完成了文件写过程， 发送给nginx 200. 此时nginx 肯定会 reset connect 。 我都关闭连接了 还发我干嘛~~ </p>
+</blockquote>
+</li>
+</ul>
+<p><img src="https://shunzhou.me/img/typro/image-20240416084214423.png" alt="image-20240416084214423"></p>
+<ul>
+<li><p>client - nginx</p>
+<blockquote>
+<p>nginx 返回客户端504 并发送 FIN 关闭连接  </p>
+</blockquote>
+</li>
+</ul>
+<p>​    <img src="https://shunzhou.me/img/typro/image-20240416084943885.png" alt="image-20240416084943885"></p>
+<h3 id="总结流程"><a href="#总结流程" class="headerlink" title="总结流程"></a>总结流程</h3><p><img src="https://shunzhou.me/img/typro/image-20240416065718046.png" alt="image-20240416065718046"></p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li><p>为什么用户之前没有504 ?</p>
+<blockquote>
+<p>因为之前的云硬盘读写性能相对更好， read + write  &lt; 5400s  。  </p>
+</blockquote>
+</li>
+</ul>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><ul>
+<li><p>炎融云性能问题</p>
+<blockquote>
+<p>存储团队开启cache配置后，  性能基本和云硬盘差不多了   client_cache_type = cache</p>
+</blockquote>
+</li>
+<li><p>代码不合理的地方, 文件上传到临时目录再转到目标目录, 从copy改为类似mv的操作</p>
+<p><img src="https://shunzhou.me/img/typro/image-20240702062429018.png" alt="image-20240702062429018"></p>
+</li>
+</ul>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>

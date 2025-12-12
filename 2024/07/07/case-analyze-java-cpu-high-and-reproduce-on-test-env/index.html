@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        案例分析-java-cpu高在测试环境完美重现的过程 |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="现象 线上服务ideploy(内部CICD的cd) cpu使用率突发升高基本保持在 85%+   机器A    机器B   分析告警是下午4点多发出的 , 收到告警后,  看监控很明显从 9:30 开始cpu就开始上升了,  公司一般8:30上班,  9点多流量会 对比一下平常的cpu曲线  怀疑1 今天有大量流量?通过elk拉取日志看 看了几天的数据发现 nginx请求两9:00-10:00之间">
+<meta property="og:type" content="article">
+<meta property="og:title" content="案例分析-java-cpu高在测试环境完美重现的过程">
+<meta property="og:url" content="https://shunzhou.me/2024/07/07/case-analyze-java-cpu-high-and-reproduce-on-test-env/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="现象 线上服务ideploy(内部CICD的cd) cpu使用率突发升高基本保持在 85%+   机器A    机器B   分析告警是下午4点多发出的 , 收到告警后,  看监控很明显从 9:30 开始cpu就开始上升了,  公司一般8:30上班,  9点多流量会 对比一下平常的cpu曲线  怀疑1 今天有大量流量?通过elk拉取日志看 看了几天的数据发现 nginx请求两9:00-10:00之间">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240701115230657.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240701115423483.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240701120852490.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240701122455391.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240701125332973.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240707180123274.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/Image_CGAA-CIKA-6FA0-SPE3.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240707173938390.png">
+<meta property="og:image" content="https://shunzhou.me/img/typro/image-20240701133038653.png">
+<meta property="article:published_time" content="2024-07-07T10:10:10.000Z">
+<meta property="article:modified_time" content="2024-07-07T10:20:48.016Z">
+<meta property="article:author" content="zs1621">
+<meta property="article:tag" content="案例分析">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="cpu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shunzhou.me/img/typro/image-20240701115230657.png">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">案例分析-java-cpu高在测试环境完美重现的过程</h1>
+    <time id="post-date" datetime="2024-07-07T10:10:10.000Z">
+        七月 07, 2024
+    </time>
+    <div id="post-content" class="markdown-body">
+        <h2 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h2><blockquote>
+<p>线上服务ideploy(内部CICD的cd) cpu使用率突发升高基本保持在 85%+</p>
+</blockquote>
+<ul>
+<li>机器A</li>
+</ul>
+<p><img src="https://shunzhou.me/img/typro/image-20240701115230657.png" alt="image-20240701115230657"></p>
+<ul>
+<li>机器B</li>
+</ul>
+<p><img src="https://shunzhou.me/img/typro/image-20240701115423483.png" alt="image-20240701115423483"></p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>告警是下午4点多发出的 , 收到告警后,  看监控很明显从 9:30 开始cpu就开始上升了,  公司一般8:30上班,  9点多流量会</p>
+<p>对比一下平常的cpu曲线</p>
+<p><img src="https://shunzhou.me/img/typro/image-20240701120852490.png" alt="image-20240701120852490"></p>
+<h3 id="怀疑1-今天有大量流量"><a href="#怀疑1-今天有大量流量" class="headerlink" title="怀疑1 今天有大量流量?"></a>怀疑1 今天有大量流量?</h3><p>通过elk拉取日志看</p>
+<p>看了几天的数据发现 nginx请求两9:00-10:00之间在150W左右,  今天日志请求两也在156W 。看起来入口流量正常 </p>
+<h3 id="怀疑2-可能是特殊的用户操作出发"><a href="#怀疑2-可能是特殊的用户操作出发" class="headerlink" title="怀疑2  可能是特殊的用户操作出发"></a>怀疑2  可能是特殊的用户操作出发</h3><h4 id="找到问题点"><a href="#找到问题点" class="headerlink" title="找到问题点"></a>找到问题点</h4><p>那就具体看这个进程到底在做啥?</p>
+<p>  top -Hp 163779</p>
+<blockquote>
+<p>观察一会发现占用cpu高的线程就那几个 ， 那就很明确了肯定是那几个线程导致的</p>
+</blockquote>
+<p><img src="https://shunzhou.me/img/typro/image-20240701122455391.png" alt="image-20240701122455391"></p>
+<p>进入容器导出 jstack  注意如果 jstack在容器里执行,  top -Hp 也需要进入容器执行</p>
+<pre><code>jstack -l 1 &gt; jstack.out</code></pre><p>进入容器执行 top -Hp 1 </p>
+<p><img src="https://shunzhou.me/img/typro/image-20240701125332973.png" alt="image-20240701125332973"></p>
+<p><img src="https://shunzhou.me/img/typro/image-20240707180123274.png" alt="image-20240707180123274"></p>
+<p>然后把所有cpu占用高的线程都找了下, 都是出现在这个堆栈</p>
+<h4 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h4><blockquote>
+<p>问题出现在连接一台机器执行命令 </p>
+<p>怀疑是下面的 while(true)   </p>
+<p>channel = session.openChannel(“exec”);</p>
+<p>InputStream in = channel.getInputSteam()</p>
+<p>channel是没有关闭的,   in.avaiable() == 0 的情况 就能触发死循环。</p>
+<p>此时研发想起来早上处理过一个用户的问题,  用户部署任务卡死的问题， 可能跟这个问题相关，</p>
+<p>确认下日志发现确实时间上吻合。 </p>
+</blockquote>
+<p><img src="https://shunzhou.me/img/typro/Image_CGAA-CIKA-6FA0-SPE3.png" alt="Image_CGAA-CIKA-6FA0-SPE3"></p>
+<h4 id="找用户排查"><a href="#找用户排查" class="headerlink" title="找用户排查"></a>找用户排查</h4><p>找到用户连的机器发现，机器进不去了,  ssh xxx 进去后就没有返回了。  这个和上面的分析很吻合， 可以建立链接，但是后面就没有返回了。  用户直接重启了机器后， 发现cpu还是没有下降。 </p>
+<h4 id="蓝绿部署将服务重启"><a href="#蓝绿部署将服务重启" class="headerlink" title="蓝绿部署将服务重启"></a>蓝绿部署将服务重启</h4><p>通过蓝绿切流量将2台机器的服务重启，释放卡死的线程。  cpu 恢复正常</p>
+<h2 id="问题重现"><a href="#问题重现" class="headerlink" title="问题重现"></a>问题重现</h2><blockquote>
+<p>虽然cpu恢复了，但是为了找到怎么触发的 还得需要在测试环境进行问题重现</p>
+</blockquote>
+<h3 id="模拟-网络延迟-120s"><a href="#模拟-网络延迟-120s" class="headerlink" title="模拟 网络延迟  120s"></a>模拟 网络延迟  120s</h3><blockquote>
+<p>通过blade  模拟  ideploy &lt;-&gt;  运行命令的机器  网络delay &gt; 120 s </p>
+</blockquote>
+<p>命令:</p>
+<pre><code># 部署机器里执行
+./blade create network  delay --interface eth0 --timeout 1200 --time 100000 --destination-ip ideploy-服务ip</code></pre><p>现象:  不能模拟cpu上升的情况, 但是打日志发现是此时程序执行的命令是 df  /deveops/xxx/xxx/xx 目录 来确认机器是否有足够的空间来部署 </p>
+<h3 id="模拟-df-deveops-卡住的情况"><a href="#模拟-df-deveops-卡住的情况" class="headerlink" title="模拟 df /deveops 卡住的情况"></a>模拟 df /deveops 卡住的情况</h3><h4 id="尝试-blade-模拟磁盘读读高负载的情况-未复现"><a href="#尝试-blade-模拟磁盘读读高负载的情况-未复现" class="headerlink" title="尝试 blade 模拟磁盘读读高负载的情况- 未复现"></a>尝试 blade 模拟磁盘读读高负载的情况- 未复现</h4><h4 id="模拟磁盘读性能下降-未复现"><a href="#模拟磁盘读性能下降-未复现" class="headerlink" title="模拟磁盘读性能下降 - 未复现"></a>模拟磁盘读性能下降 - 未复现</h4><blockquote>
+<p>此时求助 存储大佬。 大佬提供了一个好的命令可以限制硬盘的读写性能</p>
+<ul>
+<li><strong>blkio.throttle.read_bps_device</strong>：磁盘读取带宽限制</li>
+<li><strong>blkio.throttle.read_iops_device</strong>：磁盘读取IOPS限制</li>
+</ul>
+</blockquote>
+<ul>
+<li><p>命令</p>
+<pre><code># 查看对应磁盘编号，如253:16
+ll /dev/block/ | grep vdb
+# 限制读1 B/s
+echo &quot;253:16 1&quot; &gt;&gt; /sys/fs/cgroup/blkio/blkio.throttle.read_bps_device</code></pre></li>
+<li><p>现象:  限制了只有1b/s的读  还是没有重现cpu上升的情况， 但是这个命令超级好用， 还有个线上问题通过这个命令能够重现，后面有机会再分享</p>
+</li>
+</ul>
+<h4 id="将-deveops-挂载nfs网络盘-成功复现"><a href="#将-deveops-挂载nfs网络盘-成功复现" class="headerlink" title="将/deveops 挂载nfs网络盘 - 成功复现"></a>将/deveops 挂载nfs网络盘 - 成功复现</h4><blockquote>
+<p>nfs一般产线环境都不建议用， 一旦服务端出现问题， nfs客户端直接卡死 </p>
+<p>我们将 /deveops 挂载nfs 网络盘， 然后再利用blade 模拟 部署机器&lt;-&gt;nfs-server 的网络延迟180s </p>
+</blockquote>
+<ul>
+<li>重现命令:   </li>
+</ul>
+<pre><code>mount -t nfs xxxxx:/data/test1  /deveops
+
+./blade create network delay --interface eth0  --time 180000 --timeout 12000 --destination-ip xxxxxx</code></pre><ul>
+<li><p>现象:  <strong>成功重现 cpu 上升的情况</strong></p>
+<p> <img src="https://shunzhou.me/img/typro/image-20240707173938390.png" alt="image-20240707173938390"></p>
+</li>
+</ul>
+<p><img src="https://shunzhou.me/img/typro/image-20240701133038653.png" alt="image-20240701133038653"></p>
+<p>通过jstack 分析确实这两个线程都是卡在相同的位置</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>java cpu高思路 分析top -Hp xxx -&gt; jstack -l pid  -&gt; 找源码</li>
+<li>可以通过 nfs 盘来模拟 df /xxxx 卡住的情况</li>
+</ul>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>
