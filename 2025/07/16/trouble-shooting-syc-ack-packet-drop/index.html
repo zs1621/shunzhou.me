@@ -23,8 +23,9 @@
 <meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/packet-4.png">
 <meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/packet-5.png">
 <meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/packet-6.png">
+<meta property="og:image" content="https://shunzhou.me/2025/07/16/trouble-shooting-syc-ack-packet-drop/ipvs-workflow-within-netfilter.png">
 <meta property="article:published_time" content="2025-07-16T11:10:50.000Z">
-<meta property="article:modified_time" content="2025-12-12T12:06:19.313Z">
+<meta property="article:modified_time" content="2025-12-14T16:56:46.622Z">
 <meta property="article:author" content="zs1621">
 <meta property="article:tag" content="k8s">
 <meta property="article:tag" content="网络">
@@ -133,10 +134,10 @@ spec:
 <p>这里有个细节是因为pod是挂载了宿主机的/var/run/docker.sock 所以其实在pod容器内是抓不到包的。 直接在宿主机里抓即可</p>
 </blockquote>
 <pre><code class="bash"># 源端
-tcpdump host 10.103.10.xxx.xxx.100  -s200 -W 10 -C 10 -w yyy14.pcap &amp;
+tcpdump host 10.xxx.xxx.100  -s200 -W 10 -C 10 -w yyy.14.pcap &amp;
 
 # 目标端
-tcpdump host 10.yyy.yyy.14 -s200 -W 10 -C 10 -w xxx100.pcap &amp;</code></pre>
+tcpdump host 10.yyy.yyy.14 -s200 -W 10 -C 10 -w xxx.100.pcap &amp;</code></pre>
 <h3 id="复现后分析"><a href="#复现后分析" class="headerlink" title="复现后分析"></a>复现后分析</h3><ul>
 <li>14的包<br><img src="./14-drop.png" alt=""></li>
 </ul>
@@ -180,7 +181,7 @@ done</code></pre>
 <ol>
 <li>10.yyy.yyy.14 - syn - 10.xxx.xxx.100</li>
 <li>10.xxx.xxx.100 - syn-ack - 10.yyy.yyy.14</li>
-<li>10.yyy.yyy.14 收到了包 -&gt; tcpdump -&gt; iptable(netfilter) -&gt; 应用层 </li>
+<li>10.yyy.yyy.14 收到了包 -&gt; tcpdump -&gt; ipvs(netfilter) -&gt; 应用层 </li>
 </ol>
 <p>这时候只有1个猜测：</p>
 <ol>
@@ -188,7 +189,7 @@ done</code></pre>
 </ol>
 <p>因为客户端应用发起连接之后，<strong>三次握手是发生在内核里</strong>。跟应用就没关系了。 </p>
 <h3 id="找k8s集群维护方"><a href="#找k8s集群维护方" class="headerlink" title="找k8s集群维护方"></a>找k8s集群维护方</h3><blockquote>
-<p>这个专属集群是SAE帮忙建设的 , 摇到网络专家浩哥帮忙分析，将抓到的包和异常情况同步后 , 大佬很快找到根因</p>
+<p>这个专属集群是SAE帮忙建设的 , 摇到SAE网络专家浩哥帮忙分析，将抓到的包和异常情况同步后 , 大佬很快找到根因</p>
 </blockquote>
 <p>来自浩哥的分析：</p>
 <pre><code>IPVS使用NF_INET_LOCAL_IN钩子点，位于INPUT链之后的 LOCAL_IN 路径上。在数据包即将交给本机传输层协议栈处理之前，IPVS 的钩子函数被调用，检查报文的目标 IP:Port 是否匹配k8s的service地址(VIP:VPort)。
@@ -199,6 +200,29 @@ done</code></pre>
 <p><img src="./packet-5.png" alt=""></p>
 <p><img src="./packet-6.png" alt=""></p>
 <p>这里找到这个异常包后当时只关注了那个ip, 如果关注下port，还是有一定概率可以找到nodeport 的问题</p>
+<h3 id="理解IPVS"><a href="#理解IPVS" class="headerlink" title="理解IPVS"></a>理解IPVS</h3><blockquote>
+<p>k8s node port原理:  比如上面的prometheus node port 32410 创建后ipvs 会将访问32410端口的服务转到<br>pod ip </p>
+</blockquote>
+<pre><code class="bash">ipvsadm -L | grep 32410 -A 2
+
+TCP  node-10-yyy-yyy-14:32410 rr
+  -&gt; 100.83.90.56:9090           Masq    1      0          0         
+  -&gt; 100.84.194.15:9090          Masq    1      0          0 </code></pre>
+<p>如下图绿色部分</p>
+<blockquote>
+<p>通过iptable debug也能看到被劫持的地方 ,就是像浩哥分析的在INPUT链之后</p>
+</blockquote>
+<pre><code>kernel: target in raw.prerouting&gt;IN=bond0.111 OUT= MAC=80:61:5f:27:b7:dd:00:5e:ed:af:00:01:08:00 SRC=10.xxx.xx.100 DST=10.yyy.yyy.14 LEN=60 TOS=0x00 PREC=0x00 TTL=55 ID=4477 DF PROTO=TCP SPT=36766 DPT=32410 WINDOW=64240 RES=0x00 SYN URGP=0 ll-ipam-pools dst -j MASQUERADE
+kernel: target in mangle.prerouting&gt;IN=bond0.111 OUT= MAC=80:61:5f:27:b7:dd:00:5e:ed:af:00:01:08:00 SRC=10.xxx.xx.100 DST=10.yyy.yyy.14 LEN=60 TOS=0x00 PREC=0x00 TTL=55 ID=4477 DF PROTO=TCP SPT=36766 DPT=32410 WINDOW=64240 RES=0x00 SYN URGP=0 
+kernel: target in nat.prerouting&gt;IN=bond0.111 OUT= MAC=80:61:5f:27:b7:dd:00:5e:ed:af:00:01:08:00 SRC=10.xxx.xx.100 DST=10.yyy.yyy.14 LEN=60 TOS=0x00 PREC=0x00 TTL=55 ID=4477 DF PROTO=TCP SPT=36766 DPT=32410 WINDOW=64240 RES=0x00 SYN URGP=0 
+kernel: target in mangle.input&gt;IN=bond0.111 OUT= MAC=80:61:5f:27:b7:dd:00:5e:ed:af:00:01:08:00 SRC=10.xxx.xx.100 DST=10.yyy.yyy.14 LEN=60 TOS=0x00 PREC=0x00 TTL=55 ID=4477 DF PROTO=TCP SPT=36766 DPT=32410 WINDOW=64240 RES=0x00 SYN URGP=0 MARK=0x4000 
+kernel: target in filter.input&gt;IN=bond0.111 OUT= MAC=80:61:5f:27:b7:dd:00:5e:ed:af:00:01:08:00 SRC=10.xxx.xx.100 DST=10.yyy.yyy.14 LEN=60 TOS=0x00 PREC=0x00 TTL=55 ID=4477 DF PROTO=TCP SPT=36766 DPT=32410 WINDOW=64240 RES=0x00 SYN URGP=0 MARK=0x4000
+------------------------------- DNAT HAPPEN--------------------------------
+kernel: target in raw.output&gt;IN= OUT=bond0.111 SRC=10.xxx.xx.100 DST=100.84.194.15 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=4477 DF PROTO=TCP SPT=36766 DPT=9090 WINDOW=64240 RES=0x00 SYN URGP=0 MARK=0x104000 
+kernel: target in mangle.output&gt;IN= OUT=bond0.111 SRC=10.xxx.xx.100 DST=100.84.194.15 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=4477 DF PROTO=TCP SPT=36766 DPT=9090 WINDOW=64240 RES=0x00 SYN URGP=0 MARK=0x104000 
+kernel: target in filter.output&gt;IN= OUT=bond0.111 SRC=10.xxx.xx.100 DST=100.84.194.15 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=4477 DF PROTO=TCP SPT=36766 DPT=9090 WINDOW=64240 RES=0x00 SYN URGP=0 MARK=0x104000 
+kernel: target in mangle.postrouting&gt;IN= OUT=bond0.111 SRC=10.xxx.xx.100 DST=100.84.194.15 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=4477 DF PROTO=TCP SPT=36766 DPT=9090 WINDOW=64240 RES=0x00 SYN URGP=0 MARK=0x4000 
+kernel: target in nat.postrouting&gt;IN= OUT=bond0.111 SRC=10.xxx.xx.100 DST=100.84.194.15 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=4477 DF PROTO=TCP SPT=36766 DPT=9090 WINDOW=64240 RES=0x00 SYN URGP=0 MARK=0x4000 </code></pre><p><img src="./ipvs-workflow-within-netfilter.png" alt=""></p>
 <h2 id="总结反思"><a href="#总结反思" class="headerlink" title="总结反思"></a>总结反思</h2><p>整个排查花了挺长时间， 主要时间花在重现，抓包， 定界上面。<br>从这个排查 我们可以学到一些定界手段</p>
 <ol>
 <li>通过通知+tcpdump 滚动抓包来解决流量过大，抓不到特定包的问题</li>
