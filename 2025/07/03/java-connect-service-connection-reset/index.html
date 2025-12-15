@@ -22,7 +22,7 @@
 <meta property="og:image" content="https://shunzhou.me/2025/07/03/java-connect-service-connection-reset/cap-fix.png">
 <meta property="og:image" content="https://shunzhou.me/2025/07/03/java-connect-service-connection-reset/log.png">
 <meta property="article:published_time" content="2025-07-03T01:02:21.000Z">
-<meta property="article:modified_time" content="2025-12-15T01:29:06.906Z">
+<meta property="article:modified_time" content="2025-12-15T01:32:45.846Z">
 <meta property="article:author" content="zs1621">
 <meta property="article:tag" content="java">
 <meta property="article:tag" content="排障">
@@ -78,7 +78,7 @@
 <p>新上的服务deploy请求sae服务有偶现成功率66%</p>
 </blockquote>
 <h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><ul>
-<li>研发介入分析</li>
+<li>SRE介入分析</li>
 </ul>
 <p><img src="./rst.png" alt="img"></p>
 <ul>
@@ -89,13 +89,13 @@
 </li>
 <li><p>通过curl试图重现，重现不了</p>
 <pre><code>curl -X PUT &#39;http://sae-pre.xxxx.xxx.com/apis/helm.xxx.xxx.com/v1/projects/10279/clusters/453/namespaces/devops-test/releases/onecode-route&#39;   -H &#39;accept-encoding: gzip,deflate&#39;   -H &#39;authorization: Bearer xxxx&#39;   -H &#39;sw8: &#39;   -H &#39;sw8-correlation: &#39;   -H &#39;sw8-x: 0-&#39;   -H &#39;content-type: application/json&#39;   -H &#39;content-encoding: UTF-8&#39;   -H &#39;user-agent: Apache-HttpClient/4.5.14 (Java/1.8.0_342)&#39;   -d &#39;&#123;xxxx&#125;&#39;</code></pre></li>
-<li><p>SAE同学抓到RST的包 </p>
+<li><p>SAE同学抓到RST的包</p>
 <blockquote>
 <p>没有握手 只有应用侧突然发送的</p>
 </blockquote>
 <p><img src="./rst-1.png" alt="img"></p>
 </li>
-<li><p>继续抓包 期望抓到完整的包<br>抓到完整的包</p>
+<li><p>既然有RST, 肯定能抓到连接的包， 继续抓包,抓到完整的包</p>
 <p><img src="./cap.png" alt=""></p>
 <blockquote>
 <p>通过这个抓包能看到问题了</p>
@@ -110,7 +110,7 @@
 <p>通过上面的流程，说明应用侧还认为链接是还是存在的， 但是没有发生连接保活, 那么这个连接在接近3小时里大概率会被中间链路给丢弃掉， 后续应用侧还要发送包，对端自然会rst</p>
 </blockquote>
 <h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><h4 id="应用侧"><a href="#应用侧" class="headerlink" title="应用侧"></a>应用侧</h4><ul>
-<li><p>动作<br>研发同学主动关闭请求, 发起http请求增加了如下 参数 。<br><img src="./code-fix.png" alt=""></p>
+<li><p>动作<br>研发同学主动关闭请求, 发起http请求增加了如下参数 。<br><img src="./code-fix.png" alt=""></p>
 </li>
 <li><p>分析</p>
 <blockquote>
