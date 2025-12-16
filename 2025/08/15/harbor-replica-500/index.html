@@ -8,17 +8,17 @@
         
         舜子</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="现象 分析服务日志 很明显的服务报错  time&#x3D;&quot;2025-08-14T14:30:15.303948291Z&quot; level&#x3D;error msg&#x3D;&quot;response completed with error&quot; auth.user.name&#x3D;devops err.code&#x3D;unknown err.detail&#x3D;&quot;s3aws: Serializati">
+    <meta name="description" content="现象及背景 上海的机房(jfrog)需要分发制品到北京(harbor)分发出现报错   分析服务日志 很明显的服务报错  time&#x3D;&quot;2025-08-14T14:30:15.303948291Z&quot; level&#x3D;error msg&#x3D;&quot;response completed with error&quot; auth.user.name&#x3D;devops err.code&#x3D;un">
 <meta property="og:type" content="article">
 <meta property="og:title" content="jfrog分发到harbor-500错误">
 <meta property="og:url" content="https://shunzhou.me/2025/08/15/harbor-replica-500/">
 <meta property="og:site_name" content="舜子">
-<meta property="og:description" content="现象 分析服务日志 很明显的服务报错  time&#x3D;&quot;2025-08-14T14:30:15.303948291Z&quot; level&#x3D;error msg&#x3D;&quot;response completed with error&quot; auth.user.name&#x3D;devops err.code&#x3D;unknown err.detail&#x3D;&quot;s3aws: Serializati">
+<meta property="og:description" content="现象及背景 上海的机房(jfrog)需要分发制品到北京(harbor)分发出现报错   分析服务日志 很明显的服务报错  time&#x3D;&quot;2025-08-14T14:30:15.303948291Z&quot; level&#x3D;error msg&#x3D;&quot;response completed with error&quot; auth.user.name&#x3D;devops err.code&#x3D;un">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://shunzhou.me/2025/08/15/harbor-replica-500/replica-harbor.png">
 <meta property="og:image" content="https://shunzhou.me/2025/08/15/harbor-replica-500/docker-push.png">
 <meta property="article:published_time" content="2025-08-15T14:43:05.000Z">
-<meta property="article:modified_time" content="2025-12-15T14:59:02.801Z">
+<meta property="article:modified_time" content="2025-12-16T00:38:14.322Z">
 <meta property="article:author" content="zs1621">
 <meta property="article:tag" content="jfrog">
 <meta property="article:tag" content="s3">
@@ -64,15 +64,18 @@
         八月 15, 2025
     </time>
     <div id="post-content" class="markdown-body">
-        <h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p><img src="./replica-harbor.png" alt=""></p>
+        <h3 id="现象及背景"><a href="#现象及背景" class="headerlink" title="现象及背景"></a>现象及背景</h3><blockquote>
+<p>上海的机房(jfrog)需要分发制品到北京(harbor)<br>分发出现报错</p>
+</blockquote>
+<p><img src="./replica-harbor.png" alt=""></p>
 <h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><h4 id="服务日志"><a href="#服务日志" class="headerlink" title="服务日志"></a>服务日志</h4><blockquote>
 <p>很明显的服务报错</p>
 </blockquote>
 <pre><code>time=&quot;2025-08-14T14:30:15.303948291Z&quot; level=error msg=&quot;response completed with error&quot; auth.user.name=devops err.code=unknown err.detail=&quot;s3aws: SerializationError: failed to decode S3 XML error response
         status code: 404, request id: , host id:
-caused by: expected element type &lt;Error&gt; but have &lt;html&gt;&quot; err.message=&quot;unknown error&quot; go.version=go1.23.4 http.request.host=&quot;harbor-core:80&quot; http.request.id=b91d15b4-9743-4799-851a-1d573b5afa18 http.request.method=HEAD http.request.remoteaddr=100.116.135.20 http.request.uri=&quot;/v2/stc-docker-repo_127/stc-docker-repo/stc-docker/02-iflydata-dev/iddp/v3.8.2/1002/dp-hirule/blobs/sha256:5ad559c5ae16b8980924ceae7f7662d07740debd4467db19e69339926ec8f255&quot; http.request.useragent=harbor-registry-client http.response.contenttype=&quot;application/json; charset=utf-8&quot; http.response.duration=90.393743ms http.response.status=500 http.response.written=123 vars.digest=&quot;sha256:5ad559c5ae16b8980924ceae7f7662d07740debd4467db19e69339926ec8f255&quot; vars.name=&quot;stc-docker-repo_127/stc-docker-repo/stc-docker/02-iflydata-dev/iddp/v3.8.2/1002/dp-hirule</code></pre><h4 id="稳定重现"><a href="#稳定重现" class="headerlink" title="稳定重现"></a>稳定重现</h4><p>docker push  harbor-bj.xxxx.xxxx.com/stc-docker-repo_127/busybox:1.32<br>抓包分析</p>
+caused by: expected element type &lt;Error&gt; but have &lt;html&gt;&quot; err.message=&quot;unknown error&quot; go.version=go1.23.4 http.request.host=&quot;harbor-core:80&quot; http.request.id=b91d15b4-9743-4799-851a-1d573b5afa18 http.request.method=HEAD http.request.remoteaddr=100.116.135.20 http.request.uri=&quot;/v2/stc-docker-repo_127/stc-docker-repo/stc-docker/02-iflydata-dev/iddp/v3.8.2/1002/dp-hirule/blobs/sha256:5ad559c5ae16b8980924ceae7f7662d07740debd4467db19e69339926ec8f255&quot; http.request.useragent=harbor-registry-client http.response.contenttype=&quot;application/json; charset=utf-8&quot; http.response.duration=90.393743ms http.response.status=500 http.response.written=123 vars.digest=&quot;sha256:5ad559c5ae16b8980924ceae7f7662d07740debd4467db19e69339926ec8f255&quot; vars.name=&quot;stc-docker-repo_127/stc-docker-repo/stc-docker/02-iflydata-dev/iddp/v3.8.2/1002/dp-hirule</code></pre><h4 id="稳定重现"><a href="#稳定重现" class="headerlink" title="稳定重现"></a>稳定重现</h4><p>docker push  harbor-bj.xxxx.xxxx.com/stc-docker-repo_127/busybox:1.32</p>
 <ul>
-<li>错误包</li>
+<li>抓包分析: 错误包</li>
 </ul>
 <pre><code>GET /harbor/docker/registry/v2/repositories/stc-docker-repo_127/busybox/_layers/sha256/f531cdc67389c92deac44e019e7a1b6fba90d1aaa58ae3e8192f0e0eed747152/link HTTP/1.1
 Host: 172.xx.xxx.206:9020
@@ -126,7 +129,7 @@ date: Thu, 21 Aug 2025 04:32:24 GMT
 <li>确认  s3无403  通过在 registry 添加一个tcpdump 的sidecar 转包确认的<br>一顿排查 无果<br>搜索403报错<br>直接找到解决方案   <a target="_blank" rel="noopener" href="https://github.com/goharbor/harbor/issues/5656#issuecomment-1875146709">https://github.com/goharbor/harbor/issues/5656#issuecomment-1875146709</a></li>
 </ol>
 <h4 id="深入理解为啥会有403？-以及为什么之前的抓包抓不到呢"><a href="#深入理解为啥会有403？-以及为什么之前的抓包抓不到呢" class="headerlink" title="深入理解为啥会有403？ 以及为什么之前的抓包抓不到呢"></a>深入理解为啥会有403？ 以及为什么之前的抓包抓不到呢</h4><blockquote>
-<p>403报错<br>通过harbor代码分析 </p>
+<p>403报错<br>通过harbor代码分析 使用的是  harbor v2.12.2</p>
 </blockquote>
 <pre><code class="yaml">// /etc/registry/config.yml
 
