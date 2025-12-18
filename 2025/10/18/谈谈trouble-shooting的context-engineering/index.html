@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>
+        谈谈trouble-shooting的context-engineering |
+        
+        舜子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="背景 我们期望用上下文工程去做辅助排障   给到SRE可能的排障方向 给到SRE深入排障所需要的context  定义 context-engineering   @anthropic:  Context engineering refers to the set of strategies for curating and maintaining the optimal set of token">
+<meta property="og:type" content="article">
+<meta property="og:title" content="谈谈trouble-shooting的context-engineering">
+<meta property="og:url" content="https://shunzhou.me/2025/10/18/%E8%B0%88%E8%B0%88trouble-shooting%E7%9A%84context-engineering/">
+<meta property="og:site_name" content="舜子">
+<meta property="og:description" content="背景 我们期望用上下文工程去做辅助排障   给到SRE可能的排障方向 给到SRE深入排障所需要的context  定义 context-engineering   @anthropic:  Context engineering refers to the set of strategies for curating and maintaining the optimal set of token">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shunzhou.me/2025/10/18/%E8%B0%88%E8%B0%88trouble-shooting%E7%9A%84context-engineering/context-engineering.png">
+<meta property="article:published_time" content="2025-10-17T22:25:18.000Z">
+<meta property="article:modified_time" content="2025-12-18T01:44:48.734Z">
+<meta property="article:author" content="zs1621">
+<meta property="article:tag" content="方法论">
+<meta property="article:tag" content="context-engineering">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shunzhou.me/2025/10/18/%E8%B0%88%E8%B0%88trouble-shooting%E7%9A%84context-engineering/context-engineering.png">
+    
+    
+    
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/markdown.css">
+        
+            <link rel="stylesheet" href="https://shunzhou.me/css/july.css">
+        
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+
+<div id="banner-outer" class="hidden">
+    <div id="banner-image" style="background-image: url()"></div>
+    <img src="/images/head_pic.jpg" id="avatar">
+</div>
+
+<div id="menu-outer">
+    <div id="menu-inner">
+        
+            <a class="false" href="https://shunzhou.me/index.html">Home</a>
+        
+            <a class="false" href="https://shunzhou.me/archives/index.html">Archives</a>
+        
+            <a class="false" href="https://shunzhou.me/weekly/index.html">Weekly</a>
+        
+            <a class="false" href="https://shunzhou.me/about/index.html">About</a>
+        
+    </div>
+</div>
+
+<div id="content-outer" class="container">
+    <div id="content-inner">
+        <article id="post">
+    <h1 id="post-title">谈谈trouble-shooting的context-engineering</h1>
+    <time id="post-date" datetime="2025-10-17T22:25:18.000Z">
+        十月 18, 2025
+    </time>
+    <div id="post-content" class="markdown-body">
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><blockquote>
+<p>我们期望用上下文工程去做辅助排障</p>
+</blockquote>
+<ul>
+<li>给到SRE可能的排障方向</li>
+<li>给到SRE深入排障所需要的context</li>
+</ul>
+<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><ul>
+<li>context-engineering</li>
+</ul>
+<blockquote>
+<p>@anthropic:  Context engineering refers to the set of strategies for curating and maintaining the optimal set of tokens (information) during LLM inference, including all the other information that may land there outside of the prompts</p>
+</blockquote>
+<blockquote>
+<p>@anthropic:  llm推理过程中，管理和维护最佳的tokens(信息), 包括除了prompt以外可能出现的其他所有信息</p>
+</blockquote>
+<ul>
+<li>具体的策略见下图</li>
+</ul>
+<p><img src="./context-engineering.png" alt=""></p>
+<h2 id="排障-ONCALL-过程的上下文"><a href="#排障-ONCALL-过程的上下文" class="headerlink" title="排障(ONCALL)过程的上下文"></a>排障(ONCALL)过程的上下文</h2><h3 id="排障中涉及的TOOLS"><a href="#排障中涉及的TOOLS" class="headerlink" title="排障中涉及的TOOLS"></a>排障中涉及的TOOLS</h3><blockquote>
+<p>tools是ai-agent体系的核心</p>
+</blockquote>
+<blockquote>
+<p>你的排障的上下文质量取决于这些</p>
+</blockquote>
+<ul>
+<li><p>ssh (第一步)</p>
+</li>
+<li><p>云原生场景</p>
+<ul>
+<li>kubectl</li>
+<li>docker</li>
+<li>helm</li>
+<li>…</li>
+</ul>
+</li>
+<li><p>linux系统(各种cli工具)</p>
+<ul>
+<li>netstat</li>
+<li>ss</li>
+<li>iostat</li>
+<li>lsof</li>
+<li>iftop</li>
+<li>strace</li>
+<li>tcpdump</li>
+<li>perf</li>
+<li>ebpf</li>
+<li>…</li>
+</ul>
+</li>
+<li><p>各种语言的profiling工具</p>
+<blockquote>
+<p>这种一般需要SRE介入来分析了</p>
+</blockquote>
+<ul>
+<li>java: jmap</li>
+<li>java: jstack</li>
+<li>go: pprof</li>
+<li>python: py-spy等</li>
+</ul>
+</li>
+</ul>
+<h3 id="资源或流程类的上下文"><a href="#资源或流程类的上下文" class="headerlink" title="资源或流程类的上下文"></a>资源或流程类的上下文</h3><h4 id="告警信息"><a href="#告警信息" class="headerlink" title="告警信息"></a>告警信息</h4><blockquote>
+<p>告警信息可能包含多条</p>
+</blockquote>
+<h4 id="metrics及趋势"><a href="#metrics及趋势" class="headerlink" title="metrics及趋势"></a>metrics及趋势</h4><blockquote>
+<p>告警信息来源是metrics, 告警来了 我们都会去grafana 具体metrics的走势</p>
+</blockquote>
+<h4 id="事件：-变更事件"><a href="#事件：-变更事件" class="headerlink" title="事件： 变更事件"></a>事件： 变更事件</h4><blockquote>
+<p>应用本身及关联方有没有变更</p>
+</blockquote>
+<h4 id="【CMDB】告警对象及关联环境和链路"><a href="#【CMDB】告警对象及关联环境和链路" class="headerlink" title="【CMDB】告警对象及关联环境和链路"></a>【CMDB】告警对象及关联环境和链路</h4><blockquote>
+<p>这里主要指应用本身及其告警对象运行的环境，链路</p>
+</blockquote>
+<blockquote>
+<p>从告警对象 下钻的话 有告警对象本身， 以及告警对象以来的中间件, 以及基础设施(操作系统, k8s, 云, 物理机)</p>
+</blockquote>
+<blockquote>
+<p>基础设施还可以下钻到  各实体之间的网络连组件</p>
+</blockquote>
+<h4 id="【日志】"><a href="#【日志】" class="headerlink" title="【日志】"></a>【日志】</h4><blockquote>
+<p>告警对象的日志</p>
+</blockquote>
+<blockquote>
+<p>这里还要考虑，下钻过程我们所遇到的其他可疑组件的日志 </p>
+</blockquote>
+<h2 id="深入看下能给到大模型哪些Context"><a href="#深入看下能给到大模型哪些Context" class="headerlink" title="深入看下能给到大模型哪些Context"></a>深入看下能给到大模型哪些Context</h2><h3 id="组织tools和mcp的prompt"><a href="#组织tools和mcp的prompt" class="headerlink" title="组织tools和mcp的prompt"></a>组织tools和mcp的prompt</h3><blockquote>
+<p>就是组织一下排障思路 </p>
+</blockquote>
+<h3 id="tools使用"><a href="#tools使用" class="headerlink" title="tools使用"></a>tools使用</h3><blockquote>
+<p>上面列举的tools的output都需要 就是那张图片的memory</p>
+</blockquote>
+<h3 id="RAG-MCP"><a href="#RAG-MCP" class="headerlink" title="RAG/MCP"></a>RAG/MCP</h3><blockquote>
+<p> 我可以统一归纳为RAG 和 MCP</p>
+</blockquote>
+<h4 id="告警内容匹配"><a href="#告警内容匹配" class="headerlink" title="告警内容匹配"></a>告警内容匹配</h4><ul>
+<li><p>WHAT</p>
+<ul>
+<li><p>历史告警处理</p>
+</li>
+<li><p>混沌演练的告警内容</p>
+<blockquote>
+<p>如果有持续积累混沌演练场景, 那就非常好. 假设你的混沌演练覆盖了真实故障, 那是最快的</p>
+</blockquote>
+<blockquote>
+<p>混沌演练其实很重要，但是有一套混沌演练体系比较难.<br>当你需要大量的异常场景数据做微调模型时显得尤为重要</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>HOW</p>
+<blockquote>
+<p>这里就是期望有一些规范文档沉淀或者运维平台来沉淀这些信息</p>
+</blockquote>
+<blockquote>
+<p>我们目前在处理告警时，有一套文档规范来落地告警处理的经验积累</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="metrics"><a href="#metrics" class="headerlink" title="metrics"></a>metrics</h4><ul>
+<li><p>WHAT</p>
+<ul>
+<li>grafana dashborad</li>
+<li>grafana prometheus metrics</li>
+</ul>
+</li>
+<li><p>HOW </p>
+<blockquote>
+<p>通过mcp方式获取prometheus metrics</p>
+</blockquote>
+<blockquote>
+<p>比较重要的是 不同时间周期的metics趋势</p>
+</blockquote>
+<blockquote>
+<p>对于图片识别比较强的模型, 可以直接给到grafana渲染的趋势图 </p>
+</blockquote>
+</li>
+</ul>
+<h4 id="CMDB"><a href="#CMDB" class="headerlink" title="CMDB"></a>CMDB</h4><ul>
+<li><p>WAHT</p>
+<ul>
+<li>k8s: pod, deployment, svc</li>
+<li>物理机</li>
+<li>虚机</li>
+</ul>
+</li>
+<li><p>HOW</p>
+<blockquote>
+<p>这里和应用部署环境强相关如果是k8s 体系可以直接用 <a target="_blank" rel="noopener" href="https://github.com/containers/kubernetes-mcp-server">k8s-mcp</a></p>
+</blockquote>
+<blockquote>
+<p>如果部署环境是企业内部的私有云, 可能需要自己开发一个mcp来获取cmdb信息</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="变更事件"><a href="#变更事件" class="headerlink" title="变更事件"></a>变更事件</h4><ul>
+<li><p>WATH</p>
+<ul>
+<li>变更事件, 什么时间， 变更哪些组件</li>
+</ul>
+</li>
+<li><p>HOW</p>
+<blockquote>
+<p>这个是和自己的环境强相关的</p>
+</blockquote>
+<blockquote>
+<p>我们目前管理的k8s服务基于gitops来管理发版,那我的上下文就是代码库本身, 很方便</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="链路和日志"><a href="#链路和日志" class="headerlink" title="链路和日志"></a>链路和日志</h4><ul>
+<li><p>WHAT</p>
+<ul>
+<li>链路延迟</li>
+</ul>
+<blockquote>
+<p>基于链路看到依赖链路的错误率或者延迟</p>
+</blockquote>
+<ul>
+<li><p>错误日志</p>
+<blockquote>
+<p>告警时间范围内的错误日志分析， 对比历史同期是否是有新增的， 错误日志量级同比增长</p>
+</blockquote>
+</li>
+<li><p>基于错误日志去下钻下一个组件</p>
+<blockquote>
+<p> 继续收集context</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>HOW</p>
+<blockquote>
+<p>日志的话，如果有一个统一的收集，那基于这个组件找对应的MCP服务</p>
+</blockquote>
+<blockquote>
+<p>链路的话, 我们使用skywalking，官方有一个对应的mcp</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote>
+<p>我们理解了排障(ONCALL)所需要的上下文，后续就是组织这些上下文来做基于智能体的排障工具</p>
+</blockquote>
+<blockquote>
+<p>下篇文章我们会说下我们的探索细节</p>
+</blockquote>
+
+    </div>
+</article>
+
+<div>
+    
+    ...
+    <section>
+      <div id="gitalk-container"></div>
+    </section>
+
+    <link rel="stylesheet" href="https://shunzhou.me/css/gitalk.css">
+<script src="https://shunzhou.me/js/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '01408711d79d72f03315',
+        clientSecret: '0b1e26de8a8688910ce255ee16fae48fed927aa4',
+        accessToken: '997eb7f03bafcfef0d6b3030543c5a6e903fb771',
+        id: md5(window.location.pathname),
+        repo: 'shunzhou.me',
+        owner: 'zs1621',
+        admin: 'zs1621',
+        distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+</script>
+</div>
+
+<div id="paginator">
+    
+</div>
+
+
+    </div>
+</div>
+
+<div id="bottom-outer">
+    <div id="bottom-inner">
+        2019-2025 zs1621 
+    </div>
+</div>
+
+<div id="to-top">
+    <i class="iconfont icon-up"></i>
+</div>
+
+
+    
+        <script src="https://shunzhou.me/js/jquery-3.4.1.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/highlight-11.9.0.min.js"></script>
+    
+        <script src="https://shunzhou.me/js/transition.js"></script>
+    
+        <script src="https://shunzhou.me/js/smooth-scroll.min.js"></script>
+    
+
+
+
+    <script>
+      $(function () {
+        $('#banner-outer').addClass('fade-out')
+        $('#menu-outer').addClass('fade-show')
+
+        $('pre').each(function (i, block) {
+          hljs.highlightBlock(block);
+        });
+      })
+    </script>
+
+
+<script>
+  $(function () {
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 150) {
+        $("#to-top").fadeIn();
+      } else {
+        $("#to-top").fadeOut();
+      }
+    });
+    $("#to-top").click(function () {
+      $("body,html").animate({scrollTop: 0}, 500);
+      return false;
+    })
+  })
+</script>
+</body>
+</html>
