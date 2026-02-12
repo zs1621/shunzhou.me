@@ -3,4 +3,4 @@ title: about
 date: 2020-01-22 18:09:39
 ---
 
-娃奴, 喜读书, 喜🏊🏻🏃🏻🚴
+DO THE RIGHT THING, AND DO THINGS RIGHT!

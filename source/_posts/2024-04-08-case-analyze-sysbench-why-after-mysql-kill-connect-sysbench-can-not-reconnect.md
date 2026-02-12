@@ -365,7 +365,7 @@ tcpdump -i lo -w normal_mysql_connect_nossl.cap
 
 首先用 strace -p Sysbench-pid 看看 Sysbench 进程都在忙什么，下图最上面是 Sysbench 在疯狂不断地 connect：
 
-![img](https://article-images.zsxq.com/Fu6HCLGULDBM7zxbAbvjAiTQqJAN)
+![img](https://shunzhou.me/img/typro/Fu6HCLGULDBM7zxbAbvjAiTQqJAN)
 
 从上图最上面的Strace 来看 Sysbench在疯狂创建连接，但是在Connect 的时候报错：**无法指定被请求的地址**
 
@@ -392,7 +392,7 @@ tcpdump -i lo -w normal_mysql_connect_nossl.cap
 
 继续折腾验证：
 
-![img](https://article-images.zsxq.com/Fn4xvS0MCqX6CEl-ZDv798KnyB0w)
+![img](https://shunzhou.me/img/typro/Fn4xvS0MCqX6CEl-ZDv798KnyB0w)
 
 
 
@@ -436,7 +436,7 @@ tcpdump -i lo -w normal_mysql_connect_nossl.cap
 
 如何进一步证明是Sysbench的问题呢？这又回到了我们的老本行抓包：
 
-![img](https://article-images.zsxq.com/FnzXVOOJp-vzwAdushDM9HmP_nkM)
+![img](https://shunzhou.me/img/typro/FnzXVOOJp-vzwAdushDM9HmP_nkM)
 
 上图是在 Sysbench 所在ECS 上抓包可以看到大量这样的连接，注意第四个包是 Server端在3次握手成功后发了 Server Greeting 给Sysbench，此时Sysbench应该发自己的账号密码来 Login但是抓包永远卡在这里，也就是Sysbench 建立完连接后跑了，不搭理服务端发了什么，这也是为什么最前面的 netstat -anto 看到 Recv-Q 这列总是79，这79长度的内容就是 Server 发给Sysbench 的 Server Greeting 内容，应该Sysbench去读走然后按照MySQL 协议发账号密码，但是不，此时Sysbench 颠了，不管这个连接了，又去创建新连接于是重复上面的过程；直到本地端口用完，sys CPU 干到 100%
 
@@ -448,7 +448,7 @@ tcpdump -i lo -w normal_mysql_connect_nossl.cap
 
 你要看不懂这个抓包，可以找个正常的MySQL-client 连 Server抓一次包，有个正常的对比会很幸福，我丢一个正常的给大家对比参考，上面错在 Sysbench 没有发如下红框的包：
 
-![img](https://article-images.zsxq.com/FqnYYzopMqEd98ZTEfhNgCfKJIoI)
+![img](https://shunzhou.me/img/typro/FqnYYzopMqEd98ZTEfhNgCfKJIoI)
 
 
 
@@ -502,7 +502,7 @@ Server 一重启就去看 netstat 的话确实都是 ESTABLISHED：
 
 此时端口还够的时候去strace 看到Sysbench 确实在疯狂 connect 建连接，也不像端口不够的时候会报错：
 
-![img](https://article-images.zsxq.com/Fjv88qhDY-CndnaQb_5J119E85e6)
+![img](https://shunzhou.me/img/typro/Fjv88qhDY-CndnaQb_5J119E85e6)
 
 到这里就可以回答：什么原因会导致 CLOSE_WAIT 状态？因为Sysbench 没有去正常 Login MySQL，也没有调用 [Socket.close](http://socket.close/) 导致的
 
